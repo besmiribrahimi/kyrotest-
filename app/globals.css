@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@tailwind utilities;
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #0f172a;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --btn-black-bg: #000000;
+  --btn-black-text: #ffffff;
+  --btn-black-border: #000000;
+  --btn-outline-bg: #ffffff;
+  --btn-outline-text: #000000;
+  --btn-outline-border: #cbd5e1;
+  --btn-outline-hover-bg: #000000;
+  --btn-outline-hover-text: #ffffff;
+  --brand-blue: #003478;
+  --badge-bg: rgba(0, 52, 120, 0.05);
+  --badge-text: #003478;
+  --border-color: #e2e8f0;
+  --input-bg: #f8fafc;
+  --input-text: #0f172a;
+  --input-border: #cbd5e1;
+  --logo-text: #000000;
+  --sub-text: #475569;
+  --panel-bg: #f8fafc;
+}
+
+html.dark {
+  --bg-color: #020a18;
+  --text-color: #f8fafc;
+  --card-bg: #0b1528;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  --btn-black-bg: #ffffff;
+  --btn-black-text: #020a18;
+  --btn-black-border: #ffffff;
+  --btn-outline-bg: transparent;
+  --btn-outline-text: #ffffff;
+  --btn-outline-border: rgba(255, 255, 255, 0.8);
+  --btn-outline-hover-bg: #ffffff;
+  --btn-outline-hover-text: #020a18;
+  --brand-blue: #0066ff;
+  --badge-bg: rgba(0, 102, 255, 0.1);
+  --badge-text: #38bdf8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --input-bg: #070d19;
+  --input-text: #ffffff;
+  --input-border: rgba(255, 255, 255, 0.15);
+  --logo-text: #ffffff;
+  --sub-text: #cbd5e1;
+  --panel-bg: #070d19;
+}
+
+@theme {
+  --breakpoint-xs: 25rem;
+
+  --color-koryo-white: var(--card-bg);
+  --color-koryo-black: var(--bg-color);
+  --color-koryo-blue: var(--brand-blue);
+  --color-off-white: var(--panel-bg);
+  --color-slate-surface: var(--input-bg);
+  --color-border-light: var(--border-color);
+  --color-background: var(--bg-color);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family:
+    var(--font-outfit),
+    var(--font-tajawal),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Luxury Dark Glassmorphic Card Aesthetic */
+.koryo-card-white {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.koryo-card-white-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.koryo-card-white-hover:hover {
+  border-color: var(--brand-blue);
+  box-shadow: 0 12px 40px rgba(0, 102, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Primary Black CTA Button (Vibrant blue/black hover in dark mode) */
+.koryo-btn-black {
+  background-color: var(--btn-black-bg);
+  color: var(--btn-black-text);
+  font-weight: 800;
+  border: 1px solid var(--btn-black-border);
+  transition: all 0.25s ease;
+}
+
+.koryo-btn-black:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* White Outline CTA Button (Vibrant outline in dark mode) */
+.koryo-btn-white-outline {
+  background-color: var(--btn-outline-bg);
+  color: var(--btn-outline-text);
+  font-weight: 800;
+  border: 1.5px solid var(--btn-outline-border);
+  transition: all 0.25s ease;
+}
+
+.koryo-btn-white-outline:hover {
+  background-color: var(--btn-outline-hover-bg);
+  color: var(--btn-outline-hover-text);
+}
+
+/* Tiny Badge Accent */
+.koryo-accent-badge {
+  background-color: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--card-border);
+}
