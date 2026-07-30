@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useLanguage } from "@/lib/i18n";
 import { MapPin, Mail, Phone, Globe, ShieldCheck } from "lucide-react";
 import { siteConfig } from "@/lib/seo";
@@ -15,9 +16,15 @@ export default function Footer() {
           
           {/* Logo & Social Links */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0066ff] font-black text-white text-base tracking-tighter shadow-md">
-                AK
+            <Link href="/" className="flex items-center gap-3.5 group">
+              <div className="relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-white border border-slate-200/60 dark:border-white/10 shadow-md transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src="/logo.jpg"
+                  alt="Advanced Koryo Logo"
+                  fill
+                  sizes="40px"
+                  className="object-contain p-0.5"
+                />
               </div>
               <span className="text-xl font-black tracking-[0.2em] text-slate-900 dark:text-white uppercase font-sans">
                 ADVANCED KORYO
