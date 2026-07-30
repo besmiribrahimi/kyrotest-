@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import { Globe, Menu, X, PhoneCall, Sun, Moon } from "lucide-react";
-import Image from "next/image";
 
 export default function Header() {
   const { language, setLanguage, t, dir } = useLanguage();
@@ -43,14 +42,11 @@ export default function Header() {
         
         {/* Logo and Brand Title */}
         <Link href="/" className="flex items-center gap-3.5 group">
-          <div className="relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-white border border-slate-200/60 dark:border-white/10 shadow-md shadow-slate-100/50 dark:shadow-none transition-transform duration-300 group-hover:scale-105">
-            <Image
+          <div className="relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-white border border-slate-200/60 dark:border-white/10 shadow-md shadow-slate-100/50 dark:shadow-none transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
+            <img
               src="/logo.jpg"
               alt="Advanced Koryo Logo"
-              fill
-              sizes="40px"
-              className="object-contain p-0.5"
-              priority
+              className="h-full w-full object-contain p-0.5"
             />
           </div>
           <div className="flex flex-col">
