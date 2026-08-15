@@ -12,8 +12,10 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -82,7 +84,9 @@ export default function Header() {
             className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-white border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/30 transition-all shadow-sm"
             title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
           >
-            {theme === "light" ? (
+            {!mounted ? (
+              <span className="h-4 w-4 shrink-0 rounded-full bg-slate-200 dark:bg-slate-750 animate-pulse" />
+            ) : theme === "light" ? (
               <Moon className="h-4 w-4 text-slate-700" />
             ) : (
               <Sun className="h-4 w-4 text-amber-400" />

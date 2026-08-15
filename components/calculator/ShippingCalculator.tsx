@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import {
@@ -25,6 +25,8 @@ interface DestinationCountry {
   vatRate: number;
   currencySymbol: string;
   usdExchangeRate: number;
+  transitTimeEn?: string;
+  transitTimeAr?: string;
 }
 
 const DESTINATION_COUNTRIES: DestinationCountry[] = [
@@ -41,6 +43,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.15,
     currencySymbol: "SAR",
     usdExchangeRate: 3.75,
+    transitTimeEn: "18-22 Days",
+    transitTimeAr: "١٨-٢٢ يوم",
   },
   {
     code: "AE",
@@ -55,6 +59,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.05,
     currencySymbol: "AED",
     usdExchangeRate: 3.67,
+    transitTimeEn: "14-16 Days",
+    transitTimeAr: "١٤-١٦ يوم",
   },
   {
     code: "QA",
@@ -69,6 +75,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.0,
     currencySymbol: "QAR",
     usdExchangeRate: 3.64,
+    transitTimeEn: "16-18 Days",
+    transitTimeAr: "١٦-١٨ يوم",
   },
   {
     code: "KW",
@@ -83,6 +91,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.0,
     currencySymbol: "KWD",
     usdExchangeRate: 0.31,
+    transitTimeEn: "17-19 Days",
+    transitTimeAr: "١٧-١٩ يوم",
   },
   {
     code: "OM",
@@ -97,6 +107,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.05,
     currencySymbol: "OMR",
     usdExchangeRate: 0.38,
+    transitTimeEn: "13-15 Days",
+    transitTimeAr: "١٣-١٥ يوم",
   },
   {
     code: "BH",
@@ -111,6 +123,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.1,
     currencySymbol: "BHD",
     usdExchangeRate: 0.38,
+    transitTimeEn: "15-17 Days",
+    transitTimeAr: "١٥-١٧ يوم",
   },
   {
     code: "JO",
@@ -125,6 +139,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.16,
     currencySymbol: "JOD",
     usdExchangeRate: 0.71,
+    transitTimeEn: "22-26 Days",
+    transitTimeAr: "٢٢-٢٦ يوم",
   },
   {
     code: "EG",
@@ -139,6 +155,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.14,
     currencySymbol: "EGP",
     usdExchangeRate: 30.9,
+    transitTimeEn: "26-30 Days",
+    transitTimeAr: "٢٦-٣٠ يوم",
   },
   {
     code: "LY",
@@ -153,6 +171,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.0,
     currencySymbol: "LYD",
     usdExchangeRate: 4.85,
+    transitTimeEn: "32-38 Days",
+    transitTimeAr: "٣٢-٣٨ يوم",
   },
   {
     code: "DZ",
@@ -167,6 +187,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.19,
     currencySymbol: "DZD",
     usdExchangeRate: 135.0,
+    transitTimeEn: "34-40 Days",
+    transitTimeAr: "٣٤-٤٠ يوم",
   },
   {
     code: "IQ",
@@ -181,6 +203,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.0,
     currencySymbol: "IQD",
     usdExchangeRate: 1310,
+    transitTimeEn: "20-24 Days",
+    transitTimeAr: "٢٠-٢٤ يوم",
   },
   {
     code: "DE",
@@ -195,6 +219,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.19,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "28-32 Days",
+    transitTimeAr: "٢٨-٣٢ يوم",
   },
   {
     code: "BE",
@@ -209,6 +235,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.21,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "27-31 Days",
+    transitTimeAr: "٢٧-٣١ يوم",
   },
   {
     code: "NL",
@@ -223,6 +251,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.21,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "28-32 Days",
+    transitTimeAr: "٢٨-٣٢ يوم",
   },
   {
     code: "GB",
@@ -237,6 +267,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.2,
     currencySymbol: "GBP",
     usdExchangeRate: 0.78,
+    transitTimeEn: "30-34 Days",
+    transitTimeAr: "٣٠-٣٤ يوم",
   },
   {
     code: "FR",
@@ -251,6 +283,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.2,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "28-32 Days",
+    transitTimeAr: "٢٨-٣٢ يوم",
   },
   {
     code: "ES",
@@ -265,6 +299,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.21,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "24-28 Days",
+    transitTimeAr: "٢٤-٢٨ يوم",
   },
   {
     code: "IT",
@@ -279,6 +315,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.22,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "22-26 Days",
+    transitTimeAr: "٢٢-٢٦ يوم",
   },
   {
     code: "SI",
@@ -293,6 +331,8 @@ const DESTINATION_COUNTRIES: DestinationCountry[] = [
     vatRate: 0.22,
     currencySymbol: "EUR",
     usdExchangeRate: 0.92,
+    transitTimeEn: "20-24 Days",
+    transitTimeAr: "٢٠-٢٤ يوم",
   },
 ];
 
@@ -301,6 +341,135 @@ export default function ShippingCalculator() {
 
   const [selectedCountryCode, setSelectedCountryCode] = useState<string>("SA");
   const [fobPriceUsd, setFobPriceUsd] = useState<number>(24000);
+
+  // Sync state from localStorage on mount and register listeners
+  useEffect(() => {
+    // 1. Read existing calculator state
+    const savedCode = localStorage.getItem("kyro_calculator_country");
+    const savedFob = localStorage.getItem("kyro_calculator_fob");
+    if (savedCode) setSelectedCountryCode(savedCode);
+    if (savedFob) setFobPriceUsd(Number(savedFob));
+
+    // Helper function to map destination port string from Sourcing Wizard to a country code
+    const mapPortToCode = (dest: string): string | null => {
+      if (!dest) return null;
+      const lower = dest.toLowerCase();
+      if (lower.includes("saudi") || lower.includes("jeddah")) return "SA";
+      if (lower.includes("dubai") || lower.includes("jebel") || lower.includes("uae") || lower.includes("الإمارات")) return "AE";
+      if (lower.includes("qatar") || lower.includes("doha") || lower.includes("حمد")) return "QA";
+      if (lower.includes("kuwait") || lower.includes("shuwaikh") || lower.includes("الكويت")) return "KW";
+      if (lower.includes("oman") || lower.includes("sohar") || lower.includes("عمان")) return "OM";
+      if (lower.includes("bahrain") || lower.includes("خليفة")) return "BH";
+      if (lower.includes("jordan") || lower.includes("aqaba") || lower.includes("العقبة")) return "JO";
+      if (lower.includes("egypt") || lower.includes("alexandria") || lower.includes("مصر")) return "EG";
+      if (lower.includes("libya") || lower.includes("tripoli") || lower.includes("ليبيا")) return "LY";
+      if (lower.includes("algeria") || lower.includes("algiers") || lower.includes("الجزائر")) return "DZ";
+      if (lower.includes("iraq") || lower.includes("basra") || lower.includes("العراق")) return "IQ";
+      if (lower.includes("germany") || lower.includes("bremerhaven") || lower.includes("ألمانيا")) return "DE";
+      if (lower.includes("belgium") || lower.includes("zeebrugge") || lower.includes("بلجيكا")) return "BE";
+      if (lower.includes("netherlands") || lower.includes("rotterdam") || lower.includes("هولندا")) return "NL";
+      if (lower.includes("united kingdom") || lower.includes("southampton") || lower.includes("المملكة المتحدة")) return "GB";
+      if (lower.includes("france") || lower.includes("havre") || lower.includes("فرنسا")) return "FR";
+      if (lower.includes("spain") || lower.includes("barcelona") || lower.includes("إسبانيا")) return "ES";
+      if (lower.includes("italy") || lower.includes("livorno") || lower.includes("إيطاليا")) return "IT";
+      if (lower.includes("slovenia") || lower.includes("koper") || lower.includes("سلوفينيا")) return "SI";
+      return null;
+    };
+
+    // Helper to map budget string to numeric FOB price estimate
+    const mapBudgetToFob = (budgetStr: string): number | null => {
+      if (!budgetStr) return null;
+      if (budgetStr.includes("Under $15,000") || budgetStr.includes("أقل")) return 12000;
+      if (budgetStr.includes("$15,000 - $30,000") || budgetStr.includes("15,000")) return 22000;
+      if (budgetStr.includes("$30,000 - $50,000") || budgetStr.includes("30,000")) return 40000;
+      if (budgetStr.includes("Premium") || budgetStr.includes("فاخرة")) return 75000;
+      return null;
+    };
+
+    // Check wizard values on mount
+    const wizardDest = localStorage.getItem("kyro_wizard_destination") || "";
+    const wizardBudget = localStorage.getItem("kyro_wizard_budget") || "";
+    const mappedCode = mapPortToCode(wizardDest);
+    const mappedFob = mapBudgetToFob(wizardBudget);
+    
+    if (mappedCode) {
+      setSelectedCountryCode(mappedCode);
+      localStorage.setItem("kyro_calculator_country", mappedCode);
+    }
+    if (mappedFob) {
+      setFobPriceUsd(mappedFob);
+      localStorage.setItem("kyro_calculator_fob", String(mappedFob));
+    }
+
+    // 2. Register live event listeners
+    const handleWizardDestinationUpdate = (e: Event) => {
+      const code = mapPortToCode((e as CustomEvent).detail);
+      if (code) {
+        setSelectedCountryCode(code);
+        localStorage.setItem("kyro_calculator_country", code);
+      }
+    };
+
+    const handleWizardBudgetUpdate = (e: Event) => {
+      const fob = mapBudgetToFob((e as CustomEvent).detail);
+      if (fob) {
+        setFobPriceUsd(fob);
+        localStorage.setItem("kyro_calculator_fob", String(fob));
+      }
+    };
+
+    const handleWizardComplete = (e: Event) => {
+      const { destination, budget } = (e as CustomEvent).detail;
+      const code = mapPortToCode(destination);
+      const fob = mapBudgetToFob(budget);
+      if (code) {
+        setSelectedCountryCode(code);
+        localStorage.setItem("kyro_calculator_country", code);
+      }
+      if (fob) {
+        setFobPriceUsd(fob);
+        localStorage.setItem("kyro_calculator_fob", String(fob));
+      }
+    };
+
+    const handleSearchApply = (e: Event) => {
+      const { destinationPort, maxPrice } = (e as CustomEvent).detail;
+      const code = mapPortToCode(destinationPort);
+      if (code) {
+        setSelectedCountryCode(code);
+        localStorage.setItem("kyro_calculator_country", code);
+      }
+      if (maxPrice) {
+        const val = Number(maxPrice);
+        if (!isNaN(val)) {
+          setFobPriceUsd(val);
+          localStorage.setItem("kyro_calculator_fob", String(val));
+        }
+      }
+    };
+
+    window.addEventListener("kyro-wizard-update-destination", handleWizardDestinationUpdate);
+    window.addEventListener("kyro-wizard-update-budget", handleWizardBudgetUpdate);
+    window.addEventListener("kyro-wizard-complete", handleWizardComplete);
+    window.addEventListener("kyro-search-apply", handleSearchApply);
+
+    return () => {
+      window.removeEventListener("kyro-wizard-update-destination", handleWizardDestinationUpdate);
+      window.removeEventListener("kyro-wizard-update-budget", handleWizardBudgetUpdate);
+      window.removeEventListener("kyro-wizard-complete", handleWizardComplete);
+      window.removeEventListener("kyro-search-apply", handleSearchApply);
+    };
+  }, []);
+
+  const handleCountryChange = (code: string) => {
+    setSelectedCountryCode(code);
+    localStorage.setItem("kyro_calculator_country", code);
+  };
+
+  const handleFobChange = (val: number) => {
+    setFobPriceUsd(val);
+    localStorage.setItem("kyro_calculator_fob", String(val));
+  };
 
   const country =
     DESTINATION_COUNTRIES.find((c) => c.code === selectedCountryCode) ||
@@ -359,7 +528,7 @@ export default function ShippingCalculator() {
                     <button
                       key={c.code}
                       type="button"
-                      onClick={() => setSelectedCountryCode(c.code)}
+                      onClick={() => handleCountryChange(c.code)}
                       className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all ${
                         isSelected
                           ? "bg-slate-900 dark:bg-[#0066ff] border-slate-900 dark:border-[#0066ff] text-[#FFFFFF] shadow-md"
@@ -376,19 +545,26 @@ export default function ShippingCalculator() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-white/5 p-4 flex items-center justify-between transition-colors">
+            <div className="rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-white/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
               <div className="flex items-center gap-3">
                 <Ship className="h-5 w-5 text-[#0066ff] dark:text-sky-400 shrink-0" />
                 <div>
-                  <div className="text-[11px] text-slate-550 dark:text-slate-400 font-semibold uppercase">{language === "ar" ? "ميناء التفريغ" : "Arrival Port"}</div>
+                  <div className="text-[11px] text-slate-555 dark:text-slate-400 font-semibold uppercase">{language === "ar" ? "ميناء التفريغ" : "Arrival Port"}</div>
                   <div className="text-xs font-bold text-slate-900 dark:text-white transition">
                     {language === "ar" ? country.portAr : country.portEn}
                   </div>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold text-[#FFFFFF] bg-[#0066ff] px-3 py-1 rounded-md shadow-sm">
-                Direct Ro-Ro
-              </span>
+              <div className="flex items-center gap-2">
+                {country.transitTimeEn && (
+                  <span className="text-[11px] font-extrabold text-[#0066ff] dark:text-sky-300 bg-[#0066ff]/10 dark:bg-sky-400/10 px-3 py-1 rounded-md border border-[#0066ff]/20">
+                    ⏱️ {language === "ar" ? country.transitTimeAr : country.transitTimeEn}
+                  </span>
+                )}
+                <span className="text-xs font-mono font-bold text-[#FFFFFF] bg-[#0066ff] px-3 py-1 rounded-md shadow-sm">
+                  Direct Ro-Ro
+                </span>
+              </div>
             </div>
 
             <div>
@@ -408,7 +584,7 @@ export default function ShippingCalculator() {
                 max={120000}
                 step={1000}
                 value={fobPriceUsd}
-                onChange={(e) => setFobPriceUsd(Number(e.target.value))}
+                onChange={(e) => handleFobChange(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#0066ff] dark:accent-sky-400 transition"
               />
 

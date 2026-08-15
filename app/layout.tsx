@@ -58,6 +58,24 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://ci.encar.com" />
         <link rel="icon" href="/logo.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('theme');
+                  var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  var theme = saved || preferred;
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body
         className={`${outfit.variable} ${tajawal.variable} antialiased selection:bg-[#0066ff]/20`}

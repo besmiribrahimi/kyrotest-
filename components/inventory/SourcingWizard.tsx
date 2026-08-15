@@ -45,6 +45,29 @@ export default function SourcingWizard() {
     destination: "",
   });
 
+  useEffect(() => {
+    // Load saved wizard choices on mount
+    const savedMake = localStorage.getItem("kyro_wizard_make") || "";
+    const savedBodyType = localStorage.getItem("kyro_wizard_bodyType") || "";
+    const savedBudget = localStorage.getItem("kyro_wizard_budget") || "";
+    const savedDestination = localStorage.getItem("kyro_wizard_destination") || "";
+    
+    setFormData({
+      make: savedMake,
+      bodyType: savedBodyType,
+      budget: savedBudget,
+      destination: savedDestination,
+    });
+  }, []);
+
+  const updateField = (field: keyof WizardData, value: string) => {
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
+    localStorage.setItem(`kyro_wizard_${field}`, value);
+    // Dispatch instant filter change event for other listeners
+    window.dispatchEvent(new CustomEvent(`kyro-wizard-update-${field}`, { detail: value }));
+  };
+
   const makes = [
     { name: "Hyundai", key: "hyundai" },
     { name: "Kia", key: "kia" },
@@ -123,13 +146,15 @@ export default function SourcingWizard() {
           clearInterval(timer);
           setTimeout(() => {
             setStep(6);
+            // Dispatch wizard completion event
+            window.dispatchEvent(new CustomEvent("kyro-wizard-complete", { detail: formData }));
           }, 600);
         }
       }, intervalTime);
 
       return () => clearInterval(timer);
     }
-  }, [step]);
+  }, [step, formData]);
 
   const whatsappMessage = encodeURIComponent(
     `Hello Advanced Koryo Sourcing! I completed the Interactive Sourcing Wizard:\n` +
@@ -273,7 +298,7 @@ export default function SourcingWizard() {
                             whileHover={{ scale: 1.03, translateY: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
-                              setFormData({ ...formData, make: m.name });
+                              updateField("make", m.name);
                               setStep(2);
                             }}
                             className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-center transition-all min-h-[96px] ${
@@ -320,7 +345,7 @@ export default function SourcingWizard() {
                             whileHover={{ scale: 1.02, translateY: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
-                              setFormData({ ...formData, bodyType: b.nameEn });
+                              updateField("bodyType", b.nameEn);
                               setStep(3);
                             }}
                             className={`flex flex-col items-center justify-center p-5 rounded-2xl border text-center transition-all ${
@@ -355,7 +380,7 @@ export default function SourcingWizard() {
                             whileHover={{ scale: 1.01, x: dir === "rtl" ? -4 : 4 }}
                             whileTap={{ scale: 0.99 }}
                             onClick={() => {
-                              setFormData({ ...formData, budget: b.nameEn });
+                              updateField("budget", b.nameEn);
                               setStep(4);
                             }}
                             className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between ${
@@ -391,7 +416,7 @@ export default function SourcingWizard() {
                             whileHover={{ scale: 1.01, x: dir === "rtl" ? -4 : 4 }}
                             whileTap={{ scale: 0.99 }}
                             onClick={() => {
-                              setFormData({ ...formData, destination: d.nameEn });
+                              updateField("destination", d.nameEn);
                               setStep(5);
                             }}
                             className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between ${
@@ -419,7 +444,7 @@ export default function SourcingWizard() {
                           placeholder={language === "ar" ? "مثال: ميناء طنجة، المغرب" : "e.g. Port of Oslo, Norway"}
                           onChange={(e) => {
                             setCustomPort(e.target.value);
-                            setFormData({ ...formData, destination: e.target.value });
+                            updateField("destination", e.target.value);
                           }}
                           className="flex-grow px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#0066ff]"
                         />

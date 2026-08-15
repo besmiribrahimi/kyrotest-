@@ -31,10 +31,6 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
   const { language, dir } = useLanguage();
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [bodyType, setBodyType] = useState<string>("");
@@ -48,6 +44,64 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
   const [destinationPort, setDestinationPort] = useState<string>("");
   const [certification, setCertification] = useState<string>("");
   const [showMoreFilters, setShowMoreFilters] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Read saved search parameters on mount
+    const savedBrand = localStorage.getItem("kyro_search_brand") || "";
+    const savedModel = localStorage.getItem("kyro_search_model") || "";
+    const savedBody = localStorage.getItem("kyro_search_bodyType") || "";
+    const savedYearFrom = localStorage.getItem("kyro_search_yearFrom") || "";
+    const savedYearTo = localStorage.getItem("kyro_search_yearTo") || "";
+    const savedMaxMil = localStorage.getItem("kyro_search_maxMileage") || "";
+    const savedMinPri = localStorage.getItem("kyro_search_minPrice") || "";
+    const savedMaxPri = localStorage.getItem("kyro_search_maxPrice") || "";
+    const savedFuel = localStorage.getItem("kyro_search_fuelType") || "";
+    const savedDrive = localStorage.getItem("kyro_search_drivetrain") || "";
+    const savedPort = localStorage.getItem("kyro_search_destinationPort") || "";
+    const savedCert = localStorage.getItem("kyro_search_certification") || "";
+    
+    if (savedBrand) setSelectedBrand(savedBrand);
+    if (savedModel) setSelectedModel(savedModel);
+    if (savedBody) setBodyType(savedBody);
+    if (savedYearFrom) setYearFrom(savedYearFrom);
+    if (savedYearTo) setYearTo(savedYearTo);
+    if (savedMaxMil) setMaxMileage(savedMaxMil);
+    if (savedMinPri) setMinPrice(savedMinPri);
+    if (savedMaxPri) setMaxPrice(savedMaxPri);
+    if (savedFuel) setFuelType(savedFuel);
+    if (savedDrive) setDrivetrain(savedDrive);
+    if (savedPort) setDestinationPort(savedPort);
+    if (savedCert) setCertification(savedCert);
+
+    // Also listen to wizard selections to pre-populate search filters automatically!
+    const handleWizardMake = (e: Event) => {
+      const val = (e as CustomEvent).detail;
+      setSelectedBrand(val);
+      localStorage.setItem("kyro_search_brand", val);
+    };
+    const handleWizardBody = (e: Event) => {
+      const val = (e as CustomEvent).detail;
+      setBodyType(val);
+      localStorage.setItem("kyro_search_bodyType", val);
+    };
+    const handleWizardPort = (e: Event) => {
+      const val = (e as CustomEvent).detail;
+      setDestinationPort(val);
+      localStorage.setItem("kyro_search_destinationPort", val);
+    };
+
+    window.addEventListener("kyro-wizard-update-make", handleWizardMake);
+    window.addEventListener("kyro-wizard-update-bodyType", handleWizardBody);
+    window.addEventListener("kyro-wizard-update-destination", handleWizardPort);
+
+    return () => {
+      window.removeEventListener("kyro-wizard-update-make", handleWizardMake);
+      window.removeEventListener("kyro-wizard-update-bodyType", handleWizardBody);
+      window.removeEventListener("kyro-wizard-update-destination", handleWizardPort);
+    };
+  }, []);
 
   const brandOptions = [
     { name: "Hyundai", logoKey: "hyundai" },
@@ -112,6 +166,24 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
       destinationPort,
       certification,
     };
+
+    // Save search filters in localStorage
+    localStorage.setItem("kyro_search_brand", selectedBrand);
+    localStorage.setItem("kyro_search_model", selectedModel);
+    localStorage.setItem("kyro_search_bodyType", bodyType);
+    localStorage.setItem("kyro_search_yearFrom", yearFrom);
+    localStorage.setItem("kyro_search_yearTo", yearTo);
+    localStorage.setItem("kyro_search_maxMileage", maxMileage);
+    localStorage.setItem("kyro_search_minPrice", minPrice);
+    localStorage.setItem("kyro_search_maxPrice", maxPrice);
+    localStorage.setItem("kyro_search_fuelType", fuelType);
+    localStorage.setItem("kyro_search_drivetrain", drivetrain);
+    localStorage.setItem("kyro_search_destinationPort", destinationPort);
+    localStorage.setItem("kyro_search_certification", certification);
+
+    // Dispatch global filter search update event
+    window.dispatchEvent(new CustomEvent("kyro-search-apply", { detail: filters }));
+
     if (onSearch) {
       onSearch(filters);
     }
@@ -134,6 +206,23 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
     setDrivetrain("");
     setDestinationPort("");
     setCertification("");
+
+    // Clear saved filters from localStorage
+    localStorage.removeItem("kyro_search_brand");
+    localStorage.removeItem("kyro_search_model");
+    localStorage.removeItem("kyro_search_bodyType");
+    localStorage.removeItem("kyro_search_yearFrom");
+    localStorage.removeItem("kyro_search_yearTo");
+    localStorage.removeItem("kyro_search_maxMileage");
+    localStorage.removeItem("kyro_search_minPrice");
+    localStorage.removeItem("kyro_search_maxPrice");
+    localStorage.removeItem("kyro_search_fuelType");
+    localStorage.removeItem("kyro_search_drivetrain");
+    localStorage.removeItem("kyro_search_destinationPort");
+    localStorage.removeItem("kyro_search_certification");
+
+    // Dispatch search clear event
+    window.dispatchEvent(new CustomEvent("kyro-search-clear"));
   };
 
   const logoMap = carLogos as Record<string, string>;
