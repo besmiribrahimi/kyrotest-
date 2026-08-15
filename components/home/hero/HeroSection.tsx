@@ -44,7 +44,7 @@ export default function HeroSection() {
       name: "Kia Carnival Hi-Limousine",
       price: "$34,200 USD",
       badge: "Lotte Auction Approved",
-      image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
+      image: "/images/kia_carnival_export.png",
       engine: "3.5L V6 Smartstream VIP",
       mileage: "18,200 km • Grade A+",
       locationEn: "Busan Port Yard (Direct)",
@@ -55,7 +55,7 @@ export default function HeroSection() {
       name: "Hyundai Palisade Calligraphy",
       price: "$29,800 USD",
       badge: "Encar Trust Verified",
-      image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80",
+      image: "/images/hyundai_palisade_export.png",
       engine: "3.8L V6 HTRAC AWD",
       mileage: "31,000 km • Accident-Free",
       locationEn: "Seoul Center Yard",
@@ -66,7 +66,7 @@ export default function HeroSection() {
       name: "Porsche Cayenne Coupe 3.0T",
       price: "$58,900 USD",
       badge: "Supercar Certified",
-      image: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80",
+      image: "/images/porsche_cayenne_export.png",
       engine: "3.0L Turbo V6 (340 HP)",
       mileage: "14,500 km • Full Warranty",
       locationEn: "Incheon Logistics Hub",
@@ -159,7 +159,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, x: dir === "rtl" ? 30 : -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="lg:col-span-7 space-y-6"
+            className="lg:col-span-7 space-y-8"
           >
             {/* Interactive float-blink Sparkles wrapped around Badge */}
             <div className="relative inline-block">
@@ -195,20 +195,24 @@ export default function HeroSection() {
               {t.hero.description}
             </p>
 
-            {/* Live Stats Block - Elevated panel style */}
-            <div className="grid grid-cols-3 gap-6 p-5 rounded-3xl bg-slate-50 dark:bg-[#0b1528] border border-slate-200/60 dark:border-white/10 shadow-sm pt-5 transition">
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#003478] dark:text-[#0066ff] font-mono transition">{t.hero.stat1Value}</div>
-                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1 font-sans transition">{t.hero.stat1Label}</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#003478] dark:text-[#0066ff] font-mono transition">{t.hero.stat2Value}</div>
-                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1 font-sans transition">{t.hero.stat2Label}</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-[#003478] dark:text-[#0066ff] font-mono transition">{t.hero.stat3Value}</div>
-                <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1 font-sans transition">{t.hero.stat3Label}</div>
-              </div>
+            {/* Live Stats Block - High-end Floating Glassmorphic Panels */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { value: t.hero.stat1Value, label: t.hero.stat1Label, icon: ShieldCheck, color: "text-blue-600 dark:text-sky-400" },
+                { value: t.hero.stat2Value, label: t.hero.stat2Label, icon: CheckCircle2, color: "text-teal-600 dark:text-teal-400" },
+                { value: t.hero.stat3Value, label: t.hero.stat3Label, icon: Sparkles, color: "text-amber-500 dark:text-amber-400" },
+              ].map((stat, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex flex-col justify-between p-4.5 rounded-2xl bg-slate-50/80 dark:bg-[#0b1528]/60 border border-slate-200/60 dark:border-white/5 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <stat.icon className={`h-5 w-5 ${stat.color} opacity-80`} />
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight transition">{stat.value}</div>
+                  </div>
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-550 dark:text-slate-400 mt-3 leading-tight transition">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </motion.div>
 
@@ -230,7 +234,7 @@ export default function HeroSection() {
                   : "rotateX(0deg) rotateY(0deg) scale(1)",
                 transition: tilt.isHovered ? "transform 0.1s ease-out" : "transform 0.5s ease-out",
               }}
-              className="koryo-card-white bg-white/90 dark:bg-[#0b1528]/95 backdrop-blur-md rounded-3xl p-6 space-y-5 relative overflow-hidden shadow-2xl dark:shadow-[0_0_80px_-15px_rgba(0,102,255,0.35)] border border-slate-200 dark:border-white/10"
+              className="koryo-card-white bg-white/95 dark:bg-[#0b1528]/95 backdrop-blur-md rounded-3xl p-6 space-y-5 relative overflow-hidden shadow-2xl dark:shadow-[0_0_80px_-15px_rgba(0,102,255,0.35)] border border-slate-200 dark:border-white/10 group hover:border-[#0066ff]/20 dark:hover:border-sky-400/20"
             >
               {/* Dynamic Spotlight Glare Overlay */}
               {tilt.isHovered && (
@@ -250,10 +254,10 @@ export default function HeroSection() {
                     <button
                       key={v.id}
                       onClick={() => setSelectedVehicleId(v.id)}
-                      className={`relative flex-1 py-2 text-[10px] font-black uppercase tracking-wider transition rounded-xl ${
+                      className={`relative flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider transition rounded-xl z-10 ${
                         isActive
-                          ? "bg-white dark:bg-[#0066ff] text-[#002b66] dark:text-white shadow-md font-black"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          ? "bg-[#0066ff] text-white shadow-lg font-black"
+                          : "text-slate-555 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <span>{v.name.split(" ")[0]} {v.name.split(" ")[1]}</span>
@@ -287,7 +291,7 @@ export default function HeroSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 dark:from-[#000000]/95 via-transparent to-transparent z-10" />
                 
                 <div className="absolute top-3 left-3 z-20">
-                  <span className="text-[10px] font-bold font-mono text-white bg-slate-950/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                  <span className="text-[10px] font-bold font-mono text-white bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
                     {activeVehicle.badge}
                   </span>
                 </div>
@@ -304,24 +308,24 @@ export default function HeroSection() {
 
               {/* Structured Key Metrics Grid */}
               <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
+                  <div className="flex items-center gap-1.5 text-slate-450 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
                     <Fuel className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
                     <span>Engine</span>
                   </div>
                   <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">{activeVehicle.engine.split("(")[0]}</div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
+                  <div className="flex items-center gap-1.5 text-slate-455 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
                     <Gauge className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
                     <span>Odometer</span>
                   </div>
                   <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">{activeVehicle.mileage.split("•")[0]}</div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
+                  <div className="flex items-center gap-1.5 text-slate-455 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
                     <MapPin className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
                     <span>Location</span>
                   </div>
@@ -331,11 +335,11 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              {/* Dual Action CTA Bar */}
+              {/* Dual Action CTA Bar - Redesigned Luxury Buttons */}
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <a
                   href="#inventory-section"
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 dark:border-white/20 bg-white dark:bg-transparent hover:bg-slate-100 dark:hover:bg-white/10 text-slate-900 dark:text-white py-3 text-xs font-bold uppercase tracking-wider transition shadow-sm"
+                  className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 text-slate-800 dark:text-white py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>{t.inventory.title}</span>
                   <ArrowUpRight className="h-4 w-4" />
@@ -345,9 +349,13 @@ export default function HeroSection() {
                   href={whatsappInquiryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-3 text-xs font-black uppercase tracking-wider transition shadow-md"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white py-3 text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-[0_4px_18px_-2px_rgba(16,185,129,0.35)] dark:shadow-[0_4px_18px_-2px_rgba(16,185,129,0.25)] hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  {/* Live Status indicator ring for online availability */}
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-200 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-300"></span>
+                  </span>
                   <span>{language === "ar" ? "استفسر واتساب" : "Inquire Car"}</span>
                 </a>
               </div>
