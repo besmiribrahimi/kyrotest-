@@ -448,22 +448,32 @@ export default function ShippingCalculator() {
       }
     };
 
+    const handleCalculatorCountryUpdate = (e: Event) => {
+      const code = (e as CustomEvent).detail;
+      if (code) {
+        setSelectedCountryCode(code);
+      }
+    };
+
     window.addEventListener("kyro-wizard-update-destination", handleWizardDestinationUpdate);
     window.addEventListener("kyro-wizard-update-budget", handleWizardBudgetUpdate);
     window.addEventListener("kyro-wizard-complete", handleWizardComplete);
     window.addEventListener("kyro-search-apply", handleSearchApply);
+    window.addEventListener("kyro-calculator-country-update", handleCalculatorCountryUpdate);
 
     return () => {
       window.removeEventListener("kyro-wizard-update-destination", handleWizardDestinationUpdate);
       window.removeEventListener("kyro-wizard-update-budget", handleWizardBudgetUpdate);
       window.removeEventListener("kyro-wizard-complete", handleWizardComplete);
       window.removeEventListener("kyro-search-apply", handleSearchApply);
+      window.removeEventListener("kyro-calculator-country-update", handleCalculatorCountryUpdate);
     };
   }, []);
 
   const handleCountryChange = (code: string) => {
     setSelectedCountryCode(code);
     localStorage.setItem("kyro_calculator_country", code);
+    window.dispatchEvent(new CustomEvent("kyro-calculator-country-update", { detail: code }));
   };
 
   const handleFobChange = (val: number) => {

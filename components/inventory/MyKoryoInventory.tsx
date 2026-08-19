@@ -41,6 +41,16 @@ export default function MyKoryoInventory() {
   const [realCars, setRealCars] = useState<RealCarItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchFilters, setSearchFilters] = useState<any>(null);
+  const [countryCode, setCountryCode] = useState<string>("SA");
+
+  const currencyMap: Record<string, { symbol: string, rate: number }> = {
+    SA: { symbol: "SAR", rate: 3.75 },
+    AE: { symbol: "AED", rate: 3.67 },
+    QA: { symbol: "QAR", rate: 3.64 },
+    KW: { symbol: "KWD", rate: 0.31 },
+    DE: { symbol: "EUR", rate: 0.92 },
+    NL: { symbol: "EUR", rate: 0.92 },
+  };
 
   const makesList = ["All", "Hyundai", "Kia", "Genesis", "Audi", "BMW", "Mercedes-Benz"];
 
@@ -81,6 +91,12 @@ export default function MyKoryoInventory() {
     const savedSearchBrand = localStorage.getItem("kyro_search_brand") || "";
     if (savedSearchBrand) {
       setSelectedMake(savedSearchBrand);
+    }
+
+    // Check for saved country
+    const savedCountry = localStorage.getItem("kyro_calculator_country");
+    if (savedCountry) {
+      setCountryCode(savedCountry);
     }
     
     const loadSavedFilters = () => {
@@ -142,16 +158,25 @@ export default function MyKoryoInventory() {
       setSelectedMake((e as CustomEvent).detail);
     };
 
+    const handleCalculatorCountryUpdate = (e: Event) => {
+      const code = (e as CustomEvent).detail;
+      if (code) {
+        setCountryCode(code);
+      }
+    };
+
     window.addEventListener("kyro-search-apply", handleSearchApply);
     window.addEventListener("kyro-search-clear", handleSearchClear);
     window.addEventListener("kyro-wizard-complete", handleWizardComplete);
     window.addEventListener("kyro-wizard-update-make", handleWizardMakeUpdate);
+    window.addEventListener("kyro-calculator-country-update", handleCalculatorCountryUpdate);
 
     return () => {
       window.removeEventListener("kyro-search-apply", handleSearchApply);
       window.removeEventListener("kyro-search-clear", handleSearchClear);
       window.removeEventListener("kyro-wizard-complete", handleWizardComplete);
       window.removeEventListener("kyro-wizard-update-make", handleWizardMakeUpdate);
+      window.removeEventListener("kyro-calculator-country-update", handleCalculatorCountryUpdate);
     };
   }, []);
 
@@ -365,7 +390,8 @@ export default function MyKoryoInventory() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredCars.map((car, idx) => {
               const priceUsd = car.prices?.USD ? Math.round(car.prices.USD) : typeof car.price === 'number' ? Math.round(car.price / 1350) : 24000;
-              const priceSar = Math.round(priceUsd * 3.75);
+              const activeCurrency = currencyMap[countryCode] || currencyMap["SA"];
+              const priceLocal = Math.round(priceUsd * activeCurrency.rate);
 
               return (
                 <motion.div
@@ -435,9 +461,9 @@ export default function MyKoryoInventory() {
                         </div>
 
                         <div className="text-right">
-                          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Est. SAR</div>
+                          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Est. {activeCurrency.symbol}</div>
                           <div className="text-sm font-extrabold text-white dark:text-slate-900 font-mono bg-slate-950 dark:bg-white px-2.5 py-0.5 rounded border border-white/10 dark:border-transparent transition shadow-sm">
-                            ~{priceSar.toLocaleString()} SAR
+                            ~{priceLocal.toLocaleString()} {activeCurrency.symbol}
                           </div>
                         </div>
                       </div>
