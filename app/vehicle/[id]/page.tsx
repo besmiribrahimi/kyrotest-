@@ -87,17 +87,45 @@ export default function CarDetailPage({ params }: CarDetailProps) {
     ? Math.round(carData.price / 1350)
     : 28500;
 
-  const priceSar = Math.round(priceUsd * 3.75);
-  const estFreight = 1450;
+  const destinationPorts = [
+    { code: "SA", nameEn: "Jeddah Islamic Port (Saudi Arabia 🇸🇦)", nameAr: "ميناء جدة الإسلامي (السعودية 🇸🇦)", baseFreight: 1450, dutyPercent: 5, vatPercent: 15, currency: "SAR", currencyRate: 3.75, transitEn: "18-22 Days", transitAr: "18-22 يوم" },
+    { code: "AE", nameEn: "Jebel Ali Port (UAE 🇦🇪)", nameAr: "ميناء جبل علي (الإمارات 🇦🇪)", baseFreight: 1350, dutyPercent: 5, vatPercent: 5, currency: "AED", currencyRate: 3.67, transitEn: "14-16 Days", transitAr: "14-16 يوم" },
+    { code: "QA", nameEn: "Hamad Port (Qatar 🇶🇦)", nameAr: "ميناء حمد (قطر 🇶🇦)", baseFreight: 1480, dutyPercent: 5, vatPercent: 0, currency: "QAR", currencyRate: 3.64, transitEn: "16-18 Days", transitAr: "16-18 يوم" },
+    { code: "KW", nameEn: "Shuwaikh Port (Kuwait 🇰🇼)", nameAr: "ميناء الشويخ (الكويت 🇰🇼)", baseFreight: 1420, dutyPercent: 5, vatPercent: 0, currency: "KWD", currencyRate: 0.31, transitEn: "15-17 Days", transitAr: "15-17 يوم" },
+    { code: "DE", nameEn: "Port of Bremerhaven (Germany 🇩🇪)", nameAr: "ميناء بريمرهافن (ألمانيا 🇩🇪)", baseFreight: 2200, dutyPercent: 10, vatPercent: 19, currency: "EUR", currencyRate: 0.92, transitEn: "35-40 Days", transitAr: "35-40 يوم" },
+    { code: "NL", nameEn: "Port of Rotterdam (Netherlands 🇳🇱)", nameAr: "ميناء روتردام (هولندا 🇳🇱)", baseFreight: 2150, dutyPercent: 10, vatPercent: 21, currency: "EUR", currencyRate: 0.92, transitEn: "34-38 Days", transitAr: "34-38 يوم" }
+  ];
+
+  const [selectedPortCode, setSelectedPortCode] = useState<string>("SA");
+
+  useEffect(() => {
+    const savedCode = localStorage.getItem("kyro_calculator_country");
+    if (savedCode) {
+      setSelectedPortCode(savedCode);
+    }
+  }, []);
+
+  const activePort = destinationPorts.find(p => p.code === selectedPortCode) || destinationPorts[0];
+
+  const handlePortChange = (code: string) => {
+    setSelectedPortCode(code);
+    localStorage.setItem("kyro_calculator_country", code);
+    window.dispatchEvent(new CustomEvent("kyro-calculator-country-update", { detail: code }));
+  };
+
+  const estFreight = activePort.baseFreight;
   const estInsurance = 220;
-  const estDuty = Math.round((priceUsd + estFreight + estInsurance) * 0.05);
-  const totalLandedUsd = priceUsd + estFreight + estInsurance + estDuty;
-  const totalLandedSar = Math.round(totalLandedUsd * 3.75);
+  const estDuty = Math.round(priceUsd * (activePort.dutyPercent / 100));
+  const estVat = Math.round((priceUsd + estFreight + estInsurance + estDuty) * (activePort.vatPercent / 100));
+  const totalLandedUsd = priceUsd + estFreight + estInsurance + estDuty + estVat;
+  const totalLandedLocal = Math.round(totalLandedUsd * activePort.currencyRate);
+
+  const priceSar = Math.round(priceUsd * 3.75);
 
   const imagesList = carData?.images && carData.images.length > 0 ? carData.images : sampleImages;
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Advanced Koryo! I am inquiring about vehicle ID #${carId}: ${carData?.title || "Korean Car"} ($${priceUsd.toLocaleString()} USD).\nPlease send me the complete 150-point inspection report and video walkaround.`
+    `Hello Advanced Koryo! I am inquiring about vehicle ID #${carId}: ${carData?.title || "Korean Car"} ($${priceUsd.toLocaleString()} USD) to be shipped to ${activePort.nameEn}.\nPlease send me the complete 150-point inspection report and video walkaround.`
   );
 
   return (
@@ -164,10 +192,10 @@ export default function CarDetailPage({ params }: CarDetailProps) {
             <div className="rounded-2xl bg-slate-50 dark:bg-[#0b1528] border border-slate-200/60 dark:border-white/10 p-5 text-right space-y-1 transition shadow-sm">
               <div className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">FOB Korea Price</div>
               <div className="text-3xl font-black text-slate-900 dark:text-white font-mono transition">
-                ${priceUsd.toLocaleString()} <span className="text-sm font-normal text-slate-550 dark:text-slate-400">USD</span>
+                ${priceUsd.toLocaleString()} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">USD</span>
               </div>
               <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono transition">
-                ~{priceSar.toLocaleString()} SAR
+                ~{Math.round(priceUsd * activePort.currencyRate).toLocaleString()} {activePort.currency}
               </div>
             </div>
           </div>
@@ -305,15 +333,18 @@ export default function CarDetailPage({ params }: CarDetailProps) {
                   href={`https://wa.me/821072290580?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl koryo-btn-black py-4 text-xs font-extrabold uppercase tracking-wider text-white shadow-md transition"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 py-4 text-xs font-extrabold uppercase tracking-wider text-white shadow-[0_4px_18px_-2px_rgba(16,185,129,0.35)] dark:shadow-[0_4px_18px_-2px_rgba(16,185,129,0.25)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <PhoneCall className="h-4 w-4" />
-                  <span>Request Video Inspection via WhatsApp</span>
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-200 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-300"></span>
+                  </span>
+                  <span>{language === "ar" ? "طلب معاينة فيديو عبر الواتساب" : "Request Video Inspection via WhatsApp"}</span>
                 </a>
               </div>
 
               {/* Landed Duty & Shipping Calculator Card */}
-              <div className="koryo-card-white rounded-3xl p-6 space-y-4">
+              <div className="koryo-card-white rounded-3xl p-6 space-y-5">
                 <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 transition-colors">
                   <span className="flex items-center gap-2">
                     <Ship className="h-4 w-4 text-[#0066ff] dark:text-sky-400" />
@@ -324,31 +355,61 @@ export default function CarDetailPage({ params }: CarDetailProps) {
                   </span>
                 </h3>
 
-                <div className="space-y-3 text-xs font-medium">
+                {/* Target Port Dropdown selector */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider font-mono">
+                    {language === "ar" ? "وجهة ميناء الوصول:" : "Arrival Port Destination:"}
+                  </label>
+                  <select
+                    value={selectedPortCode}
+                    onChange={(e) => handlePortChange(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#0066ff] transition cursor-pointer"
+                  >
+                    {destinationPorts.map((p) => (
+                      <option key={p.code} value={p.code} className="dark:bg-slate-900 font-bold text-xs">
+                        {language === "ar" ? p.nameAr : p.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-3.5 text-xs font-semibold pt-1">
                   <div className="flex justify-between py-1">
                     <span className="text-slate-500 dark:text-slate-400">Vehicle FOB Korea:</span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">${priceUsd.toLocaleString()}</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">${priceUsd.toLocaleString()} USD</span>
                   </div>
 
                   <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
-                    <span className="text-slate-500 dark:text-slate-400">Ocean Freight & Marine Insurance:</span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${(estFreight + estInsurance).toLocaleString()}</span>
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <span>Ocean Freight & Marine Ins:</span>
+                      <span className="text-[10px] bg-slate-100 dark:bg-slate-950 text-[#0066ff] dark:text-sky-400 px-2 py-0.5 rounded border border-slate-200 dark:border-white/5 font-bold">
+                        ⏱️ {language === "ar" ? activePort.transitAr : activePort.transitEn}
+                      </span>
+                    </span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${(estFreight + estInsurance).toLocaleString()} USD</span>
                   </div>
 
                   <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
-                    <span className="text-slate-500 dark:text-slate-400">Est. Customs Duty (5%):</span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${estDuty.toLocaleString()}</span>
+                    <span className="text-slate-500 dark:text-slate-400">Est. Customs Duty ({activePort.dutyPercent}%):</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${estDuty.toLocaleString()} USD</span>
                   </div>
+
+                  {activePort.vatPercent > 0 && (
+                    <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
+                      <span className="text-slate-500 dark:text-slate-400">Est. Local VAT ({activePort.vatPercent}%):</span>
+                      <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${estVat.toLocaleString()} USD</span>
+                    </div>
+                  )}
 
                   <div className="rounded-2xl bg-slate-950 dark:bg-slate-900 p-4 text-center space-y-1 border border-white/5 transition shadow-md">
-                    <div className="text-[11px] text-slate-350 dark:text-slate-400 font-bold uppercase tracking-wider transition">
+                    <div className="text-[10px] text-slate-350 dark:text-slate-400 font-bold uppercase tracking-wider transition">
                       Est. Total Landed Price
                     </div>
                     <div className="text-2xl font-black text-[#FFFFFF] font-mono transition">
                       ${totalLandedUsd.toLocaleString()} USD
                     </div>
                     <div className="text-xs font-extrabold text-[#FFFFFF] dark:text-sky-400 font-mono transition">
-                      ~ {totalLandedSar.toLocaleString()} SAR
+                      ~ {totalLandedLocal.toLocaleString()} {activePort.currency}
                     </div>
                   </div>
                 </div>
@@ -357,7 +418,6 @@ export default function CarDetailPage({ params }: CarDetailProps) {
           </div>
         </div>
       </main>
-      
     </div>
   );
 }
