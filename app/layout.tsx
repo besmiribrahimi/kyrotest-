@@ -9,6 +9,9 @@ import {
   buildPageMetadata,
   getSiteUrl,
   siteConfig,
+  organizationJsonLd,
+  webSiteJsonLd,
+  autoDealerJsonLd,
 } from "@/lib/seo";
 import "./globals.css";
 
@@ -30,12 +33,12 @@ const tajawal = Tajawal({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   ...buildPageMetadata({
-    title: "Advanced Koryo | Direct Korean Car Sourcing & Export",
+    title: "Advanced Koryo | Encar & KB ChaChaCha Vehicle Sourcing & Export",
     description: siteConfig.description,
     path: "/",
   }),
   title: {
-    default: "Advanced Koryo | Premier South Korean Vehicle Sourcing & Export",
+    default: "Advanced Koryo | Premier Encar & KB ChaChaCha Korean Vehicle Sourcing",
     template: "%s | Advanced Koryo",
   },
   applicationName: siteConfig.name,
@@ -58,6 +61,24 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://ci.encar.com" />
         <link rel="icon" href="/logo.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(webSiteJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(autoDealerJsonLd()),
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

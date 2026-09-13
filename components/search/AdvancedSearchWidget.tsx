@@ -22,6 +22,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import carLogos from "@/lib/car-logos.json";
+import MarketSourceTabs from "./MarketSourceTabs";
 
 interface AdvancedSearchWidgetProps {
   onSearch?: (filters: any) => void;
@@ -31,6 +32,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
   const { language, dir } = useLanguage();
 
   const [mounted, setMounted] = useState(false);
+  const [selectedSource, setSelectedSource] = useState<string>("all");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [bodyType, setBodyType] = useState<string>("");
@@ -49,6 +51,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
     setMounted(true);
     
     // Read saved search parameters on mount
+    const savedSource = localStorage.getItem("kyro_search_source") || "all";
     const savedBrand = localStorage.getItem("kyro_search_brand") || "";
     const savedModel = localStorage.getItem("kyro_search_model") || "";
     const savedBody = localStorage.getItem("kyro_search_bodyType") || "";
@@ -62,6 +65,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
     const savedPort = localStorage.getItem("kyro_search_destinationPort") || "";
     const savedCert = localStorage.getItem("kyro_search_certification") || "";
     
+    if (savedSource) setSelectedSource(savedSource);
     if (savedBrand) setSelectedBrand(savedBrand);
     if (savedModel) setSelectedModel(savedModel);
     if (savedBody) setBodyType(savedBody);
@@ -151,8 +155,34 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
   // Count active secondary filters
   const activeSecondaryCount = [drivetrain, destinationPort, certification, bodyType].filter(Boolean).length;
 
+  const handleSelectSource = (src: string) => {
+    setSelectedSource(src);
+    localStorage.setItem("kyro_search_source", src);
+    window.dispatchEvent(new CustomEvent("kyro-source-select", { detail: src }));
+    
+    // Trigger auto-apply with new source
+    const filters = {
+      source: src,
+      brand: selectedBrand,
+      model: selectedModel,
+      bodyType,
+      yearFrom,
+      yearTo,
+      maxMileage,
+      minPrice,
+      maxPrice,
+      fuelType,
+      drivetrain,
+      destinationPort,
+      certification,
+    };
+    window.dispatchEvent(new CustomEvent("kyro-search-apply", { detail: filters }));
+    if (onSearch) onSearch(filters);
+  };
+
   const handleApply = () => {
     const filters = {
+      source: selectedSource,
       brand: selectedBrand,
       model: selectedModel,
       bodyType,
@@ -168,6 +198,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
     };
 
     // Save search filters in localStorage
+    localStorage.setItem("kyro_search_source", selectedSource);
     localStorage.setItem("kyro_search_brand", selectedBrand);
     localStorage.setItem("kyro_search_model", selectedModel);
     localStorage.setItem("kyro_search_bodyType", bodyType);
@@ -194,6 +225,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
   };
 
   const handleReset = () => {
+    setSelectedSource("all");
     setSelectedBrand("");
     setSelectedModel("");
     setBodyType("");
@@ -208,6 +240,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
     setCertification("");
 
     // Clear saved filters from localStorage
+    localStorage.setItem("kyro_search_source", "all");
     localStorage.removeItem("kyro_search_brand");
     localStorage.removeItem("kyro_search_model");
     localStorage.removeItem("kyro_search_bodyType");
@@ -252,11 +285,31 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
             {language === "ar" ? "فلاتر سريعة:" : "Presets:"}
           </span>
           <button
+            onClick={() => handleSelectSource("encar")}
+            className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition border cursor-pointer ${
+              selectedSource === "encar"
+                ? "bg-red-600 text-white border-red-500 shadow-sm"
+                : "bg-red-500/10 hover:bg-red-500 hover:text-white text-red-600 dark:text-rose-400 border-red-500/20"
+            }`}
+          >
+            🇰🇷 {language === "ar" ? "سيارات إنكار" : "Encar Only"}
+          </button>
+          <button
+            onClick={() => handleSelectSource("kbchachacha")}
+            className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition border cursor-pointer ${
+              selectedSource === "kbchachacha"
+                ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                : "bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-600 dark:text-amber-400 border-amber-500/20"
+            }`}
+          >
+            🏷️ {language === "ar" ? "كي بي تشاتشاتشا" : "KB ChaChaCha"}
+          </button>
+          <button
             onClick={() => {
               handleReset();
               setMaxPrice("20000");
             }}
-            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5"
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
             ⚡ {language === "ar" ? "أقل من 20,000$" : "Under $20k"}
           </button>
@@ -265,7 +318,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
               handleReset();
               setSelectedBrand("Genesis");
             }}
-            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5"
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
             👑 Genesis
           </button>
@@ -274,7 +327,7 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
               handleReset();
               setBodyType("SUV / Offroad");
             }}
-            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5"
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
             🚙 SUVs & 4x4
           </button>
@@ -283,12 +336,18 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
               handleReset();
               setFuelType("Electric");
             }}
-            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5"
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
             ⚡ EV & Hybrid
           </button>
         </div>
       </div>
+
+      {/* Prominent Multi-Market Source Selector (Encar, KB ChaChaCha, K-Car, All) */}
+      <MarketSourceTabs
+        selectedSource={selectedSource}
+        onSelectSource={handleSelectSource}
+      />
 
       {/* Primary Filter Controls Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">

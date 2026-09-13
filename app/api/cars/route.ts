@@ -19,12 +19,31 @@ function normalizeImageUrl(url: string): string {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const brand = searchParams.get("brand") || "";
-  const limit = searchParams.get("limit") || "12";
+  const source = searchParams.get("source") || "";
+  const model = searchParams.get("model") || "";
+  const yearFrom = searchParams.get("yearFrom") || "";
+  const yearTo = searchParams.get("yearTo") || "";
+  const minPrice = searchParams.get("minPrice") || "";
+  const maxPrice = searchParams.get("maxPrice") || "";
+  const search = searchParams.get("search") || "";
+  const limit = searchParams.get("limit") || "24";
 
   try {
     const primaryKey = process.env.APICARS_API_KEY || "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
     const backupKey = "RINupcjSzwvpZNvNLfaMYcoiKHxQ1mk1AX";
-    const scraperUrl = `https://api.rinevoapi.autos/api/scraper/cars?limit=${limit}${brand ? `&brand=${encodeURIComponent(brand)}` : ""}`;
+
+    const scraperParams = new URLSearchParams();
+    scraperParams.set("limit", limit);
+    if (brand && brand !== "All") scraperParams.set("brand", brand);
+    if (source && source !== "all") scraperParams.set("source", source);
+    if (model) scraperParams.set("model", model);
+    if (yearFrom) scraperParams.set("yearFrom", yearFrom);
+    if (yearTo) scraperParams.set("yearTo", yearTo);
+    if (minPrice) scraperParams.set("minPrice", minPrice);
+    if (maxPrice) scraperParams.set("maxPrice", maxPrice);
+    if (search) scraperParams.set("search", search);
+
+    const scraperUrl = `https://api.rinevoapi.autos/api/scraper/cars?${scraperParams.toString()}`;
 
     let res = await fetch(scraperUrl, {
       headers: {
