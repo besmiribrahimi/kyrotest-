@@ -87,9 +87,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let vehicleRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const primaryKey = process.env.APICARS_API_KEY || "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
-    const backupKey = "RINupcjSzwvpZNvNLfaMYcoiKHxQ1mk1AX";
-    const scraperUrl = `https://api.rinevoapi.autos/api/scraper/cars?limit=100`;
+    const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
+    const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
+    const scraperUrl = `https://api.rinevoapi.com/api/scraper/cars?limit=100`;
 
     let res = await fetch(scraperUrl, {
       headers: {

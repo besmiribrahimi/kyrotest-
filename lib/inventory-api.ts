@@ -21,7 +21,7 @@ import { normalizeInventoryParams } from "@/lib/inventory-query";
 export { normalizeInventoryParams } from "@/lib/inventory-query";
 import { CATALOG_CARS, CatalogCar } from "@/lib/catalog-data";
 
-const SCRAPER_API_BASE_URL = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.autos/api/scraper";
+const SCRAPER_API_BASE_URL = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/scraper";
 
 // Memory cache to store API car listings, bypassing the proxy 407 error on vehicle detail fetches
 const carsCache = new Map<string, ApiCar>();
@@ -251,7 +251,7 @@ interface AccidentResponse {
 }
 
 function getApiCarsApiKey(): string {
-  return process.env.APICARS_API_KEY || "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
+  return process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
 }
 
 async function fetchWithKeyFallback(url: string, init?: RequestInit): Promise<Response> {

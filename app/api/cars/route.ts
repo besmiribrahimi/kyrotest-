@@ -157,8 +157,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const primaryKey = process.env.APICARS_API_KEY || "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
-    const backupKey = "RINupcjSzwvpZNvNLfaMYcoiKHxQ1mk1AX";
+    const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
+    const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
 
     const scraperParams = new URLSearchParams();
     scraperParams.set("limit", limit);
@@ -171,7 +171,8 @@ export async function GET(request: Request) {
     if (maxPrice) scraperParams.set("maxPrice", maxPrice);
     if (search) scraperParams.set("search", search);
 
-    const scraperUrl = `https://api.rinevoapi.autos/api/scraper/cars?${scraperParams.toString()}`;
+    const apiBase = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/scraper";
+    const scraperUrl = `${apiBase}/cars?${scraperParams.toString()}`;
 
     let res = await fetch(scraperUrl, {
       headers: {
