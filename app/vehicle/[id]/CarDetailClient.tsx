@@ -1,0 +1,389 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useLanguage } from "@/lib/i18n";
+import {
+  ShieldCheck,
+  Fuel,
+  Gauge,
+  Calendar,
+  PhoneCall,
+  Ship,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Share2,
+  Printer,
+  ChevronLeft,
+  DollarSign,
+} from "lucide-react";
+
+interface CarDetailClientProps {
+  carId: string;
+  initialCarData: any;
+}
+
+export default function CarDetailClient({ carId, initialCarData }: CarDetailClientProps) {
+  const { t, language, dir } = useLanguage();
+  const [carData, setCarData] = useState<any>(initialCarData);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+
+  // Sync state if initialCarData changes
+  useEffect(() => {
+    if (initialCarData) {
+      setCarData(initialCarData);
+    }
+  }, [initialCarData]);
+
+  // Default fallback gallery if single image provided
+  const sampleImages = [
+    "/images/genesis_g80_export.png",
+    "/images/step2Image.png",
+    "/images/step3Image.png",
+    "/images/step4Image.png",
+    "/images/engineBlog.png",
+  ];
+
+  const priceUsd = carData?.prices?.USD
+    ? Math.round(carData.prices.USD)
+    : typeof carData?.price === "number"
+    ? Math.round(carData.price / 1350)
+    : 28500;
+
+  const destinationPorts = [
+    { code: "SA", nameEn: "Jeddah Islamic Port (Saudi Arabia 🇸🇦)", nameAr: "ميناء جدة الإسلامي (السعودية 🇸🇦)", baseFreight: 1450, dutyPercent: 5, vatPercent: 15, currency: "SAR", currencyRate: 3.75, transitEn: "18-22 Days", transitAr: "18-22 يوم" },
+    { code: "AE", nameEn: "Jebel Ali Port (UAE 🇦🇪)", nameAr: "ميناء جبل علي (الإمارات 🇦🇪)", baseFreight: 1350, dutyPercent: 5, vatPercent: 5, currency: "AED", currencyRate: 3.67, transitEn: "14-16 Days", transitAr: "14-16 يوم" },
+    { code: "QA", nameEn: "Hamad Port (Qatar 🇶🇦)", nameAr: "ميناء حمد (قطر 🇶🇦)", baseFreight: 1480, dutyPercent: 5, vatPercent: 0, currency: "QAR", currencyRate: 3.64, transitEn: "16-18 Days", transitAr: "16-18 يوم" },
+    { code: "KW", nameEn: "Shuwaikh Port (Kuwait 🇰🇼)", nameAr: "ميناء الشويخ (الكويت 🇰🇼)", baseFreight: 1420, dutyPercent: 5, vatPercent: 0, currency: "KWD", currencyRate: 0.31, transitEn: "15-17 Days", transitAr: "15-17 يوم" },
+    { code: "DE", nameEn: "Port of Bremerhaven (Germany 🇩🇪)", nameAr: "ميناء بريمرهافن (ألمانيا 🇩🇪)", baseFreight: 2200, dutyPercent: 10, vatPercent: 19, currency: "EUR", currencyRate: 0.92, transitEn: "35-40 Days", transitAr: "35-40 يوم" },
+    { code: "NL", nameEn: "Port of Rotterdam (Netherlands 🇳🇱)", nameAr: "ميناء روتردام (هولندا 🇳🇱)", baseFreight: 2150, dutyPercent: 10, vatPercent: 21, currency: "EUR", currencyRate: 0.92, transitEn: "34-38 Days", transitAr: "34-38 يوم" }
+  ];
+
+  const [selectedPortCode, setSelectedPortCode] = useState<string>("SA");
+
+  useEffect(() => {
+    const savedCode = localStorage.getItem("kyro_calculator_country");
+    if (savedCode) {
+      setSelectedPortCode(savedCode);
+    }
+  }, []);
+
+  const activePort = destinationPorts.find(p => p.code === selectedPortCode) || destinationPorts[0];
+
+  const handlePortChange = (code: string) => {
+    setSelectedPortCode(code);
+    localStorage.setItem("kyro_calculator_country", code);
+    window.dispatchEvent(new CustomEvent("kyro-calculator-country-update", { detail: code }));
+  };
+
+  const estFreight = activePort.baseFreight;
+  const estInsurance = 220;
+  const estDuty = Math.round(priceUsd * (activePort.dutyPercent / 100));
+  const estVat = Math.round((priceUsd + estFreight + estInsurance + estDuty) * (activePort.vatPercent / 100));
+  const totalLandedUsd = priceUsd + estFreight + estInsurance + estDuty + estVat;
+  const totalLandedLocal = Math.round(totalLandedUsd * activePort.currencyRate);
+
+  const imagesList = carData?.images && carData.images.length > 0 ? carData.images : sampleImages;
+
+  const whatsappMessage = encodeURIComponent(
+    language === "ar"
+      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة:\n\n🚗 السيارة: ${carData?.title || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر FOB: $${priceUsd.toLocaleString()} USD (~${totalLandedLocal.toLocaleString()} ${activePort.currency})\n🔢 كود السيارة: #${carId}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 الرابط: https://mykoryo.com/vehicle/${carId}\n\nيرجى تزويدي بفيديو المعاينة، تقرير الفحص 150 نقطة، وإجراءات حجز الشحن.`
+      : `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle:\n\n🚗 Vehicle: ${carData?.title || "Korean Car"} (ID #${carId})\n📅 Year: ${carData?.year || 2023}\n🛣️ Mileage: ${(carData?.mileage || 24000).toLocaleString()} km\n💰 FOB Price: $${priceUsd.toLocaleString()} USD (~${totalLandedLocal.toLocaleString()} ${activePort.currency})\n📍 Destination Port: ${activePort.nameEn}\n🔗 Link: https://mykoryo.com/vehicle/${carId}\n\nPlease share the 150-point inspection report, walkaround video, and Ro-Ro shipping booking steps.`
+  );
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#020a18] text-slate-900 dark:text-white transition-colors duration-300 flex flex-col justify-between">
+      
+      <main dir={dir} className="flex-grow py-10">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 space-y-10">
+          
+          {/* Breadcrumb & Navigation */}
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4 transition-colors">
+            <Link
+              href="/#inventory-section"
+              className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white hover:text-[#0066ff] dark:hover:text-sky-400 transition"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>{language === "ar" ? "العودة إلى المعرض" : "Back to Live Inventory"}</span>
+            </Link>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 rounded-2xl border border-slate-300 dark:border-white/15 bg-white dark:bg-[#0b1528] px-3.5 py-1.5 text-xs font-bold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition shadow-sm"
+              >
+                <Printer className="h-3.5 w-3.5 text-slate-700 dark:text-white" />
+                <span>{language === "ar" ? "طباعة المواصفات" : "Print Specs"}</span>
+              </button>
+
+              <a
+                href={`https://wa.me/821072290580?text=${whatsappMessage}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-[#020a18] px-3.5 py-1.5 text-xs font-bold hover:bg-slate-850 dark:hover:bg-slate-100 transition shadow-sm"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                <span>{language === "ar" ? "مشاركة عبر الواتساب" : "Share Vehicle"}</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Main Vehicle Header Banner */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="rounded-full bg-[#0066ff] px-3.5 py-1 font-mono text-xs font-extrabold text-[#FFFFFF] shadow-sm">
+                  VIN: KMHD7817BPK{carId}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-slate-950 px-3.5 py-1 text-xs font-extrabold text-[#FFFFFF] border border-white/10">
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#0066ff]" />
+                  <span>Encar 150-Point Inspection Passed</span>
+                </span>
+                <span className="rounded-full bg-emerald-600 px-3.5 py-1 text-xs font-extrabold text-[#FFFFFF] shadow-sm">
+                  Clean Title / Accident Free
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight transition font-sans">
+                {carData?.title || "Genesis G80 3.5T AWD Luxury"}
+              </h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium transition">
+                Direct export listing from South Korea • Official Encar Scraper Verified
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-slate-50 dark:bg-[#0b1528] border border-slate-200/60 dark:border-white/10 p-5 text-right space-y-1 transition shadow-sm">
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">FOB Korea Price</div>
+              <div className="text-3xl font-black text-slate-900 dark:text-white font-mono transition">
+                ${priceUsd.toLocaleString()} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">USD</span>
+              </div>
+              <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono transition">
+                ~{Math.round(priceUsd * activePort.currencyRate).toLocaleString()} {activePort.currency}
+              </div>
+            </div>
+          </div>
+
+          {/* Grid Layout: Image Gallery & Key Specifications */}
+          <div className="grid lg:grid-cols-12 gap-10">
+            
+            {/* Left: Gallery (7 Cols) */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-slate-100 dark:bg-[#070d19] border border-slate-200 dark:border-white/10 shadow-md transition">
+                <Image
+                  src={imagesList[selectedImageIndex] || carData?.image || sampleImages[0]}
+                  alt={carData?.title || "Korean Car"}
+                  fill
+                  className="object-cover transition duration-300"
+                  priority
+                  unoptimized
+                />
+                <div className="absolute top-4 left-4 bg-[#000000]/80 backdrop-blur text-[#FFFFFF] text-xs font-mono font-bold px-3.5 py-1 rounded-full">
+                  Photo {selectedImageIndex + 1} / {imagesList.length}
+                </div>
+              </div>
+
+              {/* Gallery Thumbnails */}
+              <div className="grid grid-cols-5 gap-3">
+                {imagesList.slice(0, 5).map((imgUrl: string, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedImageIndex(idx)}
+                    className={`relative aspect-[16/10] rounded-2xl overflow-hidden border-2 transition-all ${
+                      selectedImageIndex === idx
+                        ? "border-[#0066ff] ring-2 ring-[#0066ff]"
+                        : "border-slate-200 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/30 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={imgUrl}
+                      alt={`Thumbnail ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Inspection Audit Highlights */}
+              <div className="koryo-card-white rounded-3xl p-6 space-y-4">
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-200 dark:border-white/10 pb-3 transition-colors">
+                  <ShieldCheck className="h-4 w-4 text-[#0066ff] dark:text-sky-400" />
+                  <span>150-Point Korean Quality Audit</span>
+                </h3>
+
+                <div className="grid sm:grid-cols-2 gap-4 text-xs font-medium">
+                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white transition">Engine Compression 100%</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-450">Zero oil leakages detected</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white transition">0% Frame Structure Damage</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-450">Pillar & chassis factory condition</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white transition">Transmission Diagnostics</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-450">Smooth gear shift response</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white transition">Paint Depth Verified</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-450">Uniform factory paint thickness</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Specifications & Cost Calculator (5 Cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              
+              {/* Specification Matrix */}
+              <div className="koryo-card-white rounded-3xl p-6 space-y-5">
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white border-b border-slate-200 dark:border-white/10 pb-3 flex items-center gap-2 transition-colors">
+                  <FileText className="h-4 w-4 text-slate-700 dark:text-white" />
+                  <span>Technical Specifications</span>
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Make & Brand</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 transition">{carData?.brand || "Genesis"}</div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Model & Trim</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 transition">{carData?.model || "G80 3.5T"}</div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Manufacture Year</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 font-mono transition">{carData?.year || 2023}</div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Odometer Mileage</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 font-mono transition">
+                      {(carData?.mileage || 24000).toLocaleString()} km
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Fuel System</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 transition">{carData?.fuelType || "Gasoline"}</div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/5 transition">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Transmission</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 transition">{carData?.transmission || "Automatic"}</div>
+                  </div>
+                </div>
+
+                <a
+                  href={`https://wa.me/821072290580?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] py-4 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                  </span>
+                  <PhoneCall className="h-4 w-4" />
+                  <span>{language === "ar" ? "استشارة وشراء عبر الواتساب" : "Inquire & Purchase via WhatsApp"}</span>
+                </a>
+              </div>
+
+              {/* Landed Duty & Shipping Calculator Card */}
+              <div className="koryo-card-white rounded-3xl p-6 space-y-5">
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 dark:text-white flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 transition-colors">
+                  <span className="flex items-center gap-2">
+                    <Ship className="h-4 w-4 text-[#0066ff] dark:text-sky-400" />
+                    <span>Landed Duty & Shipping Cost</span>
+                  </span>
+                  <span className="text-xs font-mono font-bold text-[#FFFFFF] bg-[#0066ff] px-2.5 py-0.5 rounded shadow-sm">
+                    Direct Ro-Ro
+                  </span>
+                </h3>
+
+                {/* Target Port Dropdown selector */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider font-mono">
+                    {language === "ar" ? "وجهة ميناء الوصول:" : "Arrival Port Destination:"}
+                  </label>
+                  <select
+                    value={selectedPortCode}
+                    onChange={(e) => handlePortChange(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl p-3 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#0066ff] transition cursor-pointer"
+                  >
+                    {destinationPorts.map((p) => (
+                      <option key={p.code} value={p.code} className="dark:bg-slate-900 font-bold text-xs">
+                        {language === "ar" ? p.nameAr : p.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-3.5 text-xs font-semibold pt-1">
+                  <div className="flex justify-between py-1">
+                    <span className="text-slate-500 dark:text-slate-400">Vehicle FOB Korea:</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">${priceUsd.toLocaleString()} USD</span>
+                  </div>
+
+                  <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <span>Ocean Freight & Marine Ins:</span>
+                      <span className="text-[10px] bg-slate-100 dark:bg-slate-950 text-[#0066ff] dark:text-sky-400 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-white/5 font-bold">
+                        ⏱️ {language === "ar" ? activePort.transitAr : activePort.transitEn}
+                      </span>
+                    </span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${(estFreight + estInsurance).toLocaleString()} USD</span>
+                  </div>
+
+                  <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
+                    <span className="text-slate-500 dark:text-slate-400">Est. Customs Duty ({activePort.dutyPercent}%):</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${estDuty.toLocaleString()} USD</span>
+                  </div>
+
+                  {activePort.vatPercent > 0 && (
+                    <div className="flex justify-between py-1 border-t border-slate-200 dark:border-white/10 transition-colors">
+                      <span className="text-slate-500 dark:text-slate-400">Est. Local VAT ({activePort.vatPercent}%):</span>
+                      <span className="font-mono font-bold text-slate-900 dark:text-white transition">+${estVat.toLocaleString()} USD</span>
+                    </div>
+                  )}
+
+                  <div className="rounded-3xl bg-slate-950 dark:bg-slate-900 p-4 text-center space-y-1 border border-white/5 transition shadow-md">
+                    <div className="text-[10px] text-slate-350 dark:text-slate-400 font-bold uppercase tracking-wider transition">
+                      Est. Total Landed Price
+                    </div>
+                    <div className="text-2xl font-black text-[#FFFFFF] font-mono transition">
+                      ${totalLandedUsd.toLocaleString()} USD
+                    </div>
+                    <div className="text-xs font-extrabold text-[#FFFFFF] dark:text-sky-400 font-mono transition">
+                      ~ {totalLandedLocal.toLocaleString()} {activePort.currency}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

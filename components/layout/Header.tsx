@@ -25,9 +25,10 @@ export default function Header() {
 
   const navLinks = [
     { href: "/", label: t.nav.home },
+    { href: "/catalog", label: t.nav.catalog, isHot: true },
     { href: "/inventory", label: t.nav.inventory },
-    { href: "/about", label: language === "ar" ? "من نحن" : "About Us" },
     { href: "/shipping-calculator", label: t.nav.shippingCalculator },
+    { href: "/about", label: language === "ar" ? "من نحن" : "About Us" },
     { href: "/contact", label: t.nav.contact },
   ];
 
@@ -62,14 +63,19 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-7 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="group relative text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-white/95 transition-colors hover:text-[#0066ff] dark:hover:text-sky-400 py-1"
+              className="group relative flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-white/95 transition-colors hover:text-[#0066ff] dark:hover:text-sky-400 py-1"
             >
-              {link.label}
+              <span>{link.label}</span>
+              {link.isHot && (
+                <span className="bg-emerald-500 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full animate-pulse shadow-sm">
+                  Live
+                </span>
+              )}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#0066ff] dark:bg-sky-400 transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}

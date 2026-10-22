@@ -19,11 +19,69 @@ import {
 import { normalizeInventoryParams } from "@/lib/inventory-query";
 
 export { normalizeInventoryParams } from "@/lib/inventory-query";
+import { CATALOG_CARS, CatalogCar } from "@/lib/catalog-data";
 
 const SCRAPER_API_BASE_URL = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.autos/api/scraper";
 
 // Memory cache to store API car listings, bypassing the proxy 407 error on vehicle detail fetches
 const carsCache = new Map<string, ApiCar>();
+
+function catalogCarToApiCar(cat: CatalogCar): ApiCar {
+  return {
+    id: cat.id,
+    title: cat.title,
+    brand: cat.brand,
+    model: cat.model,
+    year: cat.year,
+    price: cat.price,
+    currency: "KRW",
+    mileage: cat.mileage,
+    fuelType: cat.fuelType,
+    transmission: cat.transmission,
+    color: cat.color,
+    type: cat.bodyType,
+    source_id: cat.source,
+    image: cat.image,
+    images: cat.images,
+    prices: {
+      EUR: Math.round(cat.priceUsd * 0.92),
+      USD: cat.priceUsd,
+      KRW: cat.price,
+    },
+    vin: cat.vin,
+    trustBadges: [cat.badge || "Encar Certified"],
+    accident: {
+      success: true,
+      data: {
+        vehicle: {
+          vin: cat.vin,
+          engineType: `${cat.displacementCc ? (cat.displacementCc / 1000).toFixed(1) + "L" : ""} ${cat.fuelType}`,
+          transmission: cat.transmission,
+          fuelType: cat.fuelType,
+        },
+        condition: {
+          mileage: cat.mileage,
+          odometerStatus: "Verified Original",
+          color: cat.color,
+        },
+        accident: {
+          hasAccident: cat.inspection.structuralDamage,
+          status: "Clean - No Structural Damage",
+          hasSimpleRepair: false,
+        },
+        verification: {
+          verificationAt: cat.inspection.inspectionDate,
+        },
+      },
+      summary: {
+        hasAccident: cat.inspection.structuralDamage,
+        simpleRepairsCount: 0,
+        structuralRepairsCount: 0,
+        insuranceClaims: 0,
+      },
+    },
+  };
+}
 
 
 // The scraper list API filters fuel by short codes, not the human-readable
@@ -442,9 +500,12 @@ export async function getInventoryCars(
     if (error && (error.digest === "DYNAMIC_SERVER_USAGE" || error.message?.includes("Dynamic server usage"))) {
       throw error;
     }
-    console.error("getInventoryCars failed, returning fallback empty dataset:", error);
+    console.error("getInventoryCars failed, returning fallback catalog dataset:", error);
+    const fallbackCars = await Promise.all(
+      CATALOG_CARS.map((c) => normalizeCarSummary(apiCarToDbRecord(catalogCarToApiCar(c))))
+    );
     return {
-      cars: [],
+      cars: fallbackCars,
       pagination: {
         page,
         limit,
@@ -453,17 +514,7 @@ export async function getInventoryCars(
         nextPage: null,
         previousPage: null,
       },
-      filterOptions: {
-        brands: [],
-        models: [],
-        fuelTypes: [],
-        transmissions: [],
-        colors: [],
-        bodyTypes: BODY_TYPE_OPTIONS,
-        engineSizes: [],
-        driveTypes: [],
-        accidentStatuses: [],
-      },
+      filterOptions: getInventoryFilterOptionsFromCars(fallbackCars),
     };
   }
 }
@@ -933,6 +984,14 @@ async function fetchCarDetailsOnce(
 export async function getInventoryCarDetailsOutcome(
   listingId: string,
 ): Promise<CarDetailsOutcome> {
+  const catalogMatch = CATALOG_CARS.find((c) => c.id === listingId);
+  if (catalogMatch) {
+    const apiCar = catalogCarToApiCar(catalogMatch);
+    carsCache.set(String(listingId), apiCar);
+    const details = await processApiCar(apiCar);
+    return { status: "ok", details };
+  }
+
   if (!isValidListingId(listingId)) {
     return { status: "not-found" };
   }

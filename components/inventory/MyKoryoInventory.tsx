@@ -350,6 +350,34 @@ export default function MyKoryoInventory() {
           />
         </div>
 
+        {/* Direct Catalog Portal Banner */}
+        <div className="mb-8 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 p-1 shadow-lg shadow-blue-500/20">
+          <div className="rounded-[22px] bg-slate-950/40 backdrop-blur-md p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
+            <div className="flex items-center gap-3">
+              <span className="p-2.5 rounded-2xl bg-white/10 backdrop-blur border border-white/20">
+                <Sparkles className="h-6 w-6 text-amber-300" />
+              </span>
+              <div>
+                <h4 className="text-sm sm:text-base font-black">
+                  {language === "ar" ? "كتالوج التصدير السريع والمباشر (Encar & KB ChaChaCha)" : "Fast Direct Korean Export Catalog (Encar & KB)"}
+                </h4>
+                <p className="text-xs text-white/80">
+                  {language === "ar"
+                    ? "تصفح مخصص وسريع بدون تشتت مع فلاتر سريعة وزر الاستشارة والشراء المباشر."
+                    : "Streamlined high-density car catalog with instant WhatsApp consultation and Ro-Ro shipping."}
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/catalog"
+              className="inline-flex items-center gap-2 rounded-xl bg-white text-slate-950 hover:bg-slate-100 px-5 py-2.5 text-xs font-black uppercase tracking-wider transition shadow-md shrink-0"
+            >
+              <span>{language === "ar" ? "فتح الكتالوج الكامل" : "Open Full Catalog"}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-slate-950 dark:bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white dark:text-slate-950 mb-3 transition shadow-sm">
@@ -533,15 +561,39 @@ export default function MyKoryoInventory() {
                     </div>
                   </div>
 
-                  <div className="p-6 pt-0 flex gap-2">
-                    <Link
-                      href={`/vehicle/${car.id}`}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl koryo-btn-black py-3.5 text-xs font-extrabold uppercase tracking-wider text-white shadow-md transition"
-                    >
-                      <span>{language === "ar" ? "عرض التفاصيل الكاملة" : "View Full Specs"}</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
+                  {(() => {
+                    const carLink = `https://mykoryo.com/vehicle/${car.id}`;
+                    const waText = language === "ar"
+                      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة:\n\n🚗 السيارة: ${car.title}\n📅 الموديل: ${car.year}\n🛣️ الممشى: ${car.mileage?.toLocaleString()} كم\n💰 السعر FOB: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 كود السيارة: #${car.id}\n🔗 الرابط: ${carLink}\n\nيرجى تزويدي بفيديو المعاينة وفحص 150 نقطة وتكلفة الشحن واصل للميناء.`
+                      : `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle:\n\n🚗 Vehicle: ${car.title}\n📅 Year: ${car.year}\n🛣️ Mileage: ${car.mileage?.toLocaleString()} km\n💰 FOB Price: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 ID: #${car.id}\n🔗 Link: ${carLink}\n\nPlease send the 150-point inspection audit, video walkaround, and shipping quote.`;
+                    const whatsappConsultUrl = `https://wa.me/821072290580?text=${encodeURIComponent(waText)}`;
+
+                    return (
+                      <div className="p-6 pt-0 space-y-2">
+                        <a
+                          href={whatsappConsultUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white py-3 text-xs font-black uppercase tracking-wider shadow-md transition hover:scale-[1.01]"
+                        >
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                          </span>
+                          <PhoneCall className="h-3.5 w-3.5" />
+                          <span>{language === "ar" ? "استشارة وشراء" : "Consult & Buy (WhatsApp)"}</span>
+                        </a>
+
+                        <Link
+                          href={`/vehicle/${car.id}`}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl koryo-btn-black py-2.5 text-xs font-bold uppercase tracking-wider text-white transition"
+                        >
+                          <span>{language === "ar" ? "عرض التفاصيل الكاملة" : "View Full Specs"}</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                    );
+                  })()}
                 </motion.div>
               );
             })}

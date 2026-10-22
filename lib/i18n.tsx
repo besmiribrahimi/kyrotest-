@@ -7,6 +7,7 @@ export type Language = "en" | "ar";
 export interface TranslationDictionary {
   nav: {
     home: string;
+    catalog: string;
     inventory: string;
     directSourcing: string;
     shippingCalculator: string;
@@ -54,6 +55,7 @@ export interface TranslationDictionary {
     resetFilters: string;
     viewDetails: string;
     inquireWhatsapp: string;
+    consultAndBuy: string;
     inspectedBadge: string;
     exportReady: string;
     noResults: string;
@@ -124,6 +126,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   en: {
     nav: {
       home: "Home",
+      catalog: "Export Catalog",
       inventory: "Inventory",
       directSourcing: "Direct Sourcing",
       shippingCalculator: "Shipping Calculator",
@@ -172,6 +175,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       resetFilters: "Reset",
       viewDetails: "View Full Specs",
       inquireWhatsapp: "Inquire via WhatsApp",
+      consultAndBuy: "Consult & Buy",
       inspectedBadge: "Koryo Certified",
       exportReady: "GCC Export Ready",
       noResults: "No vehicles match your selected criteria.",
@@ -240,6 +244,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   ar: {
     nav: {
       home: "الرئيسية",
+      catalog: "كتالوج السيارات",
       inventory: "السيارات المتاحة",
       directSourcing: "الاستيراد المباشر",
       shippingCalculator: "حاسبة الشحن",
@@ -288,6 +293,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       resetFilters: "إعادة ضبط",
       viewDetails: "تفاصيل السيارة والفحص",
       inquireWhatsapp: "تواصل عبر واتساب",
+      consultAndBuy: "استشارة وشراء",
       inspectedBadge: "معتمد من Koryo",
       exportReady: "مطابق لمواصفات الخليج",
       noResults: "لا توجد سيارات تطابق خيارات البحث المختارة.",
