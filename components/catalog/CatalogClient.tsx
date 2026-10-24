@@ -377,40 +377,7 @@ export default function CatalogClient() {
 
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-6">
         
-        {/* Executive Official Encar Guarantee & Live Stream Bar */}
-        <div className="mb-6 rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-center gap-3.5">
-            <div className="h-11 w-11 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md shadow-red-500/20">
-              🇰🇷
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                  {isAr ? "تغذية إنكار (Encar 엔카) الرسمية والمباشرة" : "Encar (엔카) Official Certified Feed"}
-                </span>
-                <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-                  100% Encar Verified
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr
-                  ? "تصفح مباشر ومحدث لحظياً لأكثر من 120,000 سيارة من إنكار كوريا الجنوبية مع فحص الهيكل والشاسي الأصلي وخلو تام من حوادث الغرق."
-                  : "Live direct stream of 120,000+ Encar vehicles with official diagnostic reports, frame inspection, and zero flood history."}
-              </p>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs font-bold shrink-0">
-            <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl border border-emerald-500/20">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>{isAr ? "100% مقود يسار (LHD)" : "100% LHD Guaranteed"}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 bg-[#0066ff]/10 text-[#0066ff] dark:text-sky-400 px-3 py-1.5 rounded-xl border border-[#0066ff]/20">
-              <ShieldCheck className="h-4 w-4" />
-              <span>{isAr ? "فحص إنكار 150 نقطة" : "Encar 150-Point Audit"}</span>
-            </span>
-          </div>
-        </div>
 
         {/* Top Controls & Header Bar */}
         <div className="rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-4 sm:p-6 mb-6 shadow-sm">
