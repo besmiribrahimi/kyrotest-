@@ -115,8 +115,8 @@ export default function HeroSection() {
               <ShieldCheck className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400" />
               <span>
                 {isAr
-                  ? "مصدر سيارات مرخص في سيول • فحص إنكار وKB المباشر"
-                  : "Licensed Seoul Exporter • Encar & KB Direct Feed"}
+                  ? "مصدر سيارات مرخص في سيول • فحص إنكار المباشر"
+                  : "Licensed Seoul Exporter • Official Encar Direct Feed"}
               </span>
             </div>
 
@@ -142,8 +142,8 @@ export default function HeroSection() {
             {/* Description */}
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium max-w-2xl">
               {isAr
-                ? "تصفح أكثر من 150,000 سيارة كورية مفحوصة مباشرة من منصات إنكار (Encar) وKB تشاتشاتشا مع أسعار FOB الحقيقية، تدقيق الشاسي والمحرك، وشحن بحري مباشر Ro-Ro إلى السعودية، الإمارات، قطر، الكويت، وكافة الموانئ."
-                : "Browse 150,000+ verified vehicles directly from Encar and KB ChaChaCha with transparent FOB pricing, 150-point diagnostic inspection, and insured Ro-Ro ocean shipping to Jeddah, Jebel Ali, Dammam, and worldwide."}
+                ? "تصفح أحدث السيارات الكورية المفحوصة مباشرة من منصة إنكار (Encar) مع أسعار FOB الحقيقية، تدقيق الشاسي والمحرك، وشحن بحري مباشر Ro-Ro إلى السعودية، الإمارات، قطر، الكويت، وكافة الموانئ."
+                : "Browse verified vehicles directly from Encar South Korea with transparent FOB pricing, 150-point diagnostic inspection, and insured Ro-Ro ocean shipping to Jeddah, Jebel Ali, Dammam, and worldwide."}
             </p>
 
             {/* Phone-Centered Quick Search Box */}

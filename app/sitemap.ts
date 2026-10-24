@@ -24,24 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
-    // Top Source Landing Pathways (Encar & KB ChaChaCha)
+    // Direct Encar Certified Export Catalog
     {
       url: `${siteUrl}/inventory?source=encar`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/inventory?source=kbchachacha`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/inventory?source=kcar`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.85,
     },
     // Top Brand Filter Landing Pathways
     {
@@ -89,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
     const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
-    const scraperUrl = `https://api.rinevoapi.com/api/scraper/cars?limit=100`;
+    const scraperUrl = `https://api.rinevoapi.com/api/encar/cars?limit=100`;
 
     let res = await fetch(scraperUrl, {
       headers: {
@@ -109,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     if (res.ok) {
       const json = await res.json();
-      const cars = json.data?.cars || json.cars || [];
+      const cars = json.recentCars || json.data?.cars || json.cars || [];
       if (Array.isArray(cars)) {
         vehicleRoutes = cars.map((car: any) => ({
           url: `${siteUrl}/vehicle/${car.id}`,

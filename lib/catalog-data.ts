@@ -15,7 +15,7 @@ export interface CatalogCar {
   bodyType: "Sedan" | "SUV" | "Van" | "Truck" | "Coupe";
   bodyTypeAr?: string;
   drivetrain: "AWD" | "2WD" | "4WD" | "FWD" | "RWD";
-  source: "encar" | "kbchachacha" | "kcar";
+  source: "encar";
   color: string;
   colorAr?: string;
   image: string;
@@ -116,9 +116,9 @@ export const CATALOG_CARS: CatalogCar[] = [
     },
   },
 
-  // 3. Genesis GV70 (2023) - KB ChaChaCha
+  // 3. Genesis GV70 (2023) - Encar
   {
-    id: "kb-gv70-2301",
+    id: "encar-gv70-2301",
     title: "Genesis GV70 2.5T AWD Sport Package Panoramic",
     titleAr: "جينيسيس GV70 2.5T سبورت بكج بانوراما دفع رباعي",
     brand: "Genesis",
@@ -134,7 +134,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "SUV",
     bodyTypeAr: "دفع رباعي كومباكت",
     drivetrain: "AWD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Makalu Gray Matte",
     colorAr: "رمادي ماكالو مطفي",
     image: "/images/step3Image.png",
@@ -144,7 +144,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/inspection/03.jpg",
     ],
     displacementCc: 2497,
-    badge: "KB Financial Verified Odometer",
+    badge: "Encar Certified Sport AWD",
     vin: "KMHLC41BBPX019231",
     inspection: {
       certified: true,
@@ -152,13 +152,13 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-02-28",
-      center: "KB ChaChaCha Gimpo Auto Hub",
+      center: "Encar Gimpo Auto Hub",
     },
   },
 
-  // 4. Kia Carnival 4th Gen (2024) - KB ChaChaCha Direct
+  // 4. Kia Carnival 4th Gen (2024) - Encar Direct
   {
-    id: "kb-carnival-2401",
+    id: "encar-carnival-2401",
     title: "Kia The New Carnival 4th Gen D2.2 9-Seater Signature",
     titleAr: "كيا كرنفال الجيل الرابع ديزل 9 مقاعد فئة سيجنتشر فل كامل",
     brand: "Kia",
@@ -174,7 +174,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "Van",
     bodyTypeAr: "عائلي فان فاخر",
     drivetrain: "2WD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Snow White Pearl",
     colorAr: "أبيض لؤلؤي",
     image: "/images/kia_carnival_export.png",
@@ -185,7 +185,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/engineBlog.png",
     ],
     displacementCc: 2151,
-    badge: "KB ChaChaCha Certified Export",
+    badge: "Encar Certified 9-Seat Signature",
     vin: "KNDMB51AAPU041982",
     inspection: {
       certified: true,
@@ -193,7 +193,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-03-01",
-      center: "KB Performance Center Incheon",
+      center: "Encar Performance Center Incheon",
     },
   },
 
@@ -278,9 +278,9 @@ export const CATALOG_CARS: CatalogCar[] = [
     },
   },
 
-  // 7. Hyundai Santa Fe MX5 (2024) - K-Car
+  // 7. Hyundai Santa Fe MX5 (2024) - Encar
   {
-    id: "kcar-santafe-2401",
+    id: "encar-santafe-2401",
     title: "Hyundai All New Santa Fe (MX5) 2.5T Calligraphy AWD",
     titleAr: "هيونداي سنتافي الجيل الجديد كلياً كاليغرافي تيربو AWD",
     brand: "Hyundai",
@@ -296,7 +296,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "SUV",
     bodyTypeAr: "دفع رباعي SUV",
     drivetrain: "AWD",
-    source: "kcar",
+    source: "encar",
     color: "Cyber Sage Pearl",
     colorAr: "رمادي سيبراني ميتاليك",
     image: "/images/step3Image.png",
@@ -358,9 +358,9 @@ export const CATALOG_CARS: CatalogCar[] = [
     },
   },
 
-  // 9. Kia Sorento MQ4 Hybrid (2024) - KB ChaChaCha
+  // 9. Kia Sorento MQ4 Hybrid (2024) - Encar
   {
-    id: "kb-sorento-2401",
+    id: "encar-sorento-2401",
     title: "Kia The New Sorento 1.6 Turbo Hybrid Gravity AWD 6-Seat",
     titleAr: "كيا سورينتو هايبرد 1.6T جرافيتي دفع رباعي 6 مقاعد VIP",
     brand: "Kia",
@@ -376,7 +376,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "SUV",
     bodyTypeAr: "دفع رباعي هايبرد",
     drivetrain: "AWD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Interstellar Gray",
     colorAr: "رمادي كوني مميز",
     image: "/images/step2Image.png",
@@ -386,7 +386,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/mercInterior.png",
     ],
     displacementCc: 1598,
-    badge: "KB Verified Hybrid Battery",
+    badge: "Encar Verified Hybrid Battery",
     vin: "KNDMC81CAPX019283",
     inspection: {
       certified: true,
@@ -394,13 +394,13 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-03-10",
-      center: "KB ChaChaCha Suwon Direct",
+      center: "Encar Suwon Direct",
     },
   },
 
-  // 10. Kia K5 DL3 (2023) - K-Car
+  // 10. Kia K5 DL3 (2023) - Encar
   {
-    id: "kcar-k5-2301",
+    id: "encar-k5-2301",
     title: "Kia K5 1.6 Turbo Signature Full Option Panoramic",
     titleAr: "كيا K5 جي تي لاين / سيجنتشر 1.6 تيربو بانوراما",
     brand: "Kia",
@@ -416,7 +416,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "Sedan",
     bodyTypeAr: "سيدان رياضي",
     drivetrain: "2WD",
-    source: "kcar",
+    source: "encar",
     color: "Wolf Gray",
     colorAr: "رمادي ولف رياضي",
     image: "/images/step4Image.png",
@@ -425,7 +425,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/mercInterior.png",
     ],
     displacementCc: 1598,
-    badge: "K-Car Certified No Accident",
+    badge: "Encar Certified Signature",
     vin: "KNDMB41ABPW049102",
     inspection: {
       certified: true,
@@ -433,13 +433,13 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-01-20",
-      center: "K-Car Incheon Export Yard",
+      center: "Encar Incheon Export Yard",
     },
   },
 
-  // 11. Kia Sportage The Bold (2023) - KB ChaChaCha
+  // 11. Kia Sportage The Bold (2023) - Encar
   {
-    id: "kb-sportage-2301",
+    id: "encar-sportage-2301",
     title: "Kia Sportage 1.6T Hybrid Signature Gravity 2WD",
     titleAr: "كيا سبورتاج هايبرد 1.6T فئة سيجنتشر جرافيتي شاشة منحنية",
     brand: "Kia",
@@ -455,7 +455,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "SUV",
     bodyTypeAr: "دفع رباعي كومباكت",
     drivetrain: "2WD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Jungle Green",
     colorAr: "أخضر جانغل زيتي",
     image: "/images/step3Image.png",
@@ -464,7 +464,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/mercInterior.png",
     ],
     displacementCc: 1598,
-    badge: "KB ChaChaCha Verified",
+    badge: "Encar Verified Hybrid",
     vin: "KNDPC81BAPW084192",
     inspection: {
       certified: true,
@@ -472,7 +472,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-02-18",
-      center: "KB Performance Center Bucheon",
+      center: "Encar Performance Center Bucheon",
     },
   },
 
@@ -594,9 +594,9 @@ export const CATALOG_CARS: CatalogCar[] = [
     },
   },
 
-  // 15. Mercedes-Benz E-Class E300 4MATIC (2023) - KB ChaChaCha
+  // 15. Mercedes-Benz E-Class E300 4MATIC (2023) - Encar
   {
-    id: "kb-eclass-2301",
+    id: "encar-eclass-2301",
     title: "Mercedes-Benz E-Class (W213) E300 4MATIC Exclusive",
     titleAr: "مرسيدس بنز E300 4MATIC إكسكلوزيف فل أوبشن مواصفات كورية",
     brand: "Mercedes-Benz",
@@ -612,7 +612,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "Sedan",
     bodyTypeAr: "سيدان فاخر",
     drivetrain: "AWD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Obsidian Black Metallic",
     colorAr: "أسود أوبسيديان ملكي",
     image: "/images/mercInterior.png",
@@ -622,7 +622,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/engineBlog.png",
     ],
     displacementCc: 1991,
-    badge: "KB ChaChaCha Luxury Verified",
+    badge: "Encar Luxury Verified 4MATIC",
     vin: "W1KZF4GB3NA049182",
     inspection: {
       certified: true,
@@ -630,7 +630,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-03-08",
-      center: "KB Premium Center Gangnam",
+      center: "Encar Premium Center Gangnam",
     },
   },
 
@@ -674,9 +674,9 @@ export const CATALOG_CARS: CatalogCar[] = [
     },
   },
 
-  // 17. Hyundai Staria Lounge (2023) - KB ChaChaCha
+  // 17. Hyundai Staria Lounge (2023) - Encar
   {
-    id: "kb-staria-2301",
+    id: "encar-staria-2301",
     title: "Hyundai Staria Lounge 9-Seater Inspiration 2.2D AWD",
     titleAr: "هيونداي ستاريا لاونج 9 ركاب فئة إنسبيريشن ديزل دفع رباعي",
     brand: "Hyundai",
@@ -692,7 +692,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     bodyType: "Van",
     bodyTypeAr: "فان عائلي سياحي VIP",
     drivetrain: "AWD",
-    source: "kbchachacha",
+    source: "encar",
     color: "Creamy White",
     colorAr: "أبيض كريمي",
     image: "/images/kia_carnival_export.png",
@@ -701,7 +701,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       "/images/mercInterior.png",
     ],
     displacementCc: 2199,
-    badge: "KB ChaChaCha Certified 9-Seat",
+    badge: "Encar Certified 9-Seat Lounge",
     vin: "KMHWA81BBPX018241",
     inspection: {
       certified: true,
@@ -709,7 +709,7 @@ export const CATALOG_CARS: CatalogCar[] = [
       floodDamage: false,
       paintAuditPassed: true,
       inspectionDate: "2026-02-12",
-      center: "KB Commercial & Van Center",
+      center: "Encar Commercial & Van Center",
     },
   },
 

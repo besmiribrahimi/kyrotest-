@@ -34,12 +34,12 @@ const tajawal = Tajawal({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   ...buildPageMetadata({
-    title: "Advanced Koryo | Encar & KB ChaChaCha Vehicle Sourcing & Export",
+    title: "Advanced Koryo | Direct Encar Vehicle Sourcing & Export",
     description: siteConfig.description,
     path: "/",
   }),
   title: {
-    default: "Advanced Koryo | Premier Encar & KB ChaChaCha Korean Vehicle Sourcing",
+    default: "Advanced Koryo | Premier Encar Korean Vehicle Sourcing",
     template: "%s | Advanced Koryo",
   },
   applicationName: siteConfig.name,

@@ -21,7 +21,7 @@ import { normalizeInventoryParams } from "@/lib/inventory-query";
 export { normalizeInventoryParams } from "@/lib/inventory-query";
 import { CATALOG_CARS, CatalogCar } from "@/lib/catalog-data";
 
-const SCRAPER_API_BASE_URL = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/scraper";
+const SCRAPER_API_BASE_URL = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/encar";
 
 // Memory cache to store API car listings, bypassing the proxy 407 error on vehicle detail fetches
 const carsCache = new Map<string, ApiCar>();

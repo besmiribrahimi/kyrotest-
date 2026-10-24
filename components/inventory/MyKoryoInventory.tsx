@@ -16,7 +16,6 @@ import {
   ArrowRight,
   AlertCircle,
 } from "lucide-react";
-import MarketSourceTabs from "@/components/search/MarketSourceTabs";
 
 interface RealCarItem {
   id: string;
@@ -39,7 +38,6 @@ interface RealCarItem {
 
 export default function MyKoryoInventory() {
   const { t, language, dir } = useLanguage();
-  const [selectedSource, setSelectedSource] = useState<string>("all");
   const [selectedMake, setSelectedMake] = useState<string>("All");
   const [realCars, setRealCars] = useState<RealCarItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -65,7 +63,6 @@ export default function MyKoryoInventory() {
         const params = new URLSearchParams();
         params.set("limit", "48");
         if (selectedMake !== "All") params.set("brand", selectedMake);
-        if (selectedSource && selectedSource !== "all") params.set("source", selectedSource);
 
         const res = await fetch(`/api/cars?${params.toString()}`);
         if (res.ok) {
@@ -84,7 +81,7 @@ export default function MyKoryoInventory() {
     }
 
     loadRealCars();
-  }, [selectedMake, selectedSource]);
+  }, [selectedMake]);
 
   // Sync brand and search filters on mount, listen to events
   useEffect(() => {
@@ -92,12 +89,6 @@ export default function MyKoryoInventory() {
     const savedWizardMake = localStorage.getItem("kyro_wizard_make");
     if (savedWizardMake) {
       setSelectedMake(savedWizardMake);
-    }
-
-    // Check for saved search source
-    const savedSource = localStorage.getItem("kyro_search_source") || "all";
-    if (savedSource) {
-      setSelectedSource(savedSource);
     }
 
     // Check for saved search filters
@@ -144,21 +135,10 @@ export default function MyKoryoInventory() {
     
     loadSavedFilters();
 
-    // Listen to custom source select events
-    const handleSourceSelect = (e: Event) => {
-      const src = (e as CustomEvent).detail;
-      if (src) {
-        setSelectedSource(src);
-      }
-    };
-
     // Listen to custom search events
     const handleSearchApply = (e: Event) => {
       const filters = (e as CustomEvent).detail;
       setSearchFilters(filters);
-      if (filters.source) {
-        setSelectedSource(filters.source);
-      }
       if (filters.brand) {
         setSelectedMake(filters.brand);
       } else {
@@ -169,7 +149,6 @@ export default function MyKoryoInventory() {
     const handleSearchClear = () => {
       setSearchFilters(null);
       setSelectedMake("All");
-      setSelectedSource("all");
     };
 
     const handleWizardComplete = (e: Event) => {
@@ -190,7 +169,6 @@ export default function MyKoryoInventory() {
       }
     };
 
-    window.addEventListener("kyro-source-select", handleSourceSelect);
     window.addEventListener("kyro-search-apply", handleSearchApply);
     window.addEventListener("kyro-search-clear", handleSearchClear);
     window.addEventListener("kyro-wizard-complete", handleWizardComplete);
@@ -198,7 +176,6 @@ export default function MyKoryoInventory() {
     window.addEventListener("kyro-calculator-country-update", handleCalculatorCountryUpdate);
 
     return () => {
-      window.removeEventListener("kyro-source-select", handleSourceSelect);
       window.removeEventListener("kyro-search-apply", handleSearchApply);
       window.removeEventListener("kyro-search-clear", handleSearchClear);
       window.removeEventListener("kyro-wizard-complete", handleWizardComplete);
@@ -231,13 +208,6 @@ export default function MyKoryoInventory() {
 
   // Client-side filtering logic
   const filteredCars = realCars.filter((car) => {
-    // 0. Filter by Selected Market Source
-    if (selectedSource && selectedSource !== "all") {
-      const carSource = (car.source || "encar").toLowerCase();
-      if (carSource !== selectedSource.toLowerCase()) {
-        return false;
-      }
-    }
 
     // 1. Filter by Selected Make Button (if it's not All)
     if (selectedMake !== "All" && car.brand?.toLowerCase() !== selectedMake.toLowerCase() && !car.title?.toLowerCase().includes(selectedMake.toLowerCase())) {
@@ -338,44 +308,30 @@ export default function MyKoryoInventory() {
     <section id="inventory-section" dir={dir} className="relative py-20 bg-slate-50 dark:bg-[#020a18] text-slate-900 dark:text-white border-t border-slate-200 dark:border-white/10 transition-colors duration-300">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10">
         
-        {/* Top Multi-Market Source Selector */}
-        <div className="mb-10">
-          <MarketSourceTabs
-            selectedSource={selectedSource}
-            onSelectSource={(src) => {
-              setSelectedSource(src);
-              localStorage.setItem("kyro_search_source", src);
-              window.dispatchEvent(new CustomEvent("kyro-source-select", { detail: src }));
-            }}
-          />
-        </div>
-
         {/* Direct Catalog Portal Banner */}
-        <div className="mb-8 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 p-1 shadow-lg shadow-blue-500/20">
-          <div className="rounded-[22px] bg-slate-950/40 backdrop-blur-md p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
-            <div className="flex items-center gap-3">
-              <span className="p-2.5 rounded-2xl bg-white/10 backdrop-blur border border-white/20">
-                <Sparkles className="h-6 w-6 text-amber-300" />
-              </span>
-              <div>
-                <h4 className="text-sm sm:text-base font-black">
-                  {language === "ar" ? "كتالوج التصدير السريع والمباشر (Encar & KB ChaChaCha)" : "Fast Direct Korean Export Catalog (Encar & KB)"}
-                </h4>
-                <p className="text-xs text-white/80">
-                  {language === "ar"
-                    ? "تصفح مخصص وسريع بدون تشتت مع فلاتر سريعة وزر الاستشارة والشراء المباشر."
-                    : "Streamlined high-density car catalog with instant WhatsApp consultation and Ro-Ro shipping."}
-                </p>
-              </div>
+        <div className="mb-8 rounded-3xl bg-slate-900 dark:bg-[#070e1b] border border-slate-800 dark:border-white/10 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-md">
+          <div className="flex items-center gap-3">
+            <span className="p-2.5 rounded-2xl bg-red-600 text-white font-black text-sm shrink-0 shadow-sm">
+              🇰🇷
+            </span>
+            <div>
+              <h4 className="text-sm sm:text-base font-black">
+                {language === "ar" ? "كتالوج سيارات إنكار المباشر (Encar)" : "Official Encar Direct Export Catalog"}
+              </h4>
+              <p className="text-xs text-slate-300 dark:text-slate-400">
+                {language === "ar"
+                  ? "تصفح مخصص وسريع بدون تشتت مع فلاتر سريعة وزر الاستشارة والشراء المباشر عبر الواتساب."
+                  : "Streamlined vehicle catalog with instant WhatsApp consultation and Ro-Ro ocean shipping."}
+              </p>
             </div>
-            <Link
-              href="/catalog"
-              className="inline-flex items-center gap-2 rounded-xl bg-white text-slate-950 hover:bg-slate-100 px-5 py-2.5 text-xs font-black uppercase tracking-wider transition shadow-md shrink-0"
-            >
-              <span>{language === "ar" ? "فتح الكتالوج الكامل" : "Open Full Catalog"}</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
+          <Link
+            href="/catalog"
+            className="inline-flex items-center gap-2 rounded-xl bg-white text-slate-950 hover:bg-slate-100 px-5 py-2.5 text-xs font-black uppercase tracking-wider transition shadow-md shrink-0"
+          >
+            <span>{language === "ar" ? "فتح الكتالوج الكامل" : "Open Full Catalog"}</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -490,19 +446,9 @@ export default function MyKoryoInventory() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 dark:from-[#000000]/80 via-transparent to-transparent opacity-85" />
 
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-                        {car.source === "kbchachacha" ? (
-                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-950 bg-amber-400 px-2.5 py-1 rounded-md border border-amber-300 shadow-sm">
-                            <span>🏷️ KB ChaChaCha</span>
-                          </span>
-                        ) : car.source === "kcar" ? (
-                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-white bg-sky-600 px-2.5 py-1 rounded-md border border-sky-400 shadow-sm">
-                            <span>🛡️ K-Car Direct</span>
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-white bg-red-600 px-2.5 py-1 rounded-md border border-red-500 shadow-sm">
-                            <span>🇰🇷 Encar Certified</span>
-                          </span>
-                        )}
+                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-white bg-red-600 px-2.5 py-1 rounded-md border border-red-500 shadow-sm">
+                          <span>🇰🇷 Encar Verified</span>
+                        </span>
 
                         <span className="flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-white bg-slate-950/80 backdrop-blur px-2.5 py-1 rounded-md border border-white/10">
                           <ShieldCheck className="h-3 w-3 text-emerald-400" />

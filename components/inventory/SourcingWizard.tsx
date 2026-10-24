@@ -98,8 +98,8 @@ export default function SourcingWizard() {
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
               {isAr
-                ? "يقوم فريقنا الميداني في سيول بفحص منصات إنكار (Encar)، KB تشاتشاتشا، ومزادات لوتيه وغلوفيس وتوريدها لمينائك مباشرة بفحص 150 نقطة كامل."
-                : "Our Seoul team visits Encar yards, KB ChaChaCha dealers, and Lotte/Glovis auctions to secure your exact car with 150-point inspection and direct Ro-Ro export."}
+                ? "يقوم فريقنا الميداني في سيول بفحص سيارات منصة إنكار (Encar) وشبكات الوكلاء وتوريدها لمينائك مباشرة بفحص 150 نقطة كامل."
+                : "Our Seoul team inspects Encar yards and certified dealer networks to secure your exact car with 150-point inspection and direct Ro-Ro export."}
             </p>
           </div>
 

@@ -13,16 +13,16 @@ interface FAQItem {
 const FAQ_DATA: Record<"en" | "ar", FAQItem[]> = {
   en: [
     {
-      question: "How do I search and buy cars directly from Encar (엔카) and KB ChaChaCha (KB차차차)?",
-      answer: "Advanced Koryo serves as your direct licensed sourcing partner and exporter in Seoul. You can browse live verified inventory from both Encar and KB ChaChaCha directly on our platform. Once you select a vehicle, our Seoul inspection team visits the vehicle, performs a 150-point diagnostic audit with paint-depth measurement, negotiates the dealer price, manages export de-registration, and arranges Ro-Ro shipping directly to your destination port.",
+      question: "How do I search and buy cars directly from Encar (엔카)?",
+      answer: "Advanced Koryo serves as your direct licensed sourcing partner and exporter in Seoul. You can browse live verified inventory from Encar directly on our platform with over 120,000 live listings. Once you select a vehicle, our Seoul inspection team visits the vehicle, performs a 150-point diagnostic audit with paint-depth measurement, negotiates the dealer price, manages export de-registration, and arranges Ro-Ro shipping directly to your destination port.",
     },
     {
-      question: "What is the difference between Encar and KB ChaChaCha used car inventories?",
-      answer: "Encar (엔카) is South Korea's largest automotive marketplace with over 150,000 active listings, featuring official Encar Trust Diagnosis and insurance accident databases. KB ChaChaCha (KB차차차) is operated by KB Financial Group, renowned for verified odometer records, direct dealer stock, and strict financial verification. Advanced Koryo aggregates both feeds into a single unified search with transparent pricing and global shipping estimates.",
+      question: "Why choose Encar verified vehicles for international export?",
+      answer: "Encar (엔카) is South Korea's premier automotive marketplace with over 120,000 active listings, featuring official Encar Trust Diagnosis and insurance accident databases. Every vehicle comes with detailed diagnostic data, guaranteed 100% Left-Hand Drive (LHD), and verified odometer records. Advanced Koryo provides live Encar search with transparent pricing in USD/EUR/KRW and instant global shipping estimates.",
     },
     {
-      question: "Can international buyers import Encar and KB ChaChaCha cars to Saudi Arabia, UAE, and GCC countries?",
-      answer: "Yes. We regularly export vehicles to Jeddah Islamic Port, Jebel Ali (Dubai), Dammam, Hamad (Qatar), and Shuwaikh (Kuwait). We provide complete certified Korean Export Certificates, SASO / GCC conformity compliance documentation, Bill of Lading, and commercial invoices to guarantee seamless customs clearance.",
+      question: "Can international buyers import Encar cars to Saudi Arabia, UAE, and GCC countries?",
+      answer: "Yes. We regularly export Encar vehicles to Jeddah Islamic Port, Jebel Ali (Dubai), Dammam, Hamad (Qatar), and Shuwaikh (Kuwait). We provide complete certified Korean Export Certificates, SASO / GCC conformity compliance documentation, Bill of Lading, and commercial invoices to guarantee seamless customs clearance.",
     },
     {
       question: "How does the direct vehicle sourcing process work?",
@@ -47,15 +47,15 @@ const FAQ_DATA: Record<"en" | "ar", FAQItem[]> = {
   ],
   ar: [
     {
-      question: "كيف يمكنني البحث وشراء السيارات مباشرة من منصتي Encar (إنكار) وKB ChaChaCha؟",
-      answer: "تعمل أدفانسد كوريو كوسيطك ومصدرك المرخص والمباشر في سيول. يمكنك تصفح المخزون المباشر والمعتمد من منصتي Encar وKB ChaChaCha من خلال موقعنا. فور اختيارك للسيارة، ينتقل فريق الفحص في سيول لمعاينة السيارة ميدانياً وفحصها فنياً عبر 150 نقطة وقياس سماكة الطلاء، والتفاوض على السعر، وإصدار شهادة التصدير، وحجز الشحن البحري Ro-Ro إلى مينائك.",
+      question: "كيف يمكنني البحث وشراء السيارات مباشرة من منصة Encar (إنكار)؟",
+      answer: "تعمل أدفانسد كوريو كوسيطك ومصدرك المرخص والمباشر في سيول. يمكنك تصفح المخزون المباشر والمعتمد من منصة Encar التي تضم أكثر من 120,000 سيارة معتمدة مباشرة من موقعنا. فور اختيارك للسيارة، ينتقل فريق الفحص في سيول لمعاينة السيارة ميدانياً وفحصها فنياً عبر 150 نقطة وقياس سماكة الطلاء، والتفاوض على السعر، وإصدار شهادة التصدير، وحجز الشحن البحري Ro-Ro إلى مينائك.",
     },
     {
-      question: "ما هو الفرق بين مخزون سيارات Encar ومخزون KB ChaChaCha؟",
-      answer: "تعد منصة Encar (엔카) السوق الأكبر في كوريا بأكثر من 150,000 سيارة معتمدة، وتتميز بسجل الحوادث والتأمين المفصل وفحص Encar التشخيصي. بينما تتم إدارة منصة KB ChaChaCha (KB차차차) من قبل مجموعة KB المالية الكورية وتشتهر بالتحقق الصارم من العدادات والمخزون المباشر من الموزعين. توفر منصتنا دمجاً موحداً للبحث في كلا السوقين مع تحويل فوري للعملة وتقدير تكاليف الشحن.",
+      question: "ما الذي يميز سيارات Encar الكورية المعتمدة للتصدير الدولي؟",
+      answer: "تعد منصة Encar (엔카) السوق الأكبر والأكثر موثوقية في كوريا الجنوبية، وتتميز بسجل الحوادث والتأمين المفصل وفحص Encar التشخيصي المعتمد. جميع السيارات ذات مقود أيسر (LHD) مطابق للمواصفات الخليجية والدولية 100٪. توفر منصتنا بحثاً مباشراً في سيارات Encar مع تحويل فوري للعملة وتقدير تكاليف الشحن.",
     },
     {
-      question: "هل يمكن للعملاء في السعودية والإمارات والخليج استيراد سيارات Encar وKB مباشرة؟",
+      question: "هل يمكن للعملاء في السعودية والإمارات والخليج استيراد سيارات Encar مباشرة؟",
       answer: "نعم وبشكل دوري ومستمر. نقوم بالشحن إلى ميناء جدة الإسلامي، ميناء جبل علي (دبي)، ميناء الدمام، ميناء حمد (قطر)، وميناء الشويخ (الكويت). ونزودك بكافة أوراق التصدير المعتمدة وفحص مطابقة المواصفات الخليجية SASO وبوليصة الشحن الأصلية لضمان فسح جمركي فوري وبسيط.",
     },
     {

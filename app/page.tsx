@@ -21,15 +21,15 @@ export const metadata = buildPageMetadata({
 
 const HOME_FAQS = [
   {
-    question: "How do I search and buy cars directly from Encar (엔카) and KB ChaChaCha (KB차차차)?",
-    answer: "Advanced Koryo serves as your direct licensed sourcing partner and exporter in Seoul. You can browse live verified inventory from both Encar and KB ChaChaCha directly on our platform. Once you select a vehicle, our Seoul inspection team visits the vehicle, performs a 150-point diagnostic audit with paint-depth measurement, negotiates the dealer price, manages export de-registration, and arranges Ro-Ro shipping directly to your destination port.",
+    question: "How do I search and buy cars directly from Encar (엔카)?",
+    answer: "Advanced Koryo serves as your direct licensed sourcing partner and exporter in Seoul. You can browse live verified inventory from Encar directly on our platform. Once you select a vehicle, our Seoul inspection team visits the vehicle, performs a 150-point diagnostic audit with paint-depth measurement, negotiates the dealer price, manages export de-registration, and arranges Ro-Ro shipping directly to your destination port.",
   },
   {
-    question: "What is the difference between Encar and KB ChaChaCha used car inventories?",
-    answer: "Encar (엔카) is South Korea's largest automotive marketplace with over 150,000 active listings, featuring official Encar Trust Diagnosis and insurance accident databases. KB ChaChaCha (KB차차차) is operated by KB Financial Group, renowned for verified odometer records, direct dealer stock, and strict financial verification. Advanced Koryo aggregates both feeds into a single unified search with transparent pricing and global shipping estimates.",
+    question: "Why choose Encar for importing South Korean vehicles?",
+    answer: "Encar (엔카) is South Korea's premier automotive marketplace with over 150,000 active listings, featuring official Encar Trust Diagnosis and insurance accident databases. Advanced Koryo provides direct access with transparent FOB pricing, 150-point inspection verification, and global shipping estimates.",
   },
   {
-    question: "Can international buyers import Encar and KB ChaChaCha cars to Saudi Arabia, UAE, and GCC countries?",
+    question: "Can international buyers import Encar cars to Saudi Arabia, UAE, and GCC countries?",
     answer: "Yes. We regularly export vehicles to Jeddah Islamic Port, Jebel Ali (Dubai), Dammam, Hamad (Qatar), and Shuwaikh (Kuwait). We provide complete certified Korean Export Certificates, SASO / GCC conformity compliance documentation, Bill of Lading, and commercial invoices to guarantee seamless customs clearance.",
   },
   {

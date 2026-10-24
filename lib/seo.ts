@@ -9,7 +9,7 @@ export const siteConfig = {
   language: "en",
   locale: "en_US",
   description:
-    "Direct South Korean Vehicle Sourcing & Exporting from Encar (엔카), KB ChaChaCha (KB차차차), and K-Car. Certified 150-Point Inspection, Ro-Ro Shipping & Full Customs Support for Middle East & Global Buyers.",
+    "Direct South Korean Vehicle Sourcing & Exporting from Encar (엔카). Certified 150-Point Inspection, Ro-Ro Shipping & Full Customs Support for Middle East & Global Buyers.",
   defaultOgImage: "/logo.png",
   email: "info@mykoryo.com",
   phone: "+82 10 7229 0580",
@@ -27,12 +27,8 @@ export const targetKeywords = [
   "Encar cars",
   "Encar used cars",
   "Encar English",
-  "KB ChaChaCha",
-  "KB ChaChaCha English",
-  "KB ChaChaCha cars",
-  "KB차차차",
   "엔카",
-  "K-Car Korea",
+  "Encar South Korea",
   "Buy cars from Encar",
   "South Korea car export",
   "Korean used cars export",
@@ -151,7 +147,7 @@ export function webSiteJsonLd(): JsonLdObject {
     "@id": `${siteUrl}/#website`,
     name: siteConfig.name,
     alternateName: [
-      "Advanced Koryo Encar & KB ChaChaCha Search",
+      "Advanced Koryo Encar Direct Search",
       "MyKoryo Korean Vehicle Sourcing",
       "Kyroo Korean Auto Export",
     ],
@@ -185,7 +181,7 @@ export function autoDealerJsonLd(): JsonLdObject {
     logo: absoluteUrl(siteConfig.defaultOgImage),
     image: absoluteUrl(siteConfig.defaultOgImage),
     description:
-      "Certified South Korean automotive exporter and direct sourcing gateway for Encar (엔카), KB ChaChaCha (KB차차차), and K-Car. Providing 150-point diagnostic inspection, Ro-Ro vessel ocean freight, and customs documentation.",
+      "Certified South Korean automotive exporter and direct sourcing gateway for Encar (엔카). Providing 150-point diagnostic inspection, Ro-Ro vessel ocean freight, and customs documentation.",
     email: siteConfig.email,
     telephone: siteConfig.phone,
     priceRange: "$$$",
@@ -224,8 +220,8 @@ export function autoDealerJsonLd(): JsonLdObject {
     ],
     knowsAbout: [
       "Encar vehicle inspection",
-      "KB ChaChaCha certified used cars",
-      "K-Car export",
+      "Encar certified used cars",
+      "Korean vehicle export",
       "Roll-on/Roll-off ocean shipping",
       "South Korea vehicle export customs clearance",
       "150-Point vehicle quality diagnosis",
@@ -303,7 +299,7 @@ export function carJsonLd({
   };
   url: string;
 }): JsonLdObject {
-  const sourceName = car.source === "kbchachacha" ? "KB ChaChaCha" : car.source === "kcar" ? "K-Car" : "Encar";
+  const sourceName = "Encar";
 
   return {
     "@context": "https://schema.org",

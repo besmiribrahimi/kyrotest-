@@ -30,9 +30,8 @@ function getFallbackCars(params: {
 }) {
   let list = [...CATALOG_CARS];
 
-  if (params.source && params.source !== "all") {
-    list = list.filter((c) => c.source.toLowerCase() === params.source!.toLowerCase());
-  }
+  // Exclusively Encar
+  list = list.filter((c) => !c.source || c.source.toLowerCase() === "encar");
 
   if (params.brand && params.brand !== "All") {
     list = list.filter((c) => c.brand.toLowerCase() === params.brand!.toLowerCase());
@@ -83,6 +82,7 @@ function getFallbackCars(params: {
 
   return sliced.map((c) => ({
     id: c.id,
+    encarId: c.id,
     title: c.title,
     titleAr: c.titleAr,
     brand: c.brand,
@@ -94,10 +94,10 @@ function getFallbackCars(params: {
     transmission: c.transmission,
     bodyType: c.bodyType,
     drivetrain: c.drivetrain,
-    source: c.source,
+    source: "encar",
     image: c.image,
     images: c.images,
-    badge: c.badge,
+    badge: c.badge || "Encar Certified",
     vin: c.vin,
     prices: {
       USD: c.priceUsd,
@@ -108,10 +108,64 @@ function getFallbackCars(params: {
   }));
 }
 
+function normalizeEncarCar(c: any) {
+  const priceKrw = c.pricing?.krw || c.priceKrw || (typeof c.price === "number" ? c.price : 25000000);
+  const priceUsd = c.pricing?.usd || c.priceUsd || Math.round(priceKrw / 1350);
+  const priceEur = c.pricing?.eur || Math.round(priceUsd * 0.92);
+
+  const rawCover = c.coverPhoto || c.image || c.images?.[0] || c.photos?.[0] || "";
+  const mainImage = normalizeImageUrl(rawCover);
+
+  let allImages: string[] = [];
+  if (Array.isArray(c.images) && c.images.length > 0) {
+    allImages = c.images.map((img: any) => normalizeImageUrl(typeof img === "string" ? img : img?.url || ""));
+  } else if (Array.isArray(c.photos) && c.photos.length > 0) {
+    allImages = c.photos.map((img: any) => normalizeImageUrl(typeof img === "string" ? img : img?.url || ""));
+  } else if (mainImage) {
+    allImages = [mainImage];
+  }
+
+  return {
+    id: String(c.id || c.encarId),
+    encarId: c.encarId ? String(c.encarId) : String(c.id),
+    title: c.title || `${c.brand || "Korean"} ${c.model || "Export"}`,
+    brand: (c.brand || "Encar").replace(/_/g, " "),
+    model: c.model || "",
+    year: c.year || 2022,
+    price: priceKrw,
+    priceUsd: priceUsd,
+    prices: {
+      USD: priceUsd,
+      EUR: priceEur,
+      KRW: priceKrw,
+    },
+    mileage: c.mileageKm || c.mileage || 0,
+    fuelType: c.fuelType || "Gasoline",
+    transmission: c.transmission || "Automatic",
+    bodyType: c.bodyType || "Sedan",
+    drivetrain: c.drivetrain || "2WD",
+    location: c.location || "Seoul / Incheon Yard",
+    source: "encar",
+    image: mainImage,
+    images: allImages,
+    badge: "Encar Certified",
+    licensePlate: c.licensePlate || c.accidentHistory?.licensePlate || "",
+    vin: c.vin || c.accidentHistory?.vin || "",
+    displacement: c.displacement,
+    accidentHistory: c.accidentHistory || c.accident,
+    exportEligibility: c.exportEligibility || {
+      lhdCompatible: true,
+      score: 95,
+      recommendations: ["100% Left-Hand Drive (LHD) - GCC & Global Compliant"],
+    },
+    options: c.options,
+    sellerComment: c.sellerComment,
+  };
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const brand = searchParams.get("brand") || "";
-  const source = searchParams.get("source") || "";
   const model = searchParams.get("model") || "";
   const yearFrom = searchParams.get("yearFrom") || "";
   const yearTo = searchParams.get("yearTo") || "";
@@ -121,8 +175,40 @@ export async function GET(request: Request) {
   const limit = searchParams.get("limit") || "48";
   const id = searchParams.get("id") || "";
 
-  // Single car lookup
+  const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
+  const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
+  const apiBase = "https://api.rinevoapi.com/api/encar";
+
+  // 1. Single car lookup by ID
   if (id) {
+    try {
+      const detailUrl = `${apiBase}/cars/${encodeURIComponent(id)}`;
+      let res = await fetch(detailUrl, {
+        headers: { "x-api-key": primaryKey },
+        cache: "no-store",
+        signal: AbortSignal.timeout(3000),
+      }).catch(() => null);
+
+      if (res && res.status === 401 && primaryKey !== backupKey) {
+        res = await fetch(detailUrl, {
+          headers: { "x-api-key": backupKey },
+          cache: "no-store",
+          signal: AbortSignal.timeout(3000),
+        }).catch(() => null);
+      }
+
+      if (res && res.ok) {
+        const j = await res.json().catch(() => null);
+        const rawCar = j?.vehicle || j?.car;
+        if (rawCar) {
+          const normalized = normalizeEncarCar(rawCar);
+          return NextResponse.json({ success: true, car: normalized });
+        }
+      }
+    } catch {
+      // Fall through to local fallback
+    }
+
     const foundFallback = CATALOG_CARS.find((c) => c.id === id);
     if (foundFallback) {
       return NextResponse.json({
@@ -140,10 +226,10 @@ export async function GET(request: Request) {
           transmission: foundFallback.transmission,
           bodyType: foundFallback.bodyType,
           drivetrain: foundFallback.drivetrain,
-          source: foundFallback.source,
+          source: "encar",
           image: foundFallback.image,
           images: foundFallback.images,
-          badge: foundFallback.badge,
+          badge: foundFallback.badge || "Encar Certified",
           vin: foundFallback.vin,
           prices: {
             USD: foundFallback.priceUsd,
@@ -156,60 +242,53 @@ export async function GET(request: Request) {
     }
   }
 
+  // 2. Cars feed query
   try {
-    const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
-    const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
+    const encarParams = new URLSearchParams();
+    encarParams.set("limit", limit);
+    if (brand && brand !== "All") encarParams.set("brand", brand);
+    if (model) encarParams.set("model", model);
+    if (yearFrom) encarParams.set("minYear", yearFrom);
+    if (yearTo) encarParams.set("maxYear", yearTo);
+    if (minPrice) encarParams.set("minPrice", minPrice);
+    if (maxPrice) encarParams.set("maxPrice", maxPrice);
+    if (search) encarParams.set("search", search);
 
-    const scraperParams = new URLSearchParams();
-    scraperParams.set("limit", limit);
-    if (brand && brand !== "All") scraperParams.set("brand", brand);
-    if (source && source !== "all") scraperParams.set("source", source);
-    if (model) scraperParams.set("model", model);
-    if (yearFrom) scraperParams.set("yearFrom", yearFrom);
-    if (yearTo) scraperParams.set("yearTo", yearTo);
-    if (minPrice) scraperParams.set("minPrice", minPrice);
-    if (maxPrice) scraperParams.set("maxPrice", maxPrice);
-    if (search) scraperParams.set("search", search);
+    const targetUrl = `${apiBase}/cars?${encarParams.toString()}`;
 
-    const apiBase = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/scraper";
-    const scraperUrl = `${apiBase}/cars?${scraperParams.toString()}`;
-
-    let res = await fetch(scraperUrl, {
-      headers: {
-        "x-api-key": primaryKey,
-      },
+    let res = await fetch(targetUrl, {
+      headers: { "x-api-key": primaryKey },
       cache: "no-store",
-      signal: AbortSignal.timeout(3000), // Quick timeout so user doesn't wait
+      signal: AbortSignal.timeout(3500),
     }).catch(() => null);
 
     if (res && res.status === 401 && primaryKey !== backupKey) {
-      res = await fetch(scraperUrl, {
-        headers: {
-          "x-api-key": backupKey,
-        },
+      res = await fetch(targetUrl, {
+        headers: { "x-api-key": backupKey },
         cache: "no-store",
-        signal: AbortSignal.timeout(3000),
+        signal: AbortSignal.timeout(3500),
       }).catch(() => null);
     }
 
     if (res && res.ok) {
       const data = await res.json().catch(() => null);
-      const remoteCars = data?.data?.cars || data?.cars;
-      if (Array.isArray(remoteCars) && remoteCars.length > 0) {
-        for (const car of remoteCars) {
-          if (car.image) car.image = normalizeImageUrl(car.image);
-          if (Array.isArray(car.images)) {
-            car.images = car.images.map((img: string) => normalizeImageUrl(img));
-          }
-        }
-        return NextResponse.json(data);
+      const rawCars = data?.recentCars || data?.data?.cars || data?.cars;
+      if (Array.isArray(rawCars) && rawCars.length > 0) {
+        const normalizedList = rawCars.map(normalizeEncarCar);
+        return NextResponse.json({
+          success: true,
+          data: {
+            cars: normalizedList,
+            total: data?.meta?.total || normalizedList.length,
+          },
+          cars: normalizedList,
+        });
       }
     }
 
-    // Upstream scraper did not return data; serve certified export fallback
+    // Upstream Encar API timed out or returned empty; serve certified Encar fallback
     const fallbackList = getFallbackCars({
       brand,
-      source,
       model,
       yearFrom,
       yearTo,
@@ -228,10 +307,9 @@ export async function GET(request: Request) {
       cars: fallbackList,
     });
   } catch (error) {
-    console.error("API proxy error, falling back to curated Korean catalog:", error);
+    console.error("Encar API route error, falling back to curated catalog:", error);
     const fallbackList = getFallbackCars({
       brand,
-      source,
       model,
       yearFrom,
       yearTo,

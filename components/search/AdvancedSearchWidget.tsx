@@ -22,7 +22,6 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import carLogos from "@/lib/car-logos.json";
-import MarketSourceTabs from "./MarketSourceTabs";
 
 interface AdvancedSearchWidgetProps {
   onSearch?: (filters: any) => void;
@@ -285,33 +284,22 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
             {language === "ar" ? "فلاتر سريعة:" : "Presets:"}
           </span>
           <button
-            onClick={() => handleSelectSource("encar")}
-            className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition border cursor-pointer ${
-              selectedSource === "encar"
-                ? "bg-red-600 text-white border-red-500 shadow-sm"
-                : "bg-red-500/10 hover:bg-red-500 hover:text-white text-red-600 dark:text-rose-400 border-red-500/20"
-            }`}
+            onClick={() => {
+              handleReset();
+              setMaxPrice("15000");
+            }}
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
-            🇰🇷 {language === "ar" ? "سيارات إنكار" : "Encar Only"}
-          </button>
-          <button
-            onClick={() => handleSelectSource("kbchachacha")}
-            className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition border cursor-pointer ${
-              selectedSource === "kbchachacha"
-                ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
-                : "bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-600 dark:text-amber-400 border-amber-500/20"
-            }`}
-          >
-            🏷️ {language === "ar" ? "كي بي تشاتشاتشا" : "KB ChaChaCha"}
+            ⚡ {language === "ar" ? "أقل من 15,000$" : "Under $15k"}
           </button>
           <button
             onClick={() => {
               handleReset();
-              setMaxPrice("20000");
+              setMaxPrice("25000");
             }}
             className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
-            ⚡ {language === "ar" ? "أقل من 20,000$" : "Under $20k"}
+            ⚡ {language === "ar" ? "أقل من 25,000$" : "Under $25k"}
           </button>
           <button
             onClick={() => {
@@ -321,6 +309,24 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
             className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
           >
             👑 Genesis
+          </button>
+          <button
+            onClick={() => {
+              handleReset();
+              setSelectedBrand("Hyundai");
+            }}
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
+          >
+            🚘 Hyundai
+          </button>
+          <button
+            onClick={() => {
+              handleReset();
+              setSelectedBrand("Kia");
+            }}
+            className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 hover:bg-[#0066ff] hover:text-white text-slate-700 dark:text-slate-300 text-[11px] font-extrabold transition border border-slate-200 dark:border-white/5 cursor-pointer"
+          >
+            🚘 Kia
           </button>
           <button
             onClick={() => {
@@ -342,12 +348,6 @@ export default function AdvancedSearchWidget({ onSearch }: AdvancedSearchWidgetP
           </button>
         </div>
       </div>
-
-      {/* Prominent Multi-Market Source Selector (Encar, KB ChaChaCha, K-Car, All) */}
-      <MarketSourceTabs
-        selectedSource={selectedSource}
-        onSelectSource={handleSelectSource}
-      />
 
       {/* Primary Filter Controls Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">

@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: CarDetailPageProps) {
   const fuel = car.fuelType || "Gasoline";
   const transmission = car.transmission || "Automatic";
   const source = (details.listing as any)?.source || "encar";
-  const sourceLabel = source === "kbchachacha" ? "KB ChaChaCha" : source === "kcar" ? "K-Car" : "Encar";
+  const sourceLabel = "Encar Certified";
 
   const title = `${year} ${make} ${model} Export Sourced from ${sourceLabel} Korea | Advanced Koryo`;
   const description = `Direct import this verified ${year} ${make} ${model} sourced from ${sourceLabel} South Korea. Mileage: ${mileage}, Transmission: ${transmission}, Fuel: ${fuel}. Certified with 150-Point diagnostic inspection and worldwide Ro-Ro shipping.`;
