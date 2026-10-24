@@ -721,7 +721,8 @@ function normalizeFuelTypeLabel(value: string): InventoryFuelType | null {
 }
 
 export function isValidListingId(value: string): boolean {
-  return /^\d+$/.test(value);
+  if (!value || typeof value !== "string") return false;
+  return /^[a-zA-Z0-9_-]+$/.test(value.trim());
 }
 
 /**
