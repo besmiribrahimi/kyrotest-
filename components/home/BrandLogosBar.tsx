@@ -33,12 +33,14 @@ export default function BrandLogosBar({ selectedBrand, onSelectBrand }: BrandLog
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white transition">
-            {language === "ar" ? "تصفح حسب شعار الشركة المصنعة" : "Browse Vehicles by Manufacturer"}
+            {language === "ar" ? "تصفح حسب الماركة الكورية والعالمية" : "Browse by Manufacturer"}
           </span>
-          <span className="text-[11px] font-mono text-slate-400">filippofilip95 / car-logos-dataset</span>
+          <span className="text-[11px] font-bold text-[#0066ff] dark:text-sky-400">
+            {language === "ar" ? "12 ماركة رئيسية" : "12 Leading Makes"}
+          </span>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-3">
+        <div className="flex sm:grid sm:grid-cols-6 lg:grid-cols-12 overflow-x-auto pb-2 scrollbar-none gap-2.5 sm:gap-3">
           {featuredBrands.map((b) => {
             const logoUrl = logoMap[b.key];
             const isSelected = selectedBrand?.toLowerCase() === b.name.toLowerCase();
@@ -55,17 +57,17 @@ export default function BrandLogosBar({ selectedBrand, onSelectBrand }: BrandLog
                     inventorySec.scrollIntoView({ behavior: "smooth" });
                   }
                 }}
-                className={`group flex flex-col items-center justify-center p-3 rounded-2xl border transition-all duration-300 ${
+                className={`group flex flex-col items-center justify-center p-3 rounded-2xl border transition-all duration-200 shrink-0 min-w-[88px] sm:min-w-0 ${
                   isSelected
                     ? "bg-slate-900 dark:bg-[#0066ff] border-slate-900 dark:border-[#0066ff] text-white shadow-md scale-105"
-                    : "bg-slate-50 dark:bg-[#0b1528] border-slate-200 dark:border-white/5 text-slate-800 dark:text-white hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-[#0f1d3a] hover:scale-105 hover:-translate-y-0.5"
+                    : "bg-slate-50 dark:bg-[#0b1528] border-slate-200 dark:border-white/5 text-slate-800 dark:text-white hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-[#0f1d3a]"
                 }`}
               >
-                <div className="relative h-9 w-9 mb-1.5 flex items-center justify-center">
+                <div className="relative h-8 w-8 mb-1.5 flex items-center justify-center">
                   {logoUrl ? (
                     <Image
                       src={logoUrl}
-                      alt={`${b.name} Official Logo`}
+                      alt={`${b.name} Logo`}
                       fill
                       className="object-contain filter group-hover:brightness-110 transition"
                       unoptimized

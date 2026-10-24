@@ -54,7 +54,7 @@ export default function WhyChooseUs() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {features.map((feat, idx) => {
             const Icon = feat.icon;
             return (
@@ -64,13 +64,13 @@ export default function WhyChooseUs() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="group glass-panel glass-panel-hover rounded-3xl p-6 border border-white/10 flex flex-col justify-between transition-all duration-300 hover:border-sky-500/30"
+                className="group glass-panel rounded-3xl p-5 sm:p-6 border border-white/10 flex flex-col justify-between transition-all duration-300 hover:border-sky-500/30"
               >
-                <div className="space-y-4">
-                  <div className={`h-12 w-12 rounded-2xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${feat.bg}`}>
-                    <Icon className={`h-6 w-6 transition-transform duration-300 group-hover:rotate-6 ${feat.color}`} />
+                <div className="space-y-3">
+                  <div className={`h-11 w-11 rounded-2xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${feat.bg}`}>
+                    <Icon className={`h-5 w-5 transition-transform duration-300 group-hover:rotate-6 ${feat.color}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-white">{feat.title}</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-white">{feat.title}</h3>
                   <p className="text-xs text-slate-300 leading-relaxed">{feat.desc}</p>
                 </div>
 

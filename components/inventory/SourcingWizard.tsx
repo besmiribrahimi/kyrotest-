@@ -1,626 +1,350 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import carLogos from "@/lib/car-logos.json";
 import { useLanguage } from "@/lib/i18n";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
-  ChevronRight,
-  ChevronLeft,
-  Database,
-  MapPin,
   Car,
+  MapPin,
   DollarSign,
-  MessageSquare,
-  X,
-  Zap,
+  PhoneCall,
   CheckCircle2,
-  AlertCircle,
-  Loader2,
+  X,
+  ArrowRight,
+  ShieldCheck,
+  Send,
 } from "lucide-react";
-
-interface WizardData {
-  make: string;
-  bodyType: string;
-  budget: string;
-  destination: string;
-}
 
 export default function SourcingWizard() {
   const { language, dir } = useLanguage();
+  const isAr = language === "ar";
+  const router = useRouter();
+
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
-  const [progressPercent, setProgressPercent] = useState(0);
-  const [matchesCount, setMatchesCount] = useState(0);
   const [customPort, setCustomPort] = useState("");
 
   const logoMap = carLogos as Record<string, string>;
 
-  const [formData, setFormData] = useState<WizardData>({
-    make: "",
-    bodyType: "",
-    budget: "",
-    destination: "",
+  const [formData, setFormData] = useState({
+    make: "Hyundai",
+    bodyType: "SUV / 4x4",
+    budget: "$20,000 - $35,000",
+    destination: "Jeddah Islamic Port (Saudi Arabia)",
   });
-
-  useEffect(() => {
-    // Load saved wizard choices on mount
-    const savedMake = localStorage.getItem("kyro_wizard_make") || "";
-    const savedBodyType = localStorage.getItem("kyro_wizard_bodyType") || "";
-    const savedBudget = localStorage.getItem("kyro_wizard_budget") || "";
-    const savedDestination = localStorage.getItem("kyro_wizard_destination") || "";
-    
-    setFormData({
-      make: savedMake,
-      bodyType: savedBodyType,
-      budget: savedBudget,
-      destination: savedDestination,
-    });
-  }, []);
-
-  const updateField = (field: keyof WizardData, value: string) => {
-    const updated = { ...formData, [field]: value };
-    setFormData(updated);
-    localStorage.setItem(`kyro_wizard_${field}`, value);
-    // Dispatch instant filter change event for other listeners
-    window.dispatchEvent(new CustomEvent(`kyro-wizard-update-${field}`, { detail: value }));
-  };
 
   const makes = [
     { name: "Hyundai", key: "hyundai" },
     { name: "Kia", key: "kia" },
     { name: "Genesis", key: "genesis" },
-    { name: "SsangYong / KGM", key: "ssangyong" },
-    { name: "Renault Korea", key: "renaultsamsung" },
     { name: "Mercedes-Benz", key: "mercedesbenz" },
     { name: "BMW", key: "bmw" },
     { name: "Audi", key: "audi" },
     { name: "Porsche", key: "porsche" },
-    { name: "Chevrolet / GM Korea", key: "chevrolet" },
-    { name: "Tesla", key: "tesla" },
-    { name: "Lexus / Toyota", key: "lexus" },
+    { name: "Renault Korea", key: "renaultsamsung" },
   ];
 
   const bodyTypes = [
+    { nameEn: "SUV / 4x4", nameAr: "دفع رباعي / عائلية", icon: "🚙" },
     { nameEn: "Sedan", nameAr: "سيدان", icon: "🚗" },
-    { nameEn: "SUV / Offroad", nameAr: "دفع رباعي / عائلية", icon: "🚙" },
-    { nameEn: "EV / Hybrid", nameAr: "كهربائية / هجينة", icon: "⚡" },
-    { nameEn: "Commercial Truck", nameAr: "شاحنة تجارية", icon: "🚛" },
+    { nameEn: "EV / Hybrid", nameAr: "كهرباء / هجين", icon: "⚡" },
+    { nameEn: "Commercial Van / Truck", nameAr: "شاحنة / نقل", icon: "🚛" },
   ];
 
   const budgets = [
-    { nameEn: "Under $15,000", nameAr: "أقل من 15,000 دولار" },
-    { nameEn: "$15,000 - $30,000", nameAr: "15,000 - 30,000 دولار" },
+    { nameEn: "Under $18,000", nameAr: "أقل من 18,000 دولار" },
+    { nameEn: "$18,000 - $30,000", nameAr: "18,000 - 30,000 دولار" },
     { nameEn: "$30,000 - $50,000", nameAr: "30,000 - 50,000 دولار" },
-    { nameEn: "Premium ($50,000+)", nameAr: "فاخرة (أكثر من 50,000 دولار)" },
+    { nameEn: "Luxury ($50,000+)", nameAr: "فاخرة (أكثر من 50,000 دولار)" },
   ];
 
   const destinations = [
-    { nameEn: "Jeddah Islamic Port (Saudi Arabia 🇸🇦)", nameAr: "ميناء جدة الإسلامي (السعودية 🇸🇦)" },
-    { nameEn: "Jebel Ali Port, Dubai (UAE 🇦🇪)", nameAr: "ميناء جبل علي، دبي (الإمارات 🇦🇪)" },
-    { nameEn: "Hamad Port, Doha (Qatar 🇶🇦)", nameAr: "ميناء حمد، الدوحة (قطر 🇶🇦)" },
-    { nameEn: "Shuwaikh Port (Kuwait 🇰🇼)", nameAr: "ميناء الشويخ (الكويت 🇰🇼)" },
-    { nameEn: "Aqaba Port (Jordan 🇯🇴)", nameAr: "ميناء العقبة (الأردن 🇯🇴)" },
-    { nameEn: "Port of Bremerhaven (Germany 🇩🇪)", nameAr: "ميناء بريمرهافن (ألمانيا 🇩🇪)" },
-    { nameEn: "Port of Zeebrugge (Belgium 🇧🇪)", nameAr: "ميناء زيبروج (بلجيكا 🇧🇪)" },
-    { nameEn: "Port of Rotterdam (Netherlands 🇳🇱)", nameAr: "ميناء روتردام (هولندا 🇳🇱)" },
-    { nameEn: "Port of Southampton (United Kingdom 🇬🇧)", nameAr: "ميناء ساوثهامبتون (المملكة المتحدة 🇬🇧)" },
-    { nameEn: "Port of Le Havre (France 🇫🇷)", nameAr: "ميناء لو هافر (فرنسا 🇫🇷)" },
-    { nameEn: "Port of Barcelona (Spain 🇪🇸)", nameAr: "ميناء برشلونة (إسبانيا 🇪🇸)" },
-    { nameEn: "Port of Livorno (Italy 🇮🇹)", nameAr: "ميناء ليفورنو (إيطاليا 🇮🇹)" },
-    { nameEn: "Port of Koper (Slovenia 🇸🇮)", nameAr: "ميناء كوبير (سلوفينيا 🇸🇮)" },
+    { portEn: "Jeddah Islamic Port (Saudi Arabia)", portAr: "ميناء جدة الإسلامي (السعودية)", flag: "🇸🇦" },
+    { portEn: "Dammam King Abdulaziz Port (Saudi Arabia)", portAr: "ميناء الملك عبدالعزيز بالدمام (السعودية)", flag: "🇸🇦" },
+    { portEn: "Jebel Ali Port (UAE / Dubai)", portAr: "ميناء جبل علي (الإمارات / دبي)", flag: "🇦🇪" },
+    { portEn: "Hamad Port (Qatar)", portAr: "ميناء حمد (قطر)", flag: "🇶🇦" },
+    { portEn: "Shuwaikh Port (Kuwait)", portAr: "ميناء الشويخ (الكويت)", flag: "🇰🇼" },
   ];
 
-  // Simulation timeline on step 5
-  useEffect(() => {
-    if (step === 5) {
-      setProgressPercent(0);
-      setMatchesCount(0);
-      
-      const duration = 4000; // 4 seconds total
-      const intervalTime = 50;
-      const steps = duration / intervalTime;
-      let currentStep = 0;
+  const targetPort = customPort.trim() || (isAr
+    ? destinations.find((d) => d.portEn === formData.destination)?.portAr || formData.destination
+    : formData.destination);
 
-      const timer = setInterval(() => {
-        currentStep++;
-        const percent = Math.min((currentStep / steps) * 100, 100);
-        setProgressPercent(percent);
-
-        // Dynamic count roll-up simulation
-        if (percent < 20) {
-          setMatchesCount(0);
-        } else if (percent >= 20 && percent < 45) {
-          setMatchesCount(4);
-        } else if (percent >= 45 && percent < 75) {
-          setMatchesCount(11);
-        } else if (percent >= 75 && percent < 95) {
-          setMatchesCount(23);
-        } else {
-          setMatchesCount(34);
-        }
-
-        if (currentStep >= steps) {
-          clearInterval(timer);
-          setTimeout(() => {
-            setStep(6);
-            // Dispatch wizard completion event
-            window.dispatchEvent(new CustomEvent("kyro-wizard-complete", { detail: formData }));
-          }, 600);
-        }
-      }, intervalTime);
-
-      return () => clearInterval(timer);
-    }
-  }, [step, formData]);
-
-  const whatsappMessage = encodeURIComponent(
-    `Hello Advanced Koryo Sourcing! I completed the Interactive Sourcing Wizard:\n` +
-      `- Make: ${formData.make}\n` +
-      `- Body: ${formData.bodyType}\n` +
-      `- Budget Limit: ${formData.budget}\n` +
-      `- Destination: ${formData.destination}\n` +
-      `Please send me matching active auction files this week.`
-  );
+  const waRequestUrl = `https://wa.me/821072290580?text=${encodeURIComponent(
+    isAr
+      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود طلب توريد سيارة بمواصفات مخصصة من كوريا:\n\n🚗 الماركة: ${formData.make}\n🚙 نوع الهيكل: ${formData.bodyType}\n💰 الميزانية: ${formData.budget}\n⚓ ميناء الوصول: ${targetPort}\n\nيرجى تزويدي بالخيارات المتاحة من مزادات إنكار وسيول مع تكلفة الشحن والفحص.`
+      : `Hello Advanced Koryo 🇰🇷\nI would like to request custom vehicle sourcing from South Korea:\n\n🚗 Make: ${formData.make}\n🚙 Body Type: ${formData.bodyType}\n💰 Budget: ${formData.budget}\n⚓ Destination Port: ${targetPort}\n\nPlease share matching cars from Encar / Seoul auctions with inspection & landed shipping quotes.`
+  )}`;
 
   return (
     <>
-      {/* Ultra Eye-Catching Sourcing Quiz Banner Panel */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#001739] via-[#003da8] to-[#001739] dark:from-[#08101f] dark:via-[#003478] dark:to-[#030a18] border-2 border-sky-400/50 dark:border-sky-400/40 p-8 sm:p-10 shadow-[0_0_50px_-10px_rgba(0,102,255,0.4)] transition-all duration-300 group">
-        {/* Ambient Glowing Orbs */}
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-sky-400/20 rounded-full blur-3xl pointer-events-none group-hover:scale-110 transition duration-700" />
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#0066ff]/25 rounded-full blur-3xl pointer-events-none group-hover:scale-110 transition duration-700" />
-        
-        <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8 z-10">
-          <div className="space-y-4 text-center lg:text-left">
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-400/20 border border-sky-400/50 px-4 py-1 text-[11px] font-black uppercase tracking-wider text-sky-300 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 animate-spin" />
-                <span>{language === "ar" ? "مساعد التوريد بالذكاء الاصطناعي" : "AI Vehicle Sourcing Assistant"}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-[10px] font-bold text-emerald-300">
-                <span>{language === "ar" ? "⚡ في 30 ثانية" : "⚡ 30-Sec Live Scan"}</span>
-              </span>
+      {/* Homepage Quick Sourcing Card */}
+      <div
+        dir={dir}
+        className="rounded-3xl bg-slate-900 dark:bg-[#070e1b] border border-slate-800 dark:border-white/10 p-5 sm:p-6 text-white shadow-xl"
+      >
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-blue-600/20 border border-blue-500/30 px-3 py-1 text-xs font-bold text-sky-400">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>{isAr ? "خدمة التوريد الخاص من سيول" : "Custom Sourcing Service"}</span>
             </div>
-
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white font-sans tracking-tight leading-tight">
-              {language === "ar" ? "لم تجد سيارة أحلامك بعد في المعرض؟" : "Can't Find Your Ideal Vehicle in Our Feed?"}
+            <h3 className="text-lg sm:text-xl font-black">
+              {isAr
+                ? "تبحث عن سيارة بمواصفات معينة لم تجدها في المعروض؟"
+                : "Looking for a specific vehicle not listed in the feed?"}
             </h3>
-            
-            <p className="text-sm sm:text-base text-blue-100 dark:text-slate-200 max-w-2xl font-semibold leading-relaxed transition-colors">
-              {language === "ar"
-                ? "امسح قواعد بيانات مزادات سيول ومستودعات التصدير الكورية مباشرة عبر مساعدنا التفاعلي الذكي!"
-                : "Sift through live Seoul auctions & Incheon Port export yards in 30 seconds. Discover 100% verified GCC & European inventory."}
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              {isAr
+                ? "يقوم فريقنا الميداني في سيول بفحص منصات إنكار (Encar)، KB تشاتشاتشا، ومزادات لوتيه وغلوفيس وتوريدها لمينائك مباشرة بفحص 150 نقطة كامل."
+                : "Our Seoul team visits Encar yards, KB ChaChaCha dealers, and Lotte/Glovis auctions to secure your exact car with 150-point inspection and direct Ro-Ro export."}
             </p>
+          </div>
 
-            {/* Feature Highlight Pills */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1 text-xs text-sky-200 font-semibold">
-              <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/10">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sky-300" />
-                {language === "ar" ? "مزادات كورية مباشرة" : "Direct Korean Auctions"}
-              </span>
-              <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/10">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sky-300" />
-                {language === "ar" ? "شحن دولي مؤمن" : "Insured Global Shipping"}
-              </span>
-              <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/10">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sky-300" />
-                {language === "ar" ? "فحص 150 نقطة" : "150-Point Audit Passed"}
-              </span>
-            </div>
-          </div>
-          
-          <div className="relative shrink-0">
-            {/* Pulsing Outer Halo Rings */}
-            <span className="absolute inset-0 rounded-2xl bg-sky-400/30 animate-ping pointer-events-none scale-105" />
-            <button
-              onClick={() => {
-                setStep(1);
-                setIsOpen(true);
-                setCustomPort("");
-              }}
-              className="relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-white via-sky-50 to-white dark:from-sky-400 dark:to-[#0066ff] text-[#002b66] dark:text-white hover:opacity-95 px-8 py-5 text-sm font-black uppercase tracking-wider shadow-[0_10px_30px_rgba(0,102,255,0.4)] transition transform hover:-translate-y-1 hover:scale-105"
-            >
-              <Zap className="h-5 w-5 text-[#0066ff] dark:text-white animate-pulse" />
-              <span>{language === "ar" ? "ابدأ البحث التفاعلي الآن" : "Start Sourcing Wizard"}</span>
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setStep(1);
+              setIsOpen(true);
+            }}
+            className="flex items-center gap-2 bg-[#0066ff] hover:bg-blue-600 text-white px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition shadow-md shrink-0 cursor-pointer"
+          >
+            <span>{isAr ? "طلب سيارة مخصصة" : "Request Custom Car"}</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
       {/* Sourcing Modal Dialog */}
-      <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-[#020a18]/70 backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30, scale: 0.95 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="relative w-full max-w-2xl bg-white dark:bg-[#0b1528] rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-white/10 p-6 sm:p-8 flex flex-col justify-between"
-              dir={dir}
-            >
-              {/* Close Button */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div
+            dir={dir}
+            className="relative w-full max-w-xl bg-white dark:bg-[#0b1528] rounded-3xl border border-slate-200 dark:border-white/10 p-5 sm:p-6 shadow-2xl text-slate-900 dark:text-white space-y-5 max-h-[90vh] overflow-y-auto"
+          >
+            {/* Header & Close Button */}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-blue-600/10 text-[#0066ff] dark:text-sky-400 font-bold">
+                  🇰🇷
+                </span>
+                <div>
+                  <h4 className="text-base font-extrabold">
+                    {isAr ? "طلب سيارة مخصصة من كوريا" : "Custom Sourcing Request"}
+                  </h4>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {isAr ? `الخطوة ${step} من 3` : `Step ${step} of 3`}
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 transition"
+                className="h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
+            </div>
 
-              {/* Steps Progress Header */}
-              {step <= 4 && (
-                <div className="mb-6">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                    <span>{language === "ar" ? `الخطوة ${step} من 4` : `Step ${step} of 4`}</span>
-                    <span>{Math.round((step / 4) * 100)}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-[#0066ff] rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(step / 4) * 100}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
+            {/* Step 1: Make & Body */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 font-mono">
+                    {isAr ? "1. اختر الماركة المطلوبة:" : "1. Select Brand:"}
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {makes.map((m) => {
+                      const isSelected = formData.make === m.name;
+                      const logoUrl = logoMap[m.key];
+                      return (
+                        <button
+                          key={m.name}
+                          onClick={() => setFormData({ ...formData, make: m.name })}
+                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                            isSelected
+                              ? "bg-[#0066ff] text-white border-[#0066ff] shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-[#0066ff]/40"
+                          }`}
+                        >
+                          {logoUrl ? (
+                            <div className="relative h-5 w-5 shrink-0 bg-white rounded p-0.5">
+                              <Image src={logoUrl} alt={m.name} fill className="object-contain" unoptimized />
+                            </div>
+                          ) : (
+                            <span>🚗</span>
+                          )}
+                          <span className="truncate">{m.name}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
 
-              {/* Step Renderings */}
-              <div className="min-h-[290px] flex flex-col justify-center">
-                
-                {/* Step 1: Brands Sourcing */}
-                {step === 1 && (
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2 transition">
-                      <Car className="h-5 w-5 text-[#0066ff] dark:text-sky-400" />
-                      <span>{language === "ar" ? "اختر ماركة السيارة المطلوبة:" : "Which automotive brand are you sourcing?"}</span>
-                    </h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[350px] overflow-y-auto pr-1">
-                      {makes.map((m) => {
-                        const isSelected = formData.make === m.name;
-                        const logoUrl = logoMap[m.key] || "";
-                        
-                        return (
-                          <motion.button
-                            key={m.name}
-                            whileHover={{ scale: 1.03, translateY: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                              updateField("make", m.name);
-                              setStep(2);
-                            }}
-                            className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-center transition-all min-h-[96px] ${
-                              isSelected
-                                ? "bg-[#0066ff]/5 border-[#0066ff] text-[#0066ff] dark:text-sky-300 shadow-[0_0_15px_rgba(0,102,255,0.2)] font-black"
-                                : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-350 hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-slate-800"
-                            }`}
-                          >
-                            {logoUrl ? (
-                              <div className="relative h-10 w-10 mb-2 flex items-center justify-center bg-white rounded-lg p-1 border border-slate-100">
-                                <Image
-                                  src={logoUrl}
-                                  alt={m.name}
-                                  fill
-                                  className="object-contain p-0.5"
-                                  unoptimized
-                                />
-                              </div>
-                            ) : (
-                              <span className="text-2xl mb-1.5">🚗</span>
-                            )}
-                            <span className="text-[11px] font-bold font-sans line-clamp-1">{m.name}</span>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 font-mono">
+                    {isAr ? "2. نوع الهيكل:" : "2. Body Type:"}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {bodyTypes.map((b) => {
+                      const isSelected = formData.bodyType === b.nameEn;
+                      return (
+                        <button
+                          key={b.nameEn}
+                          onClick={() => setFormData({ ...formData, bodyType: b.nameEn })}
+                          className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                            isSelected
+                              ? "bg-[#0066ff] text-white border-[#0066ff] shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-[#0066ff]/40"
+                          }`}
+                        >
+                          <span className="text-base">{b.icon}</span>
+                          <span>{isAr ? b.nameAr : b.nameEn}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                )}
+                </div>
 
-                {/* Step 2: Body Types Sourcing */}
-                {step === 2 && (
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2 transition">
-                      <Car className="h-5 w-5 text-[#0066ff] dark:text-sky-400" />
-                      <span>{language === "ar" ? "اختر نمط هيكل السيارة:" : "Select body styling type:"}</span>
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {bodyTypes.map((b) => {
-                        const isSelected = formData.bodyType === b.nameEn;
-                        const name = language === "ar" ? b.nameAr : b.nameEn;
-                        return (
-                          <motion.button
-                            key={b.nameEn}
-                            whileHover={{ scale: 1.02, translateY: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                              updateField("bodyType", b.nameEn);
-                              setStep(3);
-                            }}
-                            className={`flex flex-col items-center justify-center p-5 rounded-2xl border text-center transition-all ${
-                              isSelected
-                                ? "bg-[#0066ff]/5 border-[#0066ff] text-[#0066ff] dark:text-sky-300 shadow-[0_0_15px_rgba(0,102,255,0.2)] font-black"
-                                : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-slate-800"
-                            }`}
-                          >
-                            <span className="text-3xl mb-2">{b.icon}</span>
-                            <span className="text-xs font-bold">{name}</span>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3: Budget Range Sourcing */}
-                {step === 3 && (
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2 transition">
-                      <DollarSign className="h-5 w-5 text-[#0066ff] dark:text-sky-400" />
-                      <span>{language === "ar" ? "حدد ميزانيتك المقدرة (FOB كوريا):" : "Determine your target FOB budget:"}</span>
-                    </h4>
-                    <div className="grid gap-2.5">
-                      {budgets.map((b) => {
-                        const isSelected = formData.budget === b.nameEn;
-                        const name = language === "ar" ? b.nameAr : b.nameEn;
-                        return (
-                          <motion.button
-                            key={b.nameEn}
-                            whileHover={{ scale: 1.01, x: dir === "rtl" ? -4 : 4 }}
-                            whileTap={{ scale: 0.99 }}
-                            onClick={() => {
-                              updateField("budget", b.nameEn);
-                              setStep(4);
-                            }}
-                            className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between ${
-                              isSelected
-                                ? "bg-[#0066ff]/5 border-[#0066ff] text-[#0066ff] dark:text-sky-300 shadow-[0_0_15px_rgba(0,102,255,0.2)] font-black"
-                                : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-slate-800"
-                            }`}
-                          >
-                            <span className="text-xs font-bold">{name}</span>
-                            <ChevronRight className="h-4 w-4" />
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Destination Port with custom input */}
-                {step === 4 && (
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2 transition">
-                      <MapPin className="h-5 w-5 text-[#0066ff] dark:text-sky-400" />
-                      <span>{language === "ar" ? "حدد ميناء الوصول البحري:" : "Select your regional arrival port:"}</span>
-                    </h4>
-                    
-                    <div className="grid sm:grid-cols-2 gap-2.5 max-h-[220px] overflow-y-auto pr-1">
-                      {destinations.map((d) => {
-                        const isSelected = formData.destination === d.nameEn;
-                        const name = language === "ar" ? d.nameAr : d.nameEn;
-                        return (
-                          <motion.button
-                            key={d.nameEn}
-                            whileHover={{ scale: 1.01, x: dir === "rtl" ? -4 : 4 }}
-                            whileTap={{ scale: 0.99 }}
-                            onClick={() => {
-                              updateField("destination", d.nameEn);
-                              setStep(5);
-                            }}
-                            className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between ${
-                              isSelected
-                                ? "bg-[#0066ff]/5 border-[#0066ff] text-[#0066ff] dark:text-sky-300 shadow-[0_0_15px_rgba(0,102,255,0.2)] font-black"
-                                : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-[#0066ff]/40 hover:bg-white dark:hover:bg-slate-800"
-                            }`}
-                          >
-                            <span className="text-xs font-bold truncate max-w-[85%]">{name}</span>
-                            <ChevronRight className="h-4 w-4 shrink-0" />
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Custom Port Sourcing Input */}
-                    <div className="pt-3 border-t border-slate-150 dark:border-white/10 mt-3 transition-colors">
-                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                        {language === "ar" ? "أو اكتب ميناء / مدينة أخرى للتصدير:" : "Or specify another custom shipping port:"}
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={customPort}
-                          placeholder={language === "ar" ? "مثال: ميناء طنجة، المغرب" : "e.g. Port of Oslo, Norway"}
-                          onChange={(e) => {
-                            setCustomPort(e.target.value);
-                            updateField("destination", e.target.value);
-                          }}
-                          className="flex-grow px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#0066ff]"
-                        />
-                        {customPort.trim() && (
-                          <button
-                            onClick={() => setStep(5)}
-                            className="px-5 py-2.5 bg-[#0066ff] text-white text-xs font-bold rounded-xl hover:bg-blue-650 transition shadow-sm"
-                          >
-                            {language === "ar" ? "متابعة" : "Next"}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 5: High-Fidelity Scanning simulation */}
-                {step === 5 && (
-                  <div className="grid md:grid-cols-12 gap-6 items-center">
-                    
-                    {/* Left: Loader & Count Badge */}
-                    <div className="md:col-span-5 flex flex-col items-center justify-center text-center space-y-4">
-                      <div className="relative flex items-center justify-center">
-                        <div className="h-24 w-24 border-4 border-[#0066ff]/10 border-t-[#0066ff] rounded-full animate-spin" />
-                        <div className="absolute h-20 w-20 border-4 border-dashed border-sky-400/20 border-b-sky-400/50 rounded-full animate-spin [animation-duration:8s]" />
-                        
-                        <div className="absolute flex flex-col items-center justify-center text-center">
-                          <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight transition">
-                            {matchesCount}
-                          </span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                            {language === "ar" ? "مطابقة" : "Matches"}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="w-full bg-slate-100 dark:bg-slate-900 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#0066ff] transition-all duration-100 rounded-full"
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Right: Live Sourcing Checklist checkoffs */}
-                    <div className="md:col-span-7 space-y-3.5 text-xs font-semibold">
-                      
-                      {/* Check 1 */}
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                        progressPercent >= 25 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400" 
-                          : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-600"
-                      }`}>
-                        {progressPercent >= 25 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <Loader2 className="h-5 w-5 animate-spin shrink-0 text-[#0066ff]" />
-                        )}
-                        <span>{language === "ar" ? "الاتصال بقاعدة بيانات Encar في سيول" : "Connecting to Encar Seoul Yard Database"}</span>
-                      </div>
-
-                      {/* Check 2 */}
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                        progressPercent >= 50 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400" 
-                          : progressPercent >= 25 
-                          ? "bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400"
-                          : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-600"
-                      }`}>
-                        {progressPercent >= 50 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                        ) : progressPercent >= 25 ? (
-                          <Loader2 className="h-5 w-5 animate-spin shrink-0 text-[#0066ff]" />
-                        ) : (
-                          <Database className="h-5 w-5 shrink-0" />
-                        )}
-                        <span>{language === "ar" ? "مسح منصات مزادات Lotte الكبرى" : "Scanning Lotte & Glovis Auto Auctions"}</span>
-                      </div>
-
-                      {/* Check 3 */}
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                        progressPercent >= 75 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400" 
-                          : progressPercent >= 50 
-                          ? "bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400"
-                          : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-600"
-                      }`}>
-                        {progressPercent >= 75 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                        ) : progressPercent >= 50 ? (
-                          <Loader2 className="h-5 w-5 animate-spin shrink-0 text-[#0066ff]" />
-                        ) : (
-                          <Database className="h-5 w-5 shrink-0" />
-                        )}
-                        <span>{language === "ar" ? "سحب تفاصيل اللوجستيات بميناء إنشون" : "Pulling Incheon Port Export Yards"}</span>
-                      </div>
-
-                      {/* Check 4 */}
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                        progressPercent >= 100 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400" 
-                          : progressPercent >= 75 
-                          ? "bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400"
-                          : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/5 text-slate-400 dark:text-slate-600"
-                      }`}>
-                        {progressPercent >= 100 ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                        ) : progressPercent >= 75 ? (
-                          <Loader2 className="h-5 w-5 animate-spin shrink-0 text-[#0066ff]" />
-                        ) : (
-                          <Database className="h-5 w-5 shrink-0" />
-                        )}
-                        <span>{language === "ar" ? "تصفية سجلات الحوادث وفحص الصدمات" : "Filtering Accident Logs & Structure Audits"}</span>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 6: Sourcing Success Matches */}
-                {step === 6 && (
-                  <div className="flex flex-col items-center justify-center text-center space-y-6">
-                    <div className="relative flex items-center justify-center">
-                      <span className="absolute h-16 w-16 bg-emerald-500/20 dark:bg-emerald-500/20 animate-ping rounded-full" />
-                      <div className="h-16 w-16 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center relative">
-                        <Zap className="h-8 w-8" />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <h4 className="text-xl font-black text-slate-900 dark:text-white transition">
-                        {language === "ar" ? "اكتشاف تطابقات توريد جاهزة!" : "Matches Sourced Successfully!"}
-                      </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md font-semibold leading-relaxed transition">
-                        {language === "ar"
-                          ? `لقد وجدنا ${matchesCount} سيارة ${formData.make} ${formData.bodyType} مطابقة تماماً للميزانية المقترحة (${formData.budget}) في أسواق سيول هذا الأسبوع وتوريد مباشر إلى ${formData.destination.split("(")[0]}.`
-                          : `We found ${matchesCount} verified ${formData.make} ${formData.bodyType} slots matching your budget (${formData.budget}) in Seoul auctions ready for direct export cargo to ${formData.destination.split("(")[0]}.`}
-                      </p>
-                    </div>
-
-                    <motion.a
-                      whileHover={{ scale: 1.025 }}
-                      whileTap={{ scale: 0.98 }}
-                      href={`https://wa.me/821072290580?text=${whatsappMessage}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4.5 text-xs font-black uppercase tracking-wider shadow-lg transition"
-                    >
-                      <MessageSquare className="h-4.5 w-4.5" />
-                      <span>{language === "ar" ? "الحصول على الملفات والتقارير الحية (واتساب)" : "Get Live Sourcing Sheets (WhatsApp)"}</span>
-                    </motion.a>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Steps navigation footer */}
-              {step > 1 && step <= 4 && (
-                <div className="flex justify-between mt-8 pt-4 border-t border-slate-200 dark:border-white/10 transition-colors">
+                <div className="pt-2">
                   <button
-                    onClick={() => setStep(step - 1)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white transition"
+                    onClick={() => setStep(2)}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl text-xs font-extrabold uppercase tracking-wider transition cursor-pointer"
                   >
-                    <ChevronLeft className="h-4 w-4" />
-                    <span>{language === "ar" ? "السابق" : "Back"}</span>
+                    <span>{isAr ? "المتابعة للخطوة التالية" : "Continue to Step 2"}</span>
+                    <ArrowRight className="h-4 w-4" />
                   </button>
-                  <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    {formData.make && `${formData.make}`}
-                    {formData.bodyType && ` • ${formData.bodyType}`}
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Budget & Port */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 font-mono">
+                    {isAr ? "1. الميزانية التقديرية (FOB كوريا):" : "1. Estimated FOB Budget:"}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {budgets.map((b) => {
+                      const isSelected = formData.budget === b.nameEn;
+                      return (
+                        <button
+                          key={b.nameEn}
+                          onClick={() => setFormData({ ...formData, budget: b.nameEn })}
+                          className={`p-3 rounded-xl border text-xs font-bold text-center transition cursor-pointer ${
+                            isSelected
+                              ? "bg-[#0066ff] text-white border-[#0066ff] shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-[#0066ff]/40"
+                          }`}
+                        >
+                          <span>{isAr ? b.nameAr : b.nameEn}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
-            </motion.div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 font-mono">
+                    {isAr ? "2. ميناء الوصول والتسليم:" : "2. Destination Port:"}
+                  </label>
+                  <div className="space-y-1.5">
+                    {destinations.map((d) => {
+                      const isSelected = formData.destination === d.portEn && !customPort;
+                      return (
+                        <button
+                          key={d.portEn}
+                          onClick={() => {
+                            setFormData({ ...formData, destination: d.portEn });
+                            setCustomPort("");
+                          }}
+                          className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition text-start cursor-pointer ${
+                            isSelected
+                              ? "bg-[#0066ff] text-white border-[#0066ff] shadow-sm"
+                              : "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-[#0066ff]/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{d.flag}</span>
+                            <span>{isAr ? d.portAr : d.portEn}</span>
+                          </div>
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-white shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-1/3 py-3 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    {isAr ? "السابق" : "Back"}
+                  </button>
+                  <button
+                    onClick={() => setStep(3)}
+                    className="w-2/3 flex items-center justify-center gap-2 py-3 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl text-xs font-extrabold uppercase tracking-wider transition cursor-pointer"
+                  >
+                    <span>{isAr ? "تأكيد وإرسال الطلب" : "Confirm Request"}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Instant Summary & WhatsApp Submission */}
+            {step === 3 && (
+              <div className="space-y-4">
+                <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-2 text-xs">
+                  <div className="text-[10px] font-bold uppercase text-slate-400 font-mono">
+                    {isAr ? "ملخص طلب التوريد" : "Sourcing Request Summary"}
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <span className="text-slate-500">{isAr ? "الماركة:" : "Make:"}</span>
+                    <span>{formData.make}</span>
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <span className="text-slate-500">{isAr ? "الهيكل:" : "Body:"}</span>
+                    <span>{formData.bodyType}</span>
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <span className="text-slate-500">{isAr ? "الميزانية:" : "Budget:"}</span>
+                    <span>{formData.budget}</span>
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <span className="text-slate-500">{isAr ? "الميناء:" : "Port:"}</span>
+                    <span className="truncate max-w-[200px]">{targetPort}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  <a
+                    href={waRequestUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition shadow-lg shadow-emerald-500/20"
+                  >
+                    <PhoneCall className="h-4 w-4" />
+                    <span>{isAr ? "إرسال الطلب فوراً عبر واتساب" : "Send Request Directly via WhatsApp"}</span>
+                  </a>
+
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      router.push(`/catalog?brand=${encodeURIComponent(formData.make)}`);
+                    }}
+                    className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition hover:bg-slate-200 cursor-pointer"
+                  >
+                    {isAr ? "تصفح السيارات المتاحة فوراً في الكتالوج" : "Browse Matching Cars in Catalog"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </>
   );
 }

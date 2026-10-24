@@ -21,8 +21,8 @@ export default function WhatsAppFloatingWidget() {
   return (
     <div
       dir={dir}
-      className={`fixed bottom-6 z-[99] flex items-center gap-3 ${
-        language === "ar" ? "left-6 flex-row-reverse" : "right-6 flex-row"
+      className={`fixed bottom-20 md:bottom-6 z-[90] hidden sm:flex items-center gap-3 ${
+        language === "ar" ? "left-4 md:left-6 flex-row-reverse" : "right-4 md:right-6 flex-row"
       }`}
     >
       <AnimatePresence>

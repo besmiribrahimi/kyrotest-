@@ -1,7 +1,6 @@
 import HeroSection from "@/components/home/hero/HeroSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
-import ResearchInsights from "@/components/home/ResearchInsights";
 import MyKoryoInventory from "@/components/inventory/MyKoryoInventory";
 import AboutSection from "@/components/home/AboutSection";
 import ShippingCalculator from "@/components/calculator/ShippingCalculator";
@@ -74,17 +73,17 @@ export default function Home() {
       
       <HeroSection />
       
-      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 py-6">
-        <SourcingWizard />
-      </div>
-
       <BrandLogosBar />
 
       <MyKoryoInventory />
-      <WhyChooseUs />
-      <ResearchInsights />
-      <AboutSection />
+
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 py-8">
+        <SourcingWizard />
+      </div>
+
       <ShippingCalculator />
+      <WhyChooseUs />
+      <AboutSection />
       <FAQSection />
       <CTASection />
     </main>

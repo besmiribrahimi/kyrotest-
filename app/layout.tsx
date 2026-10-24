@@ -3,6 +3,7 @@ import { Outfit, Tajawal } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFloatingWidget from "@/components/layout/WhatsAppFloatingWidget";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { LanguageProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
 import {
@@ -105,9 +106,10 @@ export default function RootLayout({
           <ThemeProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <main className="flex-grow">{children}</main>
+              <main className="flex-grow pb-20 md:pb-0">{children}</main>
               <Footer />
               <WhatsAppFloatingWidget />
+              <MobileBottomNav />
             </div>
           </ThemeProvider>
         </LanguageProvider>

@@ -392,12 +392,12 @@ export default function MyKoryoInventory() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="w-full md:w-auto flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none sm:flex-wrap">
             {makesList.map((m) => (
               <button
                 key={m}
                 onClick={() => handleSelectMake(m)}
-                className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                   selectedMake === m
                     ? "bg-slate-900 dark:bg-[#0066ff] text-white font-extrabold border border-slate-900 dark:border-[#0066ff]"
                     : "bg-white dark:bg-[#0b1528] border border-slate-300 dark:border-white/5 text-slate-800 dark:text-white hover:border-[#0066ff]/40 dark:hover:border-sky-400 shadow-sm"
@@ -411,7 +411,7 @@ export default function MyKoryoInventory() {
 
         {/* Active Filters Pill Bar */}
         {searchFilters && (
-          <div className="mb-10 flex flex-wrap items-center gap-2 border-t border-slate-200 dark:border-white/10 pt-4 transition-colors">
+          <div className="mb-8 flex flex-wrap items-center gap-2 border-t border-slate-200 dark:border-white/10 pt-4 transition-colors">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">
               {language === "ar" ? "الفلاتر النشطة:" : "Active Filters:"}
             </span>
@@ -463,7 +463,7 @@ export default function MyKoryoInventory() {
 
         {/* Real Cars Grid */}
         {!isLoading && filteredCars.length > 0 && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredCars.map((car, idx) => {
               const priceUsd = car.prices?.USD ? Math.round(car.prices.USD) : typeof car.price === 'number' ? Math.round(car.price / 1350) : 24000;
               const activeCurrency = currencyMap[countryCode] || currencyMap["SA"];
@@ -520,32 +520,32 @@ export default function MyKoryoInventory() {
                       </div>
                     </Link>
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-4 sm:p-5 space-y-3.5">
                       <Link href={`/vehicle/${car.id}`} className="block hover:text-[#0066ff] dark:hover:text-sky-400 transition">
-                        <h3 className="text-base font-extrabold text-slate-900 dark:text-white line-clamp-1 transition font-sans">
+                        <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white line-clamp-1 transition font-sans">
                           {car.title}
                         </h3>
                       </Link>
 
-                      <div className="grid grid-cols-3 gap-2 text-[11px] text-slate-700 dark:text-slate-350 font-semibold bg-slate-100/60 dark:bg-slate-950/40 p-3 rounded-2xl border border-slate-200/60 dark:border-white/5 transition">
+                      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-[11px] text-slate-700 dark:text-slate-350 font-semibold bg-slate-100/60 dark:bg-slate-950/40 p-2.5 sm:p-3 rounded-2xl border border-slate-200/60 dark:border-white/5 transition">
                         <div className="flex flex-col items-center justify-center text-center">
-                          <Calendar className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-1" />
+                          <Calendar className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-0.5 sm:mb-1" />
                           <span>{car.year || 2022}</span>
                         </div>
                         <div className="flex flex-col items-center justify-center text-center">
-                          <Gauge className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-1" />
+                          <Gauge className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-0.5 sm:mb-1" />
                           <span>{car.mileage?.toLocaleString() || 0} km</span>
                         </div>
                         <div className="flex flex-col items-center justify-center text-center">
-                          <Fuel className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-1" />
+                          <Fuel className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400 mb-0.5 sm:mb-1" />
                           <span className="capitalize">{car.fuelType || "Gasoline"}</span>
                         </div>
                       </div>
 
-                      <div className="flex items-baseline justify-between border-t border-slate-200 dark:border-white/10 pt-4 transition-colors">
+                      <div className="flex items-baseline justify-between border-t border-slate-200 dark:border-white/10 pt-3.5 transition-colors">
                         <div>
                           <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">FOB Price (Korea)</div>
-                          <div className="text-2xl font-black text-slate-900 dark:text-white font-mono transition">
+                          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono transition">
                             ${priceUsd.toLocaleString()}{" "}
                             <span className="text-xs font-normal text-slate-500 dark:text-slate-400">USD</span>
                           </div>
@@ -553,7 +553,7 @@ export default function MyKoryoInventory() {
 
                         <div className="text-right">
                           <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Est. {activeCurrency.symbol}</div>
-                          <div className="text-sm font-extrabold text-white dark:text-slate-900 font-mono bg-slate-950 dark:bg-white px-2.5 py-0.5 rounded border border-white/10 dark:border-transparent transition shadow-sm">
+                          <div className="text-xs sm:text-sm font-extrabold text-white dark:text-slate-900 font-mono bg-slate-950 dark:bg-white px-2 py-0.5 rounded border border-white/10 dark:border-transparent transition shadow-sm">
                             ~{priceLocal.toLocaleString()} {activeCurrency.symbol}
                           </div>
                         </div>
@@ -569,7 +569,7 @@ export default function MyKoryoInventory() {
                     const whatsappConsultUrl = `https://wa.me/821072290580?text=${encodeURIComponent(waText)}`;
 
                     return (
-                      <div className="p-6 pt-0 space-y-2">
+                      <div className="p-4 sm:p-5 pt-0 space-y-2">
                         <a
                           href={whatsappConsultUrl}
                           target="_blank"

@@ -1,11 +1,22 @@
 "use client";
 
-import { useState, useRef, MouseEvent } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
-import { CheckCircle2, ArrowUpRight, ShieldCheck, Sparkles, MessageSquare, Gauge, Fuel, MapPin } from "lucide-react";
-import AdvancedSearchWidget from "@/components/search/AdvancedSearchWidget";
+import {
+  ShieldCheck,
+  Search,
+  PhoneCall,
+  ArrowRight,
+  CheckCircle2,
+  Ship,
+  Sparkles,
+  Calendar,
+  Gauge,
+  Fuel,
+} from "lucide-react";
 
 interface ShowcaseVehicle {
   id: string;
@@ -15,363 +26,303 @@ interface ShowcaseVehicle {
   image: string;
   engine: string;
   mileage: string;
-  locationEn: string;
-  locationAr: string;
+  year: number;
 }
 
 export default function HeroSection() {
-  const { t, language, dir } = useLanguage();
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("genesis-g80");
+  const { language, dir } = useLanguage();
+  const isAr = language === "ar";
+  const router = useRouter();
 
-  // 3D Magnetic Tilt State
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50, isHovered: false });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVehicleIndex, setSelectedVehicleIndex] = useState(0);
 
-  const vehicles: ShowcaseVehicle[] = [
+  const showcaseVehicles: ShowcaseVehicle[] = [
     {
       id: "genesis-g80",
       name: "Genesis G80 3.5T AWD",
       price: "$28,500 USD",
-      badge: "150-Pt Encar Certified",
+      badge: isAr ? "فحص إنكار معتمد" : "Encar Trust Verified",
       image: "/images/genesis_g80_export.png",
-      engine: "3.5L V6 Twin-Turbo (375 HP)",
-      mileage: "28,400 km • Grade A+",
-      locationEn: "Incheon Yard (Ro-Ro Ready)",
-      locationAr: "ميناء إنشون (جاهزة للشحن)",
+      engine: "3.5L V6 Twin-Turbo",
+      mileage: "28,400 km",
+      year: 2022,
     },
     {
       id: "kia-carnival",
       name: "Kia Carnival Hi-Limousine",
       price: "$34,200 USD",
-      badge: "Lotte Auction Approved",
+      badge: isAr ? "مزادات لوتيه الممتازة" : "Lotte Auction Grade A",
       image: "/images/kia_carnival_export.png",
-      engine: "3.5L V6 Smartstream VIP",
-      mileage: "18,200 km • Grade A+",
-      locationEn: "Busan Port Yard (Direct)",
-      locationAr: "ميناء بوسان (شحن مباشر)",
+      engine: "3.5L V6 Smartstream",
+      mileage: "18,200 km",
+      year: 2023,
     },
     {
       id: "hyundai-palisade",
       name: "Hyundai Palisade Calligraphy",
       price: "$29,800 USD",
-      badge: "Encar Trust Verified",
+      badge: isAr ? "خالي من الحوادث 100%" : "0% Structural Damage",
       image: "/images/hyundai_palisade_export.png",
       engine: "3.8L V6 HTRAC AWD",
-      mileage: "31,000 km • Accident-Free",
-      locationEn: "Seoul Center Yard",
-      locationAr: "مستودع سيول المركزي",
-    },
-    {
-      id: "porsche-cayenne",
-      name: "Porsche Cayenne Coupe 3.0T",
-      price: "$58,900 USD",
-      badge: "Supercar Certified",
-      image: "/images/porsche_cayenne_export.png",
-      engine: "3.0L Turbo V6 (340 HP)",
-      mileage: "14,500 km • Full Warranty",
-      locationEn: "Incheon Logistics Hub",
-      locationAr: "مركز إنشون اللوجستي",
+      mileage: "31,000 km",
+      year: 2022,
     },
   ];
 
-  const activeVehicle = vehicles.find((v) => v.id === selectedVehicleId) || vehicles[0];
+  const activeCar = showcaseVehicles[selectedVehicleIndex];
 
-  const whatsappInquiryUrl = `https://wa.me/821072290580?text=${encodeURIComponent(
-    `Hello Advanced Koryo! I am inquiring about the ${activeVehicle.name} listed at ${activeVehicle.price}.`
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/catalog?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/catalog");
+    }
+  };
+
+  const popularBrands = [
+    { name: "Hyundai", ar: "هيونداي" },
+    { name: "Kia", ar: "كيا" },
+    { name: "Genesis", ar: "جينيسيس" },
+    { name: "Mercedes", ar: "مرسيدس" },
+    { name: "BMW", ar: "بي إم دبليو" },
+    { name: "Audi", ar: "أودي" },
+  ];
+
+  const waInquiryUrl = `https://wa.me/821072290580?text=${encodeURIComponent(
+    isAr
+      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار عن استيراد سيارة من كوريا (${activeCar.name}) بسعر ${activeCar.price}.`
+      : `Hello Advanced Koryo 🇰🇷\nI am inquiring about sourcing the ${activeCar.name} listed at ${activeCar.price}.`
   )}`;
 
-  // Mouse tilt calculations
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -8; // Gentle tilt max 8deg
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    const glareX = (x / rect.width) * 100;
-    const glareY = (y / rect.height) * 100;
-
-    setTilt({ rotateX, rotateY, glareX, glareY, isHovered: true });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50, isHovered: false });
-  };
-
   return (
-    <section dir={dir} className="relative overflow-hidden bg-white dark:bg-[#020a18] pt-12 pb-20 text-slate-900 dark:text-white transition-colors duration-300">
-      
-      {/* Inline styles for text shimmer animation */}
-      <style jsx global>{`
-        @keyframes shimmer-text {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-text-shimmer {
-          background-size: 200% auto;
-          animation: shimmer-text 5s linear infinite;
-        }
-      `}</style>
-
-      {/* Dynamic Animated Glassmorphic Ambient Orbs */}
-      <motion.div 
-        animate={{
-          y: [0, 25, 0],
-          x: [0, 15, 0],
-          scale: [1, 1.08, 1],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute top-[-15%] left-[-10%] w-[450px] h-[450px] rounded-full bg-blue-600/10 dark:bg-[#0066ff]/8 blur-[120px] pointer-events-none" 
-      />
-      <motion.div 
-        animate={{
-          y: [0, -30, 0],
-          x: [0, -20, 0],
-          scale: [1, 1.12, 1],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1.5,
-        }}
-        className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] rounded-full bg-cyan-400/8 dark:bg-sky-400/5 blur-[110px] pointer-events-none" 
-      />
-
-      {/* Background Dot Matrix Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] dark:bg-[radial-gradient(rgba(255,255,255,0.07)_1.5px,transparent_1.5px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] opacity-70 pointer-events-none" />
-
-      <div className="relative mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 space-y-12">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
+    <section
+      dir={dir}
+      className="relative overflow-hidden bg-white dark:bg-[#020a18] pt-8 sm:pt-12 pb-12 sm:pb-16 text-slate-900 dark:text-white transition-colors duration-300"
+    >
+      <div className="relative mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10 space-y-8">
+        
+        {/* Main Grid: Info + Mobile/Desktop Showcase */}
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Premium Headline & Sourcing Stats */}
-          <motion.div
-            initial={{ opacity: 0, x: dir === "rtl" ? 30 : -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-7 space-y-8"
-          >
-            {/* Interactive float-blink Sparkles wrapped around Badge */}
-            <div className="relative inline-block">
-              <motion.span 
-                animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.3, 0.8], y: [0, -4, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-2.5 -right-3 text-sky-400 dark:text-sky-300 pointer-events-none z-20"
-              >
-                <Sparkles className="h-4 w-4 fill-current" />
-              </motion.span>
-
-              <div className="inline-flex items-center gap-2.5 rounded-full bg-[#003478]/5 dark:bg-sky-500/10 border border-[#003478]/15 dark:border-sky-500/20 px-4.5 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#003478] dark:text-sky-400 shadow-sm transition">
-                <ShieldCheck className="h-4 w-4 text-[#003478] dark:text-sky-400" />
-                <Image
-                  src="/Flag_of_South_Korea.svg"
-                  alt="South Korea Flag"
-                  width={16}
-                  height={10}
-                  className="h-3 w-[18px] rounded-[1px] object-cover"
-                />
-                <span>{t.hero.badge}</span>
-              </div>
+          {/* Left Column: Heading, Search & Actions */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Top Licensed Exporter Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-sky-500/10 border border-slate-200 dark:border-sky-500/20 px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-sky-300 shadow-sm">
+              <span className="text-sm">🇰🇷</span>
+              <ShieldCheck className="h-3.5 w-3.5 text-[#0066ff] dark:text-sky-400" />
+              <span>
+                {isAr
+                  ? "مصدر سيارات مرخص في سيول • فحص إنكار وKB المباشر"
+                  : "Licensed Seoul Exporter • Encar & KB Direct Feed"}
+              </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-slate-900 dark:text-white font-sans transition">
-              {t.hero.title}{" "}
-              <span className="block mt-3 bg-gradient-to-r from-[#003478] via-[#0066ff] to-[#003478] dark:from-sky-400 dark:via-[#0066ff] dark:to-[#00c6ff] bg-clip-text text-transparent w-fit font-black drop-shadow-sm pb-1 transition animate-text-shimmer">
-                {t.hero.titleAccent}
-              </span>
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-slate-950 dark:text-white">
+              {isAr ? (
+                <>
+                  تصدير السيارات من كوريا مباشرة{" "}
+                  <span className="block mt-1.5 text-[#0066ff] dark:text-sky-400">
+                    بفحص 150 نقطة وشحن لمينائك
+                  </span>
+                </>
+              ) : (
+                <>
+                  Direct Korean Vehicle Sourcing{" "}
+                  <span className="block mt-1.5 text-[#0066ff] dark:text-sky-400">
+                    100% Inspected & Shipped to Port
+                  </span>
+                </>
+              )}
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl font-medium font-sans transition">
-              {t.hero.description}
+            {/* Description */}
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium max-w-2xl">
+              {isAr
+                ? "تصفح أكثر من 150,000 سيارة كورية مفحوصة مباشرة من منصات إنكار (Encar) وKB تشاتشاتشا مع أسعار FOB الحقيقية، تدقيق الشاسي والمحرك، وشحن بحري مباشر Ro-Ro إلى السعودية، الإمارات، قطر، الكويت، وكافة الموانئ."
+                : "Browse 150,000+ verified vehicles directly from Encar and KB ChaChaCha with transparent FOB pricing, 150-point diagnostic inspection, and insured Ro-Ro ocean shipping to Jeddah, Jebel Ali, Dammam, and worldwide."}
             </p>
 
-            {/* Live Stats Block - High-end Floating Glassmorphic Panels */}
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { value: t.hero.stat1Value, label: t.hero.stat1Label, icon: ShieldCheck, color: "text-blue-600 dark:text-sky-400" },
-                { value: t.hero.stat2Value, label: t.hero.stat2Label, icon: CheckCircle2, color: "text-teal-600 dark:text-teal-400" },
-                { value: t.hero.stat3Value, label: t.hero.stat3Label, icon: Sparkles, color: "text-amber-500 dark:text-amber-400" },
-              ].map((stat, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex flex-col justify-between p-4.5 rounded-2xl bg-slate-50/80 dark:bg-[#0b1528]/60 border border-slate-200/60 dark:border-white/5 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <stat.icon className={`h-5 w-5 ${stat.color} opacity-80`} />
-                    <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight transition">{stat.value}</div>
-                  </div>
-                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-550 dark:text-slate-400 mt-3 leading-tight transition">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Right Column: Ultra-Luxury Integrated Showcase Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-5 relative perspective-[1000px]"
-          >
-            {/* 3D Tilting Card Container */}
-            <div
-              ref={cardRef}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              style={{
-                transform: tilt.isHovered
-                  ? `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(1.015)`
-                  : "rotateX(0deg) rotateY(0deg) scale(1)",
-                transition: tilt.isHovered ? "transform 0.1s ease-out" : "transform 0.5s ease-out",
-              }}
-              className="koryo-card-white bg-white/95 dark:bg-[#0b1528]/95 backdrop-blur-md rounded-3xl p-6 space-y-5 relative overflow-hidden shadow-2xl dark:shadow-[0_0_80px_-15px_rgba(0,102,255,0.35)] border border-slate-200 dark:border-white/10 group hover:border-[#0066ff]/20 dark:hover:border-sky-400/20"
+            {/* Phone-Centered Quick Search Box */}
+            <form
+              onSubmit={handleSearch}
+              className="bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 rounded-2xl p-2 sm:p-2.5 shadow-md space-y-2.5"
             >
-              {/* Dynamic Spotlight Glare Overlay */}
-              {tilt.isHovered && (
-                <div
-                  className="absolute inset-0 pointer-events-none z-30 transition-opacity duration-300"
-                  style={{
-                    background: `radial-gradient(500px circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.16), transparent 40%)`,
-                  }}
-                />
-              )}
-
-              {/* Integrated Segment Control Tabs Bar */}
-              <div className="bg-slate-100/90 dark:bg-slate-950/80 p-1 rounded-2xl flex items-center gap-1 border border-slate-200/80 dark:border-white/10">
-                {vehicles.map((v) => {
-                  const isActive = v.id === selectedVehicleId;
-                  return (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedVehicleId(v.id)}
-                      className={`relative flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider transition rounded-xl z-10 ${
-                        isActive
-                          ? "bg-[#0066ff] text-white shadow-lg font-black"
-                          : "text-slate-555 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <span>{v.name.split(" ")[0]} {v.name.split(" ")[1]}</span>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-grow">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={
+                      isAr
+                        ? "ابحث بالماركة أو الموديل (مثل: Palisade, G80, Carnival, BMW)..."
+                        : "Search make, model, or trim (e.g. Genesis G80, Palisade, Carnival)..."
+                    }
+                    className="w-full pl-10 pr-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#0066ff] transition"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-[#0066ff] hover:bg-blue-600 text-white text-xs sm:text-sm font-black rounded-xl transition shadow-sm whitespace-nowrap cursor-pointer"
+                >
+                  {isAr ? "بحث فوري" : "Search Cars"}
+                </button>
               </div>
 
-              {/* Vehicle Image Showcase with Cross-Fade */}
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#070d19] border border-slate-200 dark:border-white/10 transition">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeVehicle.id}
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.35 }}
-                    className="absolute inset-0"
+              {/* Fast Brand Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none text-[11px] font-bold">
+                <span className="text-slate-400 shrink-0 text-[10px] uppercase font-mono px-1">
+                  {isAr ? "شائع:" : "Popular:"}
+                </span>
+                {popularBrands.map((b) => (
+                  <button
+                    key={b.name}
+                    type="button"
+                    onClick={() => router.push(`/catalog?brand=${encodeURIComponent(b.name)}`)}
+                    className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-[#0066ff] dark:hover:border-sky-400 transition whitespace-nowrap cursor-pointer"
                   >
-                    <Image
-                      src={activeVehicle.image}
-                      alt={activeVehicle.name}
-                      fill
-                      className="object-cover transition duration-700"
-                      priority
-                      unoptimized
-                    />
-                  </motion.div>
-                </AnimatePresence>
+                    {isAr ? b.ar : b.name}
+                  </button>
+                ))}
+              </div>
+            </form>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 dark:from-[#000000]/95 via-transparent to-transparent z-10" />
-                
-                <div className="absolute top-3 left-3 z-20">
-                  <span className="text-[10px] font-bold font-mono text-white bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                    {activeVehicle.badge}
-                  </span>
+            {/* Direct Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+              <Link
+                href="/catalog"
+                className="flex items-center justify-center gap-2 bg-slate-950 dark:bg-white text-white dark:text-slate-950 hover:bg-[#0066ff] dark:hover:bg-slate-100 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition shadow-md"
+              >
+                <span>{isAr ? "تصفح كتالوج السيارات المباشر" : "Browse Live Export Catalog"}</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+
+              <a
+                href={waInquiryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-6 py-3.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wide transition shadow-md shadow-emerald-500/20"
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span>{isAr ? "استفسار وشراء عبر واتساب" : "Chat with Exporter in Seoul"}</span>
+              </a>
+            </div>
+
+            {/* 3 Key Trust Metrics */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-4 pt-2">
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/5 text-center sm:text-start">
+                <div className="text-base sm:text-xl font-black font-mono text-slate-950 dark:text-white">
+                  150,000+
                 </div>
-
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-[#FFFFFF] z-20">
-                  <span className="font-extrabold bg-slate-950/75 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 shadow-lg font-sans">
-                    {activeVehicle.name}
-                  </span>
-                  <span className="font-mono text-[#FFFFFF] font-extrabold bg-[#0066ff] px-3.5 py-1.5 rounded-xl border border-white/20 shadow-lg">
-                    {activeVehicle.price}
-                  </span>
+                <div className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5">
+                  {isAr ? "سيارة كورية معتمدة" : "Verified Listings"}
                 </div>
               </div>
 
-              {/* Structured Key Metrics Grid */}
-              <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
-                  <div className="flex items-center gap-1.5 text-slate-450 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
-                    <Fuel className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
-                    <span>Engine</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">{activeVehicle.engine.split("(")[0]}</div>
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/5 text-center sm:text-start">
+                <div className="text-base sm:text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+                  150-Point
                 </div>
-
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
-                  <div className="flex items-center gap-1.5 text-slate-455 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
-                    <Gauge className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
-                    <span>Odometer</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">{activeVehicle.mileage.split("•")[0]}</div>
-                </div>
-
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/60 dark:border-white/5 space-y-1 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 transition-all duration-300">
-                  <div className="flex items-center gap-1.5 text-slate-455 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">
-                    <MapPin className="h-3.5 w-3.5 text-[#0066ff] shrink-0" />
-                    <span>Location</span>
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">
-                    {language === "ar" ? activeVehicle.locationAr.split("(")[0] : activeVehicle.locationEn.split("(")[0]}
-                  </div>
+                <div className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5">
+                  {isAr ? "فحص شاسي ومحرك" : "Diagnostic Audit"}
                 </div>
               </div>
 
-              {/* Dual Action CTA Bar - Redesigned Luxury Buttons */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <a
-                  href="#inventory-section"
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 hover:border-[#0066ff]/20 dark:hover:border-sky-400/20 text-slate-800 dark:text-white py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  <span>{t.inventory.title}</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/5 text-center sm:text-start">
+                <div className="text-base sm:text-xl font-black font-mono text-[#0066ff] dark:text-sky-400">
+                  18-22 Days
+                </div>
+                <div className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5">
+                  {isAr ? "شحن Ro-Ro للخليج" : "Ro-Ro Ocean Transit"}
+                </div>
+              </div>
+            </div>
 
-                <a
-                  href={whatsappInquiryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white py-3 text-xs font-black uppercase tracking-wider transition-all duration-300 shadow-[0_4px_18px_-2px_rgba(16,185,129,0.35)] dark:shadow-[0_4px_18px_-2px_rgba(16,185,129,0.25)] hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  {/* Live Status indicator ring for online availability */}
-                  <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-200 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-300"></span>
+          </div>
+
+          {/* Right Column: Clean Phone/Desktop Car Showcase */}
+          <div className="lg:col-span-5">
+            <div className="bg-slate-50 dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 rounded-3xl p-4 sm:p-5 space-y-4 shadow-xl">
+              
+              {/* Car Image Preview */}
+              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-900">
+                <Image
+                  src={activeCar.image}
+                  alt={activeCar.name}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                <div className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow">
+                  {activeCar.badge}
+                </div>
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[11px] font-mono font-bold text-white bg-slate-950/80 backdrop-blur px-2.5 py-1 rounded-xl border border-white/10">
+                  <span>{activeCar.engine}</span>
+                  <span className="text-emerald-400">✓ 100% LHD</span>
+                </div>
+              </div>
+
+              {/* Vehicle Title & Specs */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                    {activeCar.name}
+                  </h3>
+                  <span className="text-base sm:text-lg font-black font-mono text-[#0066ff] dark:text-sky-400">
+                    {activeCar.price}
                   </span>
-                  <span>{language === "ar" ? "استفسر واتساب" : "Inquire Car"}</span>
-                </a>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mt-2.5 text-xs font-bold text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-white/5">
+                    <Calendar className="h-3.5 w-3.5 text-[#0066ff]" />
+                    <span>{isAr ? `موديل ${activeCar.year}` : `Year ${activeCar.year}`}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-white/5">
+                    <Gauge className="h-3.5 w-3.5 text-[#0066ff]" />
+                    <span>{activeCar.mileage}</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Selector Tabs for 3 featured cars */}
+              <div className="grid grid-cols-3 gap-1.5 pt-1">
+                {showcaseVehicles.map((car, idx) => (
+                  <button
+                    key={car.id}
+                    onClick={() => setSelectedVehicleIndex(idx)}
+                    className={`py-1.5 px-2 rounded-xl text-[10px] font-bold truncate transition cursor-pointer ${
+                      selectedVehicleIndex === idx
+                        ? "bg-[#0066ff] text-white shadow"
+                        : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/5"
+                    }`}
+                  >
+                    {car.name.split(" ")[0]} {car.name.split(" ")[1]}
+                  </button>
+                ))}
+              </div>
+
+              {/* Direct WhatsApp Action for this car */}
+              <a
+                href={waInquiryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white py-2.5 text-xs font-bold uppercase tracking-wider transition shadow-sm"
+              >
+                <PhoneCall className="h-3.5 w-3.5" />
+                <span>{isAr ? "استفسار فوري عن هذه السيارة" : "Inquire About This Vehicle"}</span>
+              </a>
 
             </div>
-          </motion.div>
+          </div>
+
         </div>
 
-        {/* Full-width Advanced Search Widget */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <AdvancedSearchWidget />
-        </motion.div>
       </div>
     </section>
   );
