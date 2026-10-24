@@ -69,13 +69,26 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const color = car.color || "Black";
   const image = car.imageUrl || "/logo.png";
 
-  const priceEur = car.priceEUR || 35000;
-  const priceUsd = Math.round(priceEur * 1.1);
-  const priceKrw = details.listing.original_price_krw || Math.round(priceEur * 1450);
+  const rawObj = (details.listing.raw as any) || {};
+  const reportObj = (details.report as any) || {};
+
+  const baseEur = Number(car.priceEUR) || 35000;
+  const priceKrw: number = details.listing.original_price_krw || rawObj.pricing?.krw || rawObj.priceKrw || Math.round(baseEur * 1450);
+  const priceUsd: number = rawObj.pricing?.usd || rawObj.priceUsd || Math.round(priceKrw / 1350);
+  const priceEur: number = rawObj.pricing?.eur || Math.round(priceUsd * 0.92);
+  const priceJpy: number = rawObj.pricing?.jpy || Math.round(priceUsd * 155);
+
+  const rawImages: string[] = Array.isArray(details.images) && details.images.length > 0
+    ? details.images.map((img: any) => typeof img === "string" ? img : img.url).filter(Boolean)
+    : Array.isArray(rawObj.photos) && rawObj.photos.length > 0
+    ? rawObj.photos
+    : Array.isArray(rawObj.images) && rawObj.images.length > 0
+    ? rawObj.images
+    : [image];
 
   const carData = {
     id: carId,
-    title: car.title || `${make} ${model} ${year}`,
+    title: car.title || rawObj.title || `${make} ${model} ${year}`,
     brand: make,
     model: model,
     year: year,
@@ -88,9 +101,32 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
       USD: priceUsd,
       EUR: priceEur,
       KRW: priceKrw,
+      JPY: priceJpy,
     },
     image: image,
-    images: (details.listing.raw as any)?.images || [image],
+    images: rawImages,
+    vin: details.listing.vin || rawObj.vin || rawObj.accidentHistory?.vin || reportObj.vehicleInfo?.vin || "",
+    licensePlate: rawObj.licensePlate || rawObj.accidentHistory?.licensePlate || reportObj.vehicleInfo?.licensePlate || "",
+    inspectionNumber: rawObj.accidentHistory?.inspectionNumber || reportObj.vehicleInfo?.inspectionNumber || "",
+    firstRegistration: rawObj.accidentHistory?.firstRegistration || reportObj.vehicleInfo?.firstRegistration || "",
+    inspectionValidFrom: rawObj.accidentHistory?.inspectionValidFrom || "",
+    inspectionValidUntil: rawObj.accidentHistory?.inspectionValidUntil || "",
+    displacement: rawObj.displacement || rawObj.displacementCc || rawObj.specifications?.displacementCc || null,
+    seatingCapacity: rawObj.seatingCapacity || rawObj.specifications?.seatingCapacity || null,
+    bodyType: car.bodyType || rawObj.bodyType || rawObj.specifications?.bodyType || "Sedan",
+    drivetrain: rawObj.drivetrain || rawObj.specifications?.driveSystem || "2WD",
+    location: rawObj.location || "Seoul / Incheon Yard, South Korea",
+
+    // Rich Encar API data:
+    optionsCategories: rawObj.options?.categories || [],
+    mappedOptions: reportObj.mapped_options || [],
+    accident: rawObj.accident || reportObj.accidentStatus || null,
+    accidentSummary: rawObj.accidentSummary || null,
+    accidentHistory: rawObj.accidentHistory || null,
+    insuranceHistory: rawObj.accidentHistory?.insuranceHistory || rawObj.accident?.insuranceHistory || reportObj.insuranceHistory || null,
+    mechanicalInspection: rawObj.accidentHistory?.mechanicalInspection || reportObj.mechanicalDetail || null,
+    exportEligibility: rawObj.exportEligibility || reportObj.exportEligibility || null,
+    sellerComment: rawObj.sellerComment || null,
   };
 
   // Structured Data

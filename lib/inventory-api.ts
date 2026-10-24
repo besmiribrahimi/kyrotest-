@@ -864,17 +864,13 @@ async function fetchCarDetailsOnce(
   let http404 = false;
 
   try {
-    [carRes, accRes, optRes] = await Promise.all([
-      fetchWithKeyFallback(`${SCRAPER_API_BASE_URL}/vehicle/${listingId}/full`, {
-        cache: "no-store",
-        signal:
-          typeof AbortSignal !== "undefined" && AbortSignal.timeout
-            ? AbortSignal.timeout(timeoutMs)
-            : undefined,
-      }),
-      fetchAccidentHistory(listingId).catch(() => null),
-      fetchEncarOptions(listingId).catch(() => null),
-    ]);
+    carRes = await fetchWithKeyFallback(`${SCRAPER_API_BASE_URL}/cars/${encodeURIComponent(listingId)}`, {
+      cache: "no-store",
+      signal:
+        typeof AbortSignal !== "undefined" && AbortSignal.timeout
+          ? AbortSignal.timeout(timeoutMs)
+          : undefined,
+    });
 
     if (carRes.status === 404) {
       http404 = true;
@@ -891,54 +887,51 @@ async function fetchCarDetailsOnce(
   }
 
   if (!detailFetchFailed && carRes) {
-    let carJson: { success?: boolean; data?: unknown; error?: string };
+    let carJson: { success?: boolean; vehicle?: any; car?: any; data?: unknown; error?: string };
     try {
       carJson = await carRes.json();
-      if (carJson.success && carJson.data) {
-        const apiCar = carJson.data as ApiCar;
+      const rawCar = (carJson as any)?.vehicle || (carJson as any)?.car || (carJson as any)?.data;
+      if (carJson.success && rawCar) {
+        const apiCar = rawCar as ApiCar;
+        const photos = (rawCar.photos || rawCar.images || [rawCar.coverPhoto || rawCar.image]).filter(Boolean);
+        apiCar.images = photos;
+        apiCar.image = photos[0] || "";
+
+        if (rawCar.pricing) {
+          const krw = rawCar.pricing.krw || rawCar.priceKrw || 25000000;
+          const usd = rawCar.pricing.usd || rawCar.priceUsd || Math.round(krw / 1350);
+          const eur = rawCar.pricing.eur || Math.round(usd * 0.92);
+          apiCar.prices = {
+            USD: usd,
+            EUR: eur,
+            KRW: krw,
+          };
+          apiCar.price = krw;
+          apiCar.original_price_krw = krw;
+        }
+
+        if (rawCar.accidentHistory) {
+          if (!apiCar.vin && rawCar.accidentHistory.vin) apiCar.vin = rawCar.accidentHistory.vin;
+          if (!apiCar.location) apiCar.location = "Seoul / Incheon Yard, South Korea";
+        }
+
         const record = apiCarToDbRecord(apiCar);
-
-        const accidentVin = (accRes as {
-          data?: { vehicle?: { vin?: string | null } };
-        })?.data?.vehicle?.vin;
-        if (!record.vin && accidentVin) {
-          record.vin = accidentVin;
-        }
-
-        const accVehicle = (accRes as {
-          data?: { vehicle?: { engineType?: string | null } };
-        } | null)?.data?.vehicle;
-        if ((!record.engine || record.engine === "Not specified") && accVehicle?.engineType) {
-          record.engine = accVehicle.engineType;
-        }
-
         const summary = await normalizeCarSummary(record);
-        const carImageUrls: string[] =
-          Array.isArray(apiCar.images) && apiCar.images.length > 0
-            ? apiCar.images
-            : apiCar.image
-              ? [apiCar.image]
-              : [];
-
-        const mainImages: DbRecord[] = carImageUrls.map((url, index) => ({
+        const mainImages: DbRecord[] = photos.map((url: string, index: number) => ({
           url: normalizeImageUrl(url),
           position: index,
         }));
 
-        const accidentImages = accRes as AccidentResponse | null;
-        const frontImage = accidentImages?.data?.images?.front ?? null;
-        const backImage = accidentImages?.data?.images?.back ?? null;
-        const inspectionImages: DbRecord[] = [
-          frontImage ? { url: normalizeImageUrl(frontImage), position: mainImages.length } : null,
-          backImage ? { url: normalizeImageUrl(backImage), position: mainImages.length + 1 } : null,
-        ].filter(Boolean) as DbRecord[];
-
-        const images: DbRecord[] = [...mainImages, ...inspectionImages];
-        const report = buildReport(accRes || apiCar.accidentHistory || apiCar.accident, apiCar.options ?? optRes, record, apiCar);
+        const report = buildReport(
+          rawCar.accidentHistory || rawCar.accident,
+          rawCar.options,
+          record,
+          apiCar
+        );
 
         return {
           status: "ok",
-          details: { summary, listing: record, images, report },
+          details: { summary, listing: record, images: mainImages, report },
         };
       } else {
         if (isNotFoundError(carJson.error)) {
