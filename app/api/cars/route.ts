@@ -164,6 +164,14 @@ function normalizeEncarCar(c: any) {
   };
 }
 
+// 5-minute server-side in-memory cache for instant response times
+interface CacheEntry {
+  timestamp: number;
+  data: any;
+}
+const routeCache = new Map<string, CacheEntry>();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const brand = searchParams.get("brand") || "";
@@ -175,6 +183,17 @@ export async function GET(request: Request) {
   const search = searchParams.get("search") || "";
   const limit = searchParams.get("limit") || "48";
   const id = searchParams.get("id") || "";
+
+  const cacheKey = id ? `car_${id}` : `feed_${brand}_${model}_${yearFrom}_${yearTo}_${minPrice}_${maxPrice}_${search}_${limit}`;
+  const cached = routeCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return NextResponse.json(cached.data, {
+      headers: {
+        "Cache-Control": "public, s-maxage=180, stale-while-revalidate=600",
+        "X-Cache": "HIT",
+      },
+    });
+  }
 
   const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
   const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
@@ -203,7 +222,14 @@ export async function GET(request: Request) {
         const rawCar = j?.vehicle || j?.car;
         if (rawCar) {
           const normalized = normalizeEncarCar(rawCar);
-          return NextResponse.json({ success: true, car: normalized });
+          const responsePayload = { success: true, car: normalized };
+          routeCache.set(cacheKey, { timestamp: Date.now(), data: responsePayload });
+          return NextResponse.json(responsePayload, {
+            headers: {
+              "Cache-Control": "public, s-maxage=180, stale-while-revalidate=600",
+              "X-Cache": "MISS",
+            },
+          });
         }
       }
     } catch {
@@ -212,7 +238,7 @@ export async function GET(request: Request) {
 
     const foundFallback = CATALOG_CARS.find((c) => c.id === id);
     if (foundFallback) {
-      return NextResponse.json({
+      const responsePayload = {
         success: true,
         car: {
           id: foundFallback.id,
@@ -239,7 +265,9 @@ export async function GET(request: Request) {
           },
           inspection: foundFallback.inspection,
         },
-      });
+      };
+      routeCache.set(cacheKey, { timestamp: Date.now(), data: responsePayload });
+      return NextResponse.json(responsePayload);
     }
   }
 
@@ -276,13 +304,20 @@ export async function GET(request: Request) {
       const rawCars = data?.recentCars || data?.data?.cars || data?.cars;
       if (Array.isArray(rawCars) && rawCars.length > 0) {
         const normalizedList = rawCars.map(normalizeEncarCar);
-        return NextResponse.json({
+        const responsePayload = {
           success: true,
           data: {
             cars: normalizedList,
             total: data?.meta?.total || normalizedList.length,
           },
           cars: normalizedList,
+        };
+        routeCache.set(cacheKey, { timestamp: Date.now(), data: responsePayload });
+        return NextResponse.json(responsePayload, {
+          headers: {
+            "Cache-Control": "public, s-maxage=180, stale-while-revalidate=600",
+            "X-Cache": "MISS",
+          },
         });
       }
     }
