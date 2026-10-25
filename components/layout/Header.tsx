@@ -24,11 +24,9 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: "/", label: t.nav.home },
-    { href: "/catalog", label: t.nav.catalog, isHot: true },
-    { href: "/inventory", label: t.nav.inventory },
+    { href: "/", label: language === "ar" ? "كتالوج السيارات" : "Encar Catalog", isHot: true },
     { href: "/shipping-calculator", label: t.nav.shippingCalculator },
-    { href: "/about", label: language === "ar" ? "من نحن" : "About Us" },
+    { href: "/about", label: language === "ar" ? "خدمات التصدير" : "Export & Logistics" },
     { href: "/contact", label: t.nav.contact },
   ];
 

@@ -89,6 +89,7 @@ function getFallbackCars(params: {
     model: c.model,
     year: c.year,
     price: c.price,
+    priceUsd: c.priceUsd,
     mileage: c.mileage,
     fuelType: c.fuelType,
     transmission: c.transmission,
