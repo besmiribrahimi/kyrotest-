@@ -60,7 +60,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://ci.encar.com" />
+        <link rel="preconnect" href="https://ci.encar.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://ci.encar.com" />
+        <link rel="preconnect" href="https://api.rinevoapi.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.rinevoapi.com" />
         <link rel="icon" href="/logo.png" />
         <script
           type="application/ld+json"

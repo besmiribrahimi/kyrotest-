@@ -796,13 +796,13 @@ async function processApiCar(apiCar: ApiCar): Promise<CarDetailsResult> {
 
 async function findCarInListEndpoint(listingId: string): Promise<ApiCar | null> {
   const apiKey = getApiCarsApiKey();
-  const pagesToSearch = [1, 2, 3, 4, 5];
+  const pagesToSearch = [1, 2, 3];
   
   try {
     const results = await Promise.all(
       pagesToSearch.map(async (page) => {
         try {
-          const res = await fetchWithKeyFallback(`${SCRAPER_API_BASE_URL}/cars?limit=100&page=${page}`, {
+          const res = await fetchWithKeyFallback(`${SCRAPER_API_BASE_URL}/cars?limit=40&page=${page}`, {
             cache: "no-store",
           });
           if (!res.ok) return [];

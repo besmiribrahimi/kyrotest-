@@ -77,13 +77,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
     const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
-    const scraperUrl = `https://api.rinevoapi.com/api/encar/cars?limit=100`;
+    const scraperUrl = `https://api.rinevoapi.com/api/encar/cars?limit=50`;
 
     let res = await fetch(scraperUrl, {
       headers: {
         "x-api-key": primaryKey,
       },
-      next: { revalidate: 3600 },
+      cache: "no-store",
     });
 
     if (res.status === 401 && primaryKey !== backupKey) {
@@ -91,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         headers: {
           "x-api-key": backupKey,
         },
-        next: { revalidate: 3600 },
+        cache: "no-store",
       });
     }
 

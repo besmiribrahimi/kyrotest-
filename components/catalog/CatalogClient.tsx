@@ -138,7 +138,8 @@ export default function CatalogClient() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("All");
   const [selectedYearPill, setSelectedYearPill] = useState<string>("All");
   const [selectedPricePill, setSelectedPricePill] = useState<string>("All");
@@ -148,6 +149,14 @@ export default function CatalogClient() {
   const [yearMax, setYearMax] = useState<number>(2026);
   const [maxPriceUsd, setMaxPriceUsd] = useState<number>(100000);
   const [maxMileageKm, setMaxMileageKm] = useState<number>(150000);
+
+  // 150ms search debounce to keep typing at 60fps
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // UI state
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -286,7 +295,8 @@ export default function CatalogClient() {
     setSelectedPricePill("All");
     setSelectedBodyType("All");
     setSelectedFuelType("All");
-    setSearchQuery("");
+    setSearchInput("");
+    setDebouncedSearch("");
     setYearMin(2018);
     setYearMax(2026);
     setMaxPriceUsd(100000);
@@ -323,9 +333,9 @@ export default function CatalogClient() {
         if (selectedPricePill === "40k-60k" && (priceUsd < 40000 || priceUsd > 60000)) return false;
         if (selectedPricePill === "60k-plus" && priceUsd < 60000) return false;
 
-        // Search query
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
+        // Debounced Search query
+        if (debouncedSearch.trim()) {
+          const q = debouncedSearch.toLowerCase();
           const matchTitle = car.title?.toLowerCase().includes(q);
           const matchTitleAr = car.titleAr?.includes(q);
           const matchBrand = car.brand?.toLowerCase().includes(q);
@@ -392,7 +402,7 @@ export default function CatalogClient() {
     selectedPricePill,
     selectedBodyType,
     selectedFuelType,
-    searchQuery,
+    debouncedSearch,
     yearMin,
     yearMax,
     maxMileageKm,
@@ -565,13 +575,16 @@ export default function CatalogClient() {
               <input
                 type="text"
                 placeholder={isAr ? "ابحث بالماركة، الموديل، الشاسي أو رقم اللوحة..." : "Search make, model, trim, VIN, or Korean plate..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl text-xs font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-sky-500 transition"
               />
-              {searchQuery && (
+              {searchInput && (
                 <button
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => {
+                    setSearchInput("");
+                    setDebouncedSearch("");
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -841,6 +854,10 @@ export default function CatalogClient() {
                             src={car.image || "/logo.jpg"}
                             alt={car.title}
                             fill
+                            sizes="(max-width: 768px) 100vw, 256px"
+                            priority={idx < 2}
+                            loading={idx < 4 ? "eager" : "lazy"}
+                            decoding="async"
                             className="object-cover hover:scale-105 transition duration-500"
                             unoptimized
                           />
@@ -966,6 +983,10 @@ export default function CatalogClient() {
                             src={car.image || "/logo.jpg"}
                             alt={car.title}
                             fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            priority={idx < 2}
+                            loading={idx < 4 ? "eager" : "lazy"}
+                            decoding="async"
                             className="object-cover transition duration-500 group-hover:scale-105"
                             unoptimized
                           />

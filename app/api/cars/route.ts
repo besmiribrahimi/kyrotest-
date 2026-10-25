@@ -109,7 +109,7 @@ function getFallbackCars(params: {
   }));
 }
 
-function normalizeEncarCar(c: any) {
+function normalizeEncarCar(c: any, isDetail: boolean = false) {
   const priceKrw = c.pricing?.krw || c.priceKrw || (typeof c.price === "number" ? c.price : 25000000);
   const priceUsd = c.pricing?.usd || c.priceUsd || Math.round(priceKrw / 1350);
   const priceEur = c.pricing?.eur || Math.round(priceUsd * 0.92);
@@ -148,7 +148,7 @@ function normalizeEncarCar(c: any) {
     location: c.location || "Seoul / Incheon Yard",
     source: "encar",
     image: mainImage,
-    images: allImages,
+    images: isDetail ? allImages : allImages.slice(0, 6),
     badge: "Encar Certified",
     licensePlate: c.licensePlate || c.accidentHistory?.licensePlate || "",
     vin: c.vin || c.accidentHistory?.vin || "",
@@ -159,8 +159,8 @@ function normalizeEncarCar(c: any) {
       score: 95,
       recommendations: ["100% Left-Hand Drive (LHD) - GCC & Global Compliant"],
     },
-    options: c.options,
-    sellerComment: c.sellerComment,
+    options: isDetail ? c.options : undefined,
+    sellerComment: isDetail ? c.sellerComment : undefined,
   };
 }
 
@@ -221,7 +221,7 @@ export async function GET(request: Request) {
         const j = await res.json().catch(() => null);
         const rawCar = j?.vehicle || j?.car;
         if (rawCar) {
-          const normalized = normalizeEncarCar(rawCar);
+          const normalized = normalizeEncarCar(rawCar, true);
           const responsePayload = { success: true, car: normalized };
           routeCache.set(cacheKey, { timestamp: Date.now(), data: responsePayload });
           return NextResponse.json(responsePayload, {
@@ -303,7 +303,7 @@ export async function GET(request: Request) {
       const data = await res.json().catch(() => null);
       const rawCars = data?.recentCars || data?.data?.cars || data?.cars;
       if (Array.isArray(rawCars) && rawCars.length > 0) {
-        const normalizedList = rawCars.map(normalizeEncarCar);
+        const normalizedList = rawCars.map((c: any) => normalizeEncarCar(c, false));
         const responsePayload = {
           success: true,
           data: {
