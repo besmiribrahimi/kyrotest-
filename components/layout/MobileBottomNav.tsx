@@ -10,6 +10,11 @@ export default function MobileBottomNav() {
   const { language } = useLanguage();
   const isAr = language === "ar";
 
+  // On vehicle detail pages, show the vehicle-specific quick inquiry bar instead
+  if (pathname.startsWith("/vehicle")) {
+    return null;
+  }
+
   const navItems = [
     {
       href: "/",

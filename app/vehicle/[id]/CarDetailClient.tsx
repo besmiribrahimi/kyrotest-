@@ -142,11 +142,11 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020a18] text-slate-900 dark:text-white transition-colors duration-300 flex flex-col justify-between pb-24 md:pb-12">
       
-      <main dir={dir} className="flex-grow py-4 sm:py-8">
-        <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8 space-y-6">
+      <main dir={dir} className="flex-grow py-2.5 sm:py-8">
+        <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8 space-y-3.5 sm:space-y-6">
           
           {/* Top Breadcrumb & Share */}
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5">
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white hover:text-sky-500 transition"
@@ -169,19 +169,19 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
           </div>
 
           {/* Main Grid: Left (Gallery + Title/Price on Mobile + Inspection) & Right (Specs + Calculator) */}
-          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start w-full min-w-0">
             
             {/* Left Column (7 Cols): Gallery, Header Info & Inspection Dashboard */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 min-w-0 space-y-4 sm:space-y-6">
               
-              {/* Photo Showcase (Directly at top on Mobile with explicit responsive height) */}
-              <div className="space-y-3">
-                <div className="w-full h-64 sm:h-80 md:h-[400px] relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-white/10 shadow-md">
+              {/* Photo Showcase (Directly at top on Mobile with 16:9 aspect ratio and object-contain) */}
+              <div className="space-y-2.5 min-w-0">
+                <div className="w-full aspect-video sm:h-80 md:h-[400px] relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-white/10 shadow-md">
                   <Image
                     src={imagesList[selectedImageIndex] || sampleImages[0]}
                     alt={cleanTitle}
                     fill
-                    className="object-cover object-center cursor-pointer"
+                    className="object-contain object-center cursor-pointer"
                     priority
                     unoptimized
                     onClick={() => setIsLightboxOpen(true)}
@@ -217,8 +217,8 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                   )}
                 </div>
 
-                {/* Horizontal Thumbnail Strip */}
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                {/* Horizontal Thumbnail Strip (hidden default scrollbar for native app feel) */}
+                <div className="w-full min-w-0 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {imagesList.map((imgUrl: string, idx: number) => (
                     <button
                       key={idx}
@@ -242,55 +242,55 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
               </div>
 
               {/* Vehicle Title, Badges, Specs & Clean Pricing Card */}
-              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
+              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-white/10 shadow-sm space-y-3 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
                     {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
                   </span>
-                  <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                    <Check className="h-3 w-3" />
+                  <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                    <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     {hasAccident ? (language === "ar" ? "حادث مسجل" : "Accident Logged") : (language === "ar" ? "خالية من الحوادث" : "100% Accident Free")}
                   </span>
-                  <span className="rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                    <Droplets className="h-3 w-3" />
+                  <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                    <Droplets className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     {language === "ar" ? "خالية من الغرق" : "Zero Flood"}
                   </span>
                 </div>
 
                 {/* Sanitized Clean Title (No Underscores) */}
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
                   {cleanTitle}
                 </h1>
 
                 {/* Key Specs Row */}
-                <div className="grid grid-cols-4 gap-2 text-center text-xs font-bold bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/60 dark:border-white/5">
-                  <div>
-                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الموديل" : "Year"}</div>
-                    <div className="text-slate-800 dark:text-white font-extrabold">{carData?.year || 2023}</div>
+                <div className="w-full grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs font-bold bg-slate-50 dark:bg-slate-900/60 p-2 sm:p-3 rounded-xl border border-slate-200/60 dark:border-white/5 min-w-0">
+                  <div className="min-w-0">
+                    <div className="text-[9px] sm:text-[10px] text-slate-400 font-normal uppercase truncate">{language === "ar" ? "الموديل" : "Year"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold text-xs sm:text-sm">{carData?.year || 2023}</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الممشى" : "Mileage"}</div>
-                    <div className="text-slate-800 dark:text-white font-extrabold truncate">{(carData?.mileage || 24000).toLocaleString()} km</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] sm:text-[10px] text-slate-400 font-normal uppercase truncate">{language === "ar" ? "الممشى" : "Mileage"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold text-xs sm:text-sm truncate">{(carData?.mileage || 24000).toLocaleString()} km</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الوقود" : "Fuel"}</div>
-                    <div className="text-slate-800 dark:text-white font-extrabold capitalize truncate">{carData?.fuelType || "Gasoline"}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] sm:text-[10px] text-slate-400 font-normal uppercase truncate">{language === "ar" ? "الوقود" : "Fuel"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold text-xs sm:text-sm capitalize truncate">{carData?.fuelType || "Gasoline"}</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الجير" : "Gear"}</div>
-                    <div className="text-slate-800 dark:text-white font-extrabold capitalize truncate">{carData?.transmission || "Automatic"}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] sm:text-[10px] text-slate-400 font-normal uppercase truncate">{language === "ar" ? "الجير" : "Gear"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold text-xs sm:text-sm capitalize truncate">{carData?.transmission || "Automatic"}</div>
                   </div>
                 </div>
 
-                {/* Clean Price & Direct WhatsApp CTA */}
-                <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {/* Clean Price & Direct WhatsApp CTA - Side by side on mobile */}
+                <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       {language === "ar" ? "السعر المباشر" : "Direct Price"}
                     </div>
-                    <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
                       ${priceUsd.toLocaleString()}{" "}
-                      <span className="text-xs font-bold text-slate-400 font-sans">USD</span>
+                      <span className="text-[10px] font-bold text-slate-400 font-sans">USD</span>
                     </div>
                   </div>
 
@@ -298,10 +298,10 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                     href={`https://wa.me/821072290580?text=${whatsappMessage}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white px-6 py-3.5 text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 active:scale-[0.99] transition"
+                    className="flex-1 sm:flex-initial max-w-[210px] flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white px-3.5 sm:px-5 py-2.5 sm:py-3 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 active:scale-[0.98] transition"
                   >
-                    <PhoneCall className="h-4 w-4" />
-                    <span>{language === "ar" ? "استشارة وشراء عبر واتساب" : "WhatsApp Inquiry"}</span>
+                    <PhoneCall className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{language === "ar" ? "شراء عبر واتساب" : "WhatsApp Inquiry"}</span>
                   </a>
                 </div>
               </div>
@@ -522,7 +522,7 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
             </div>
 
             {/* Right Column (5 Cols): Technical Specs + Shipping Calculator */}
-            <div className="lg:col-span-5 space-y-8">
+            <div className="lg:col-span-5 min-w-0 space-y-8">
               
               {/* Technical Specifications Matrix */}
               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-5">
