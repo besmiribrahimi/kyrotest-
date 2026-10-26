@@ -24,6 +24,7 @@ import {
   Wrench,
   Car,
   Check,
+  Copy,
   Maximize2,
   X,
   Compass,
@@ -43,6 +44,8 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [activeOptionTab, setActiveOptionTab] = useState<string>("all");
   const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [isIdCopied, setIsIdCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if (initialCarData) {
@@ -133,6 +136,38 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
   const carUrl = `${origin}/vehicle/${carId}`;
 
+  const handleShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: cleanTitle,
+          text: `${cleanTitle} - $${priceUsd.toLocaleString()} USD | ADVANCED KORYO`,
+          url: carUrl,
+        });
+        return;
+      } catch {
+        // User dismissed
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(carUrl);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2200);
+      } catch {}
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(carId);
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
+      } catch {}
+    }
+  };
+
   const whatsappMessage = encodeURIComponent(
     language === "ar"
       ? `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار وشراء هذه السيارة:\n\n🚗 السيارة: ${cleanTitle || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر: $${priceUsd.toLocaleString()} USD\n🔢 كود السيارة: #${carId}\n🔖 الشاصي (VIN): ${vin}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتفاصيل الشراء والشحن.`
@@ -156,15 +191,21 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
             </Link>
 
             <div className="flex items-center gap-2">
-              <a
-                href={`https://wa.me/821072290580?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white px-3.5 py-1.5 text-xs font-black shadow-md transition"
+              <button
+                onClick={handleShare}
+                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-black shadow-md transition cursor-pointer active:scale-95 ${
+                  isCopied
+                    ? "bg-emerald-600 text-white"
+                    : "bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950"
+                }`}
               >
-                <Share2 className="h-3.5 w-3.5" />
-                <span>{language === "ar" ? "مشاركة" : "Share"}</span>
-              </a>
+                {isCopied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+                <span>
+                  {isCopied
+                    ? (language === "ar" ? "تم نسخ الرابط!" : "Link Copied!")
+                    : (language === "ar" ? "مشاركة" : "Share")}
+                </span>
+              </button>
             </div>
           </div>
 
@@ -243,18 +284,30 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
 
               {/* Vehicle Title, Badges, Specs & Clean Pricing Card */}
               <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-white/10 shadow-sm space-y-3 min-w-0">
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
-                    {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
-                  </span>
-                  <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                    <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    {hasAccident ? (language === "ar" ? "حادث مسجل" : "Accident Logged") : (language === "ar" ? "خالية من الحوادث" : "100% Accident Free")}
-                  </span>
-                  <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                    <Droplets className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    {language === "ar" ? "خالية من الغرق" : "Zero Flood"}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
+                      {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
+                    </span>
+                    <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                      <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      {hasAccident ? (language === "ar" ? "حادث مسجل" : "Accident Logged") : (language === "ar" ? "خالية من الحوادث" : "100% Accident Free")}
+                    </span>
+                    <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                      <Droplets className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      {language === "ar" ? "خالية من الغرق" : "Zero Flood"}
+                    </span>
+                  </div>
+
+                  {/* 1-Tap Copy Vehicle ID */}
+                  <button
+                    onClick={handleCopyId}
+                    title={language === "ar" ? "نسخ كود السيارة" : "Copy Vehicle ID"}
+                    className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 hover:text-sky-500 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-white/5 transition cursor-pointer active:scale-95"
+                  >
+                    {isIdCopied ? <Check className="h-2.5 w-2.5 text-emerald-500" /> : <Copy className="h-2.5 w-2.5" />}
+                    <span>#{carId.slice(0, 8)}</span>
+                  </button>
                 </div>
 
                 {/* Sanitized Clean Title (No Underscores) */}

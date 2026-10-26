@@ -29,6 +29,7 @@ import {
   Clock,
   Layers,
   ChevronRight,
+  ArrowUp,
 } from "lucide-react";
 
 export interface CatalogVehicle {
@@ -176,6 +177,16 @@ export default function CatalogClient() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("SA");
   const [quickInspectVehicle, setQuickInspectVehicle] = useState<CatalogVehicle | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+
+  // Passive window scroll listener for smooth floating Back to Top
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Currency configuration
   const currencyMap: Record<
@@ -516,6 +527,32 @@ export default function CatalogClient() {
     sortBy,
   ]);
 
+  // Active filters count for subtle indicators and instant 1-tap reset
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedBrand !== "All") count++;
+    if (selectedYearPill !== "All") count++;
+    if (selectedPricePill !== "All") count++;
+    if (selectedBodyType !== "All") count++;
+    if (selectedFuelType !== "All") count++;
+    if (debouncedSearch.trim()) count++;
+    if (yearMin > 1995 || yearMax < 2026) count++;
+    if (maxMileageKm < 350000) count++;
+    if (maxPriceUsd < 500000) count++;
+    return count;
+  }, [
+    selectedBrand,
+    selectedYearPill,
+    selectedPricePill,
+    selectedBodyType,
+    selectedFuelType,
+    debouncedSearch,
+    yearMin,
+    yearMax,
+    maxMileageKm,
+    maxPriceUsd,
+  ]);
+
   // WhatsApp consultation generator
   const getConsultationWhatsAppUrl = (car: CatalogVehicle) => {
     const priceUsd = car.prices?.USD ? Math.round(car.prices.USD) : typeof car.price === "number" ? Math.round(car.price / 1350) : 25000;
@@ -609,11 +646,28 @@ export default function CatalogClient() {
             {/* Mobile Filter Button */}
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-1.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-3.5 py-2 rounded-xl sm:rounded-2xl text-xs font-bold cursor-pointer shadow-sm shrink-0"
+              className="lg:hidden flex items-center gap-1.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-3.5 py-2 rounded-xl sm:rounded-2xl text-xs font-bold cursor-pointer shadow-sm shrink-0 active:scale-95 transition"
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
               <span>{isAr ? "الفلاتر" : "Filters"}</span>
+              {activeFiltersCount > 0 && (
+                <span className="h-4 min-w-4 px-1 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
+
+            {/* 1-Tap Quick Clear if any filter active */}
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 text-[11px] font-bold text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-2 rounded-xl border border-red-500/20 transition cursor-pointer shrink-0 active:scale-95"
+                title={isAr ? "إلغاء جميع الفلاتر" : "Clear all filters"}
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span className="hidden sm:inline">{isAr ? "مسح" : "Clear"}</span>
+              </button>
+            )}
           </div>
 
           {/* Row 2: Brand Chips */}
@@ -686,10 +740,15 @@ export default function CatalogClient() {
               <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                 <SlidersHorizontal className="h-4 w-4 text-sky-500" />
                 <span>{isAr ? "تصفية السيارات" : "Filter Vehicles"}</span>
+                {activeFiltersCount > 0 && (
+                  <span className="h-4 min-w-4 px-1 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </span>
               <button
                 onClick={handleResetFilters}
-                className="text-[11px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1 cursor-pointer transition"
+                className="text-[11px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1 cursor-pointer transition active:scale-95"
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>{isAr ? "إعادة ضبط" : "Reset"}</span>
@@ -803,7 +862,21 @@ export default function CatalogClient() {
           </aside>
 
           {/* Vehicles List / Grid Area */}
-          <main className="lg:col-span-3">
+          <main className="lg:col-span-3 space-y-3.5">
+            {/* Live Result Counter Strip */}
+            <div className="flex items-center justify-between px-1 text-xs font-bold text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-slate-800 dark:text-slate-200 font-extrabold">
+                  {filteredVehicles.length.toLocaleString()} {isAr ? "سيارة معروضة" : "vehicles shown"}
+                </span>
+                {activeFiltersCount > 0 && (
+                  <span className="text-sky-500 font-medium">
+                    • {activeFiltersCount} {isAr ? "فلاتر مفعلة" : "active filters"}
+                  </span>
+                )}
+              </div>
+            </div>
             
             {/* Shimmer Skeletons during loading */}
             {isLoading && (
@@ -1358,6 +1431,26 @@ export default function CatalogClient() {
               </button>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Back to Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 15 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className={`fixed bottom-20 md:bottom-8 z-40 flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 dark:bg-white/90 dark:hover:bg-white text-white dark:text-slate-950 shadow-xl backdrop-blur-md border border-white/20 dark:border-slate-800 text-xs font-black transition cursor-pointer active:scale-95 ${
+              isAr ? "left-4 md:left-8" : "right-4 md:right-8"
+            }`}
+            title={isAr ? "العودة إلى الأعلى" : "Back to top"}
+          >
+            <ArrowUp className="h-4 w-4" />
+            <span className="hidden sm:inline">{isAr ? "الأعلى" : "Top"}</span>
+          </motion.button>
         )}
       </AnimatePresence>
     </div>
