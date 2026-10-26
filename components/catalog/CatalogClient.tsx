@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,7 +97,12 @@ export interface CatalogVehicle {
 }
 
 // Module-level client memory cache for instant 0ms brand toggling
-const clientBrandCache = new Map<string, CatalogVehicle[]>();
+interface BrandCacheEntry {
+  vehicles: CatalogVehicle[];
+  page: number;
+  hasMore: boolean;
+}
+const clientBrandCache = new Map<string, BrandCacheEntry>();
 
 // Shimmer Skeleton Card Component
 function CatalogSkeletonCard({ viewMode }: { viewMode: "grid" | "list" }) {
@@ -136,6 +141,13 @@ export default function CatalogClient() {
   // Data state
   const [vehicles, setVehicles] = useState<CatalogVehicle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [totalInDb, setTotalInDb] = useState<number>(121651);
+
+  // Sentinel ref for infinite endless scroll
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Filters state
   const [searchInput, setSearchInput] = useState<string>("");
@@ -145,10 +157,10 @@ export default function CatalogClient() {
   const [selectedPricePill, setSelectedPricePill] = useState<string>("All");
   const [selectedBodyType, setSelectedBodyType] = useState<string>("All");
   const [selectedFuelType, setSelectedFuelType] = useState<string>("All");
-  const [yearMin, setYearMin] = useState<number>(2018);
+  const [yearMin, setYearMin] = useState<number>(1995);
   const [yearMax, setYearMax] = useState<number>(2026);
-  const [maxPriceUsd, setMaxPriceUsd] = useState<number>(100000);
-  const [maxMileageKm, setMaxMileageKm] = useState<number>(150000);
+  const [maxPriceUsd, setMaxPriceUsd] = useState<number>(500000);
+  const [maxMileageKm, setMaxMileageKm] = useState<number>(350000);
 
   // 150ms search debounce to keep typing at 60fps
   useEffect(() => {
@@ -164,7 +176,6 @@ export default function CatalogClient() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("SA");
   const [quickInspectVehicle, setQuickInspectVehicle] = useState<CatalogVehicle | null>(null);
-  const [visibleCount, setVisibleCount] = useState<number>(24);
 
   // Currency configuration
   const currencyMap: Record<
@@ -183,32 +194,45 @@ export default function CatalogClient() {
 
   const activeCurrency = currencyMap[selectedCountry] || currencyMap["SA"];
 
-  // Fetch cars with high-performance client-side SWR caching
+  // Fetch initial cars for brand with high-performance memory caching
   useEffect(() => {
     let isCancelled = false;
 
-    // Check memory cache first
+    // Check memory cache first for instant 0ms brand toggling
     const cached = clientBrandCache.get(selectedBrand);
-    if (cached && cached.length > 0) {
-      setVehicles(cached);
+    if (cached && cached.vehicles.length > 0) {
+      setVehicles(cached.vehicles);
+      setCurrentPage(cached.page);
+      setHasMore(cached.hasMore);
       setIsLoading(false);
-    } else {
-      setIsLoading(true);
+      return;
     }
+
+    setIsLoading(true);
+    setCurrentPage(1);
+    setHasMore(true);
 
     async function loadCatalog() {
       try {
         const params = new URLSearchParams();
-        params.set("limit", "80");
+        params.set("limit", "40");
+        params.set("page", "1");
         if (selectedBrand !== "All") params.set("brand", selectedBrand);
 
         const res = await fetch(`/api/cars?${params.toString()}`);
         if (res.ok) {
           const json = await res.json();
-          const items = json.data?.cars || json.cars || [];
+          const items: CatalogVehicle[] = json.data?.cars || json.cars || [];
           if (!isCancelled) {
             setVehicles(items);
-            clientBrandCache.set(selectedBrand, items);
+            if (json.data?.total) setTotalInDb(json.data.total);
+            const canMore = items.length >= 10;
+            setHasMore(canMore);
+            clientBrandCache.set(selectedBrand, {
+              vehicles: items,
+              page: 1,
+              hasMore: canMore,
+            });
           }
         }
       } catch (err) {
@@ -226,6 +250,82 @@ export default function CatalogClient() {
       isCancelled = true;
     };
   }, [selectedBrand]);
+
+  // Load next batch of cars dynamically for endless scroll (up to 500+ vehicles)
+  const loadMoreVehicles = useCallback(async () => {
+    if (isLoading || isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+
+    const nextPage = currentPage + 1;
+    try {
+      const params = new URLSearchParams();
+      params.set("limit", "40");
+      params.set("page", String(nextPage));
+      if (selectedBrand !== "All") params.set("brand", selectedBrand);
+
+      const res = await fetch(`/api/cars?${params.toString()}`);
+      if (res.ok) {
+        const json = await res.json();
+        const newItems: CatalogVehicle[] = json.data?.cars || json.cars || [];
+        if (newItems.length === 0) {
+          setHasMore(false);
+        } else {
+          setVehicles((prev) => {
+            const existingIds = new Set(prev.map((c) => c.id));
+            const unique = newItems.filter((c) => !existingIds.has(c.id));
+            if (unique.length === 0) {
+              setHasMore(false);
+              return prev;
+            }
+            const combined = [...prev, ...unique];
+            const stillHasMore = unique.length >= 10 && nextPage < 25; // allows up to 1,000 cars!
+            clientBrandCache.set(selectedBrand, {
+              vehicles: combined,
+              page: nextPage,
+              hasMore: stillHasMore,
+            });
+            return combined;
+          });
+          setCurrentPage(nextPage);
+          if (newItems.length < 10 || nextPage >= 25) {
+            setHasMore(false);
+          }
+        }
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Failed to load more vehicles:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentPage, hasMore, isLoading, isLoadingMore, selectedBrand]);
+
+  // Infinite Scroll IntersectionObserver with 800px pre-trigger for zero stutter on phones
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasMore && !isLoading && !isLoadingMore) {
+          loadMoreVehicles();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "800px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasMore, isLoading, isLoadingMore, loadMoreVehicles]);
 
   // Initial load from storage if present
   useEffect(() => {
@@ -252,14 +352,14 @@ export default function CatalogClient() {
     "Audi",
   ];
 
-  // Quick Year Filter Pills
+  // Quick Year Filter Pills (Comprehensive ranges so zero vehicles are lost)
   const quickYearPills = [
     { id: "All", labelEn: "All Years", labelAr: "جميع الموديلات" },
-    { id: "2025", labelEn: "2025 (New)", labelAr: "2025 حديث" },
-    { id: "2024", labelEn: "2024", labelAr: "2024" },
-    { id: "2023", labelEn: "2023", labelAr: "2023" },
-    { id: "2022", labelEn: "2022", labelAr: "2022" },
-    { id: "2020", labelEn: "2020+", labelAr: "2020 وأحدث" },
+    { id: "2022+", labelEn: "2022+", labelAr: "2022 وأحدث" },
+    { id: "2018-2021", labelEn: "2018-2021", labelAr: "2018-2021" },
+    { id: "2015-2017", labelEn: "2015-2017", labelAr: "2015-2017" },
+    { id: "2010-2014", labelEn: "2010-2014", labelAr: "2010-2014" },
+    { id: "pre-2010", labelEn: "Under 2010", labelAr: "قبل 2010" },
   ];
 
   // Quick Price Filter Pills
@@ -297,11 +397,10 @@ export default function CatalogClient() {
     setSelectedFuelType("All");
     setSearchInput("");
     setDebouncedSearch("");
-    setYearMin(2018);
+    setYearMin(1995);
     setYearMax(2026);
-    setMaxPriceUsd(100000);
-    setMaxMileageKm(150000);
-    setVisibleCount(24);
+    setMaxPriceUsd(500000);
+    setMaxMileageKm(350000);
   };
 
   // Filter & Sort logic
@@ -310,15 +409,21 @@ export default function CatalogClient() {
       .filter((car) => {
         // Brand filter
         if (selectedBrand !== "All") {
-          const matchBrand = car.brand?.toLowerCase() === selectedBrand.toLowerCase();
-          const matchTitle = car.title?.toLowerCase().includes(selectedBrand.toLowerCase());
+          const targetBrand = selectedBrand.toLowerCase();
+          const carBrand = (car.brand || "").toLowerCase();
+          const carTitle = (car.title || "").toLowerCase();
+          const matchBrand = carBrand.includes(targetBrand) || targetBrand.includes(carBrand);
+          const matchTitle = carTitle.includes(targetBrand);
           if (!matchBrand && !matchTitle) return false;
         }
 
         // Quick Year Pill filter
         if (selectedYearPill !== "All") {
-          if (selectedYearPill === "2020" && car.year < 2020) return false;
-          if (selectedYearPill !== "2020" && car.year !== Number(selectedYearPill)) return false;
+          if (selectedYearPill === "2022+" && car.year < 2022) return false;
+          if (selectedYearPill === "2018-2021" && (car.year < 2018 || car.year > 2021)) return false;
+          if (selectedYearPill === "2015-2017" && (car.year < 2015 || car.year > 2017)) return false;
+          if (selectedYearPill === "2010-2014" && (car.year < 2010 || car.year > 2014)) return false;
+          if (selectedYearPill === "pre-2010" && car.year >= 2010) return false;
         }
 
         // Quick Price Pill filter
@@ -351,13 +456,13 @@ export default function CatalogClient() {
         if (selectedBodyType !== "All") {
           const body = (car.bodyType || "").toLowerCase();
           const title = (car.title || "").toLowerCase();
-          if (selectedBodyType === "SUV" && !body.includes("suv") && !title.includes("suv") && !title.includes("gv80") && !title.includes("palisade") && !title.includes("santa fe") && !title.includes("sorento")) {
+          if (selectedBodyType === "SUV" && !body.includes("suv") && !title.includes("suv") && !title.includes("gv80") && !title.includes("palisade") && !title.includes("santa fe") && !title.includes("sorento") && !title.includes("tucson") && !title.includes("sportage")) {
             return false;
           }
-          if (selectedBodyType === "Sedan" && !body.includes("sedan") && !title.includes("g80") && !title.includes("g90") && !title.includes("grandeur") && !title.includes("k5") && !title.includes("k8") && !title.includes("sonata")) {
+          if (selectedBodyType === "Sedan" && !body.includes("sedan") && !title.includes("g80") && !title.includes("g90") && !title.includes("grandeur") && !title.includes("k5") && !title.includes("k8") && !title.includes("sonata") && !title.includes("avante") && !title.includes("elantra")) {
             return false;
           }
-          if (selectedBodyType === "Van" && !body.includes("van") && !title.includes("carnival") && !title.includes("staria")) {
+          if (selectedBodyType === "Van" && !body.includes("van") && !title.includes("carnival") && !title.includes("staria") && !title.includes("starex")) {
             return false;
           }
         }
@@ -368,14 +473,15 @@ export default function CatalogClient() {
           if (!fuel.includes(selectedFuelType.toLowerCase())) return false;
         }
 
-        // Year filter slider
-        if (car.year < yearMin || car.year > yearMax) return false;
+        // Year filter slider (only if user changed from default range 1995-2026)
+        if (yearMin > 1995 && car.year < yearMin) return false;
+        if (yearMax < 2026 && car.year > yearMax) return false;
 
-        // Mileage filter slider
-        if (car.mileage > maxMileageKm) return false;
+        // Mileage filter slider (only if user changed from default 350k km)
+        if (maxMileageKm < 350000 && car.mileage > maxMileageKm) return false;
 
-        // Max price filter slider
-        if (priceUsd > maxPriceUsd) return false;
+        // Max price filter slider (only if user changed from default 500k)
+        if (maxPriceUsd < 500000 && priceUsd > maxPriceUsd) return false;
 
         return true;
       })
@@ -431,7 +537,6 @@ export default function CatalogClient() {
     return `https://wa.me/821072290580?text=${encodeURIComponent(text)}`;
   };
 
-  const visibleVehicles = filteredVehicles.slice(0, visibleCount);
 
   return (
     <div dir={dir} className="min-h-screen bg-slate-50 dark:bg-[#020a18] text-slate-900 dark:text-white transition-colors duration-300">
@@ -483,14 +588,17 @@ export default function CatalogClient() {
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   {isAr ? "كتالوج السيارات الكورية المعتمدة" : "Verified Encar Export Catalog"}
                 </h1>
-                <span className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 text-xs font-mono font-black px-2.5 py-0.5 rounded-full">
-                  {filteredVehicles.length} {isAr ? "سيارة" : "Cars Live"}
+                <span className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 text-xs font-mono font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span>
+                    {filteredVehicles.length} {isAr ? "سيارة معروضة" : "Cars Live"}
+                  </span>
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 {isAr
-                  ? "تصفح مباشر وفوري مع أسعار FOB كوريا وحاسبة التكلفة واصلة للميناء والشحن البحري Ro-Ro."
-                  : "Direct high-speed catalog with FOB Korea pricing, landed shipping calculations, and 150-point diagnostic audits."}
+                  ? "تصفح مستمر لا نهائي لأكثر من 120,000 سيارة كورية معتمدة مع أسعار FOB كوريا وحاسبة التكلفة واصلة للميناء."
+                  : "Continuous endless scroll through 120,000+ certified South Korea vehicles with direct FOB pricing & landed cost."}
               </p>
             </div>
 
@@ -722,21 +830,23 @@ export default function CatalogClient() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-slate-500 dark:text-slate-400">{isAr ? "السعر الأقصى:" : "Max Price (USD):"}</span>
-                <span className="text-sky-500 font-mono font-bold">${maxPriceUsd.toLocaleString()}</span>
+                <span className="text-sky-500 font-mono font-bold">
+                  {maxPriceUsd >= 500000 ? (isAr ? "الكل (بدون حد)" : "Any Price") : `$${maxPriceUsd.toLocaleString()}`}
+                </span>
               </div>
               <input
                 type="range"
-                min="15000"
-                max="100000"
-                step="2500"
+                min="5000"
+                max="500000"
+                step="5000"
                 value={maxPriceUsd}
                 onChange={(e) => setMaxPriceUsd(Number(e.target.value))}
                 className="w-full accent-sky-500 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] font-mono text-slate-400">
-                <span>$15,000</span>
-                <span>$50,000</span>
-                <span>$100,000+</span>
+                <span>$5,000</span>
+                <span>$100,000</span>
+                <span>{isAr ? "بدون حد" : "Any"}</span>
               </div>
             </div>
 
@@ -744,21 +854,23 @@ export default function CatalogClient() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-slate-500 dark:text-slate-400">{isAr ? "الممشى الأقصى:" : "Max Mileage:"}</span>
-                <span className="text-sky-500 font-mono font-bold">{maxMileageKm.toLocaleString()} km</span>
+                <span className="text-sky-500 font-mono font-bold">
+                  {maxMileageKm >= 350000 ? (isAr ? "الكل (بدون حد)" : "Any Mileage") : `${maxMileageKm.toLocaleString()} km`}
+                </span>
               </div>
               <input
                 type="range"
-                min="20000"
-                max="150000"
-                step="5000"
+                min="10000"
+                max="350000"
+                step="10000"
                 value={maxMileageKm}
                 onChange={(e) => setMaxMileageKm(Number(e.target.value))}
                 className="w-full accent-sky-500 cursor-pointer"
               />
               <div className="flex justify-between text-[10px] font-mono text-slate-400">
-                <span>20k km</span>
-                <span>80k km</span>
+                <span>10k km</span>
                 <span>150k km</span>
+                <span>{isAr ? "بدون حد" : "Any"}</span>
               </div>
             </div>
 
@@ -824,7 +936,7 @@ export default function CatalogClient() {
                     : "space-y-4"
                 }
               >
-                {visibleVehicles.map((car, idx) => {
+                {filteredVehicles.map((car, idx) => {
                   const priceUsd = car.prices?.USD
                     ? Math.round(car.prices.USD)
                     : typeof car.price === "number"
@@ -1134,15 +1246,64 @@ export default function CatalogClient() {
               </div>
             )}
 
-            {/* Load More Button */}
-            {!isLoading && filteredVehicles.length > visibleCount && (
+            {/* Infinite Scroll Sentinel */}
+            <div ref={sentinelRef} className="h-16 w-full pointer-events-none" />
+
+            {/* Bottom Loading Indicator & Skeletons */}
+            {isLoadingMore && (
+              <div className="mt-8 space-y-6">
+                <div className="flex items-center justify-center gap-2.5 text-xs font-bold text-sky-600 dark:text-sky-400 py-2.5 px-5 rounded-full bg-sky-500/10 border border-sky-500/20 max-w-fit mx-auto animate-pulse">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+                  </span>
+                  <span>
+                    {isAr
+                      ? `جاري تحميل الدفعة التالية من سيارات إنكار تلقائياً (${filteredVehicles.length} معروضة)...`
+                      : `Streaming next batch of Encar vehicles (${filteredVehicles.length} loaded)...`}
+                  </span>
+                </div>
+
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
+                      : "space-y-4"
+                  }
+                >
+                  <CatalogSkeletonCard viewMode={viewMode} />
+                  <CatalogSkeletonCard viewMode={viewMode} />
+                  <CatalogSkeletonCard viewMode={viewMode} />
+                </div>
+              </div>
+            )}
+
+            {/* Tap to Load Fallback */}
+            {!isLoading && !isLoadingMore && hasMore && (
               <div className="mt-10 text-center">
                 <button
-                  onClick={() => setVisibleCount((prev) => prev + 24)}
-                  className="px-8 py-3.5 rounded-2xl bg-slate-950 dark:bg-white text-white dark:text-slate-950 text-xs font-black uppercase tracking-wider hover:opacity-90 transition shadow-md inline-flex items-center gap-2 cursor-pointer"
+                  onClick={loadMoreVehicles}
+                  className="px-6 py-3 rounded-2xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-sky-500 text-xs font-bold transition shadow-sm inline-flex items-center gap-2 cursor-pointer"
                 >
-                  <span>{isAr ? "تحميل المزيد من السيارات" : "Load More Vehicles"}</span>
+                  <span>{isAr ? "اسحب للأسفل أو اضغط لتحميل المزيد" : "Scroll down or tap to load more"}</span>
                   <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Reached End of Infinite Scroll */}
+            {!isLoading && !isLoadingMore && !hasMore && filteredVehicles.length > 0 && (
+              <div className="mt-12 text-center border-t border-slate-200 dark:border-white/10 pt-8 pb-4 space-y-3">
+                <p className="text-xs font-bold text-slate-500">
+                  {isAr
+                    ? `تم عرض جميع نتائج البحث المتاحة (${filteredVehicles.length} سيارة مفحوصة ومطابقة)`
+                    : `You've viewed all ${filteredVehicles.length} verified Encar export vehicles for this category`}
+                </p>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="px-5 py-2.5 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-white text-xs font-black uppercase tracking-wider hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer"
+                >
+                  {isAr ? "العودة إلى الأعلى ↑" : "Back to Top ↑"}
                 </button>
               </div>
             )}

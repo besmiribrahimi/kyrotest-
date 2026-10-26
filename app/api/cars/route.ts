@@ -181,10 +181,13 @@ export async function GET(request: Request) {
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";
   const search = searchParams.get("search") || "";
-  const limit = searchParams.get("limit") || "48";
+  const limit = searchParams.get("limit") || "40";
+  const page = searchParams.get("page") || "1";
   const id = searchParams.get("id") || "";
 
-  const cacheKey = id ? `car_${id}` : `feed_${brand}_${model}_${yearFrom}_${yearTo}_${minPrice}_${maxPrice}_${search}_${limit}`;
+  const cacheKey = id
+    ? `car_${id}`
+    : `feed_${brand}_${model}_${yearFrom}_${yearTo}_${minPrice}_${maxPrice}_${search}_${limit}_p${page}`;
   const cached = routeCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     return NextResponse.json(cached.data, {
@@ -271,10 +274,11 @@ export async function GET(request: Request) {
     }
   }
 
-  // 2. Cars feed query
+  // 2. Cars feed query with pagination
   try {
     const encarParams = new URLSearchParams();
     encarParams.set("limit", limit);
+    encarParams.set("page", page);
     if (brand && brand !== "All") encarParams.set("brand", brand);
     if (model) encarParams.set("model", model);
     if (yearFrom) encarParams.set("minYear", yearFrom);
@@ -288,14 +292,14 @@ export async function GET(request: Request) {
     let res = await fetch(targetUrl, {
       headers: { "x-api-key": primaryKey },
       cache: "no-store",
-      signal: AbortSignal.timeout(3500),
+      signal: AbortSignal.timeout(6000),
     }).catch(() => null);
 
     if (res && res.status === 401 && primaryKey !== backupKey) {
       res = await fetch(targetUrl, {
         headers: { "x-api-key": backupKey },
         cache: "no-store",
-        signal: AbortSignal.timeout(3500),
+        signal: AbortSignal.timeout(6000),
       }).catch(() => null);
     }
 
@@ -304,11 +308,15 @@ export async function GET(request: Request) {
       const rawCars = data?.recentCars || data?.data?.cars || data?.cars;
       if (Array.isArray(rawCars) && rawCars.length > 0) {
         const normalizedList = rawCars.map((c: any) => normalizeEncarCar(c, false));
+        const totalInDb = data?.meta?.totalCarsInDb || data?.meta?.total || 121651;
+        const totalPages = data?.meta?.totalPages || Math.ceil(totalInDb / (parseInt(limit, 10) || 40));
         const responsePayload = {
           success: true,
           data: {
             cars: normalizedList,
-            total: data?.meta?.total || normalizedList.length,
+            total: totalInDb,
+            page: parseInt(page, 10) || 1,
+            totalPages,
           },
           cars: normalizedList,
         };
@@ -322,7 +330,22 @@ export async function GET(request: Request) {
       }
     }
 
-    // Upstream Encar API timed out or returned empty; serve certified Encar fallback
+    const pageNum = parseInt(page, 10) || 1;
+    if (pageNum > 1) {
+      // If beyond page 1 and upstream returned empty, signal end of list
+      return NextResponse.json({
+        success: true,
+        data: {
+          cars: [],
+          total: 48,
+          page: pageNum,
+          totalPages: 1,
+        },
+        cars: [],
+      });
+    }
+
+    // Upstream Encar API timed out or returned empty; serve certified Encar fallback (page 1 only)
     const fallbackList = getFallbackCars({
       brand,
       model,
@@ -339,11 +362,22 @@ export async function GET(request: Request) {
       data: {
         cars: fallbackList,
         total: fallbackList.length,
+        page: 1,
+        totalPages: 1,
       },
       cars: fallbackList,
     });
   } catch (error) {
     console.error("Encar API route error, falling back to curated catalog:", error);
+    const pageNum = parseInt(page, 10) || 1;
+    if (pageNum > 1) {
+      return NextResponse.json({
+        success: true,
+        data: { cars: [], total: 48, page: pageNum, totalPages: 1 },
+        cars: [],
+      });
+    }
+
     const fallbackList = getFallbackCars({
       brand,
       model,
@@ -359,6 +393,8 @@ export async function GET(request: Request) {
       data: {
         cars: fallbackList,
         total: fallbackList.length,
+        page: 1,
+        totalPages: 1,
       },
       cars: fallbackList,
     });
