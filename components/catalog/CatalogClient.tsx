@@ -529,9 +529,9 @@ export default function CatalogClient() {
 
     let text = "";
     if (isAr) {
-      text = `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة من كتالوج إنكار المباشر:\n\n🚗 السيارة: ${car.titleAr || car.title}\n📅 الموديل: ${car.year}\n🛣️ الممشى: ${car.mileage?.toLocaleString()} كم\n⚙️ سعة المحرك: ${displacementText || "مطابق للمواصفات"}\n💰 السعر FOB كوريا: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 كود السيارة: #${car.id}${plateText ? ` (لوحة: ${plateText})` : ""}\n🛡️ الفحص: ${accidentSummary}\n📍 وجهة الشحن المطلوبة: ${countryText} - ${portText}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتقرير الفحص 150 نقطة وحجز الشحن البحري Ro-Ro.`;
+      text = `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة:\n\n🚗 السيارة: ${car.titleAr || car.title}\n📅 الموديل: ${car.year}\n🛣️ الممشى: ${car.mileage?.toLocaleString()} كم\n⚙️ سعة المحرك: ${displacementText || "مطابق للمواصفات"}\n💰 السعر: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 كود السيارة: #${car.id}${plateText ? ` (لوحة: ${plateText})` : ""}\n🛡️ الفحص: ${accidentSummary}\n📍 وجهة الشحن المطلوبة: ${countryText} - ${portText}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتقرير الفحص المعتمد وحجز الشحن البحري Ro-Ro.`;
     } else {
-      text = `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle from the direct Encar catalog:\n\n🚗 Vehicle: ${car.title}\n📅 Year: ${car.year}\n🛣️ Mileage: ${car.mileage?.toLocaleString()} km\n⚙️ Engine: ${displacementText || "Factory OEM"}\n💰 FOB Korea Price: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 Encar ID: #${car.id}${plateText ? ` (Plate: ${plateText})` : ""}\n🛡️ Inspection: ${accidentSummary}\n📍 Destination Port: ${countryText} - ${portText}\n🔗 Link: ${carUrl}\n\nPlease provide the 150-point inspection audit, video walkaround, and Ro-Ro ocean shipping invoice.`;
+      text = `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle:\n\n🚗 Vehicle: ${car.title}\n📅 Year: ${car.year}\n🛣️ Mileage: ${car.mileage?.toLocaleString()} km\n⚙️ Engine: ${displacementText || "Factory OEM"}\n💰 Price: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 Vehicle ID: #${car.id}${plateText ? ` (Plate: ${plateText})` : ""}\n🛡️ Inspection: ${accidentSummary}\n📍 Destination Port: ${countryText} - ${portText}\n🔗 Link: ${carUrl}\n\nPlease provide the inspection audit, video walkaround, and Ro-Ro ocean shipping quote.`;
     }
 
     return `https://wa.me/821072290580?text=${encodeURIComponent(text)}`;
@@ -541,151 +541,21 @@ export default function CatalogClient() {
   return (
     <div dir={dir} className="min-h-screen bg-slate-50 dark:bg-[#020a18] text-slate-900 dark:text-white transition-colors duration-300">
       
-      {/* Top Direct Export Announcement Bar */}
-      <div className="bg-slate-950 dark:bg-[#070e1b] text-white border-b border-white/10 py-3 px-4">
-        <div className="mx-auto max-w-[1440px] flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5 font-medium">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <span className="font-extrabold text-white">
-              {isAr ? "كتالوج السيارات الكورية المباشر من إنكار" : "Direct Encar South Korea Export Feed"}
-            </span>
-            <span className="hidden sm:inline text-slate-500">•</span>
-            <span className="hidden sm:inline text-slate-300">
-              {isAr
-                ? "فحص 150 نقطة معتمد • شحن بحري Ro-Ro لجدة، جبل علي، الدوحة، الكويت، وكافة الموانئ"
-                : "Official 150-Point Inspection • Direct Ro-Ro Freight to GCC & Worldwide Ports"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="https://wa.me/821072290580?text=Hello%20Advanced%20Koryo,%20I%20have%20an%20Encar%20export%20inquiry."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-[#25D366] hover:bg-[#20ba59] text-white px-3.5 py-1.5 rounded-full text-[11px] font-black transition shadow-sm"
-            >
-              <PhoneCall className="h-3 w-3" />
-              <span>{isAr ? "واتساب سيول: مباشر 24/7" : "Seoul WhatsApp: 24/7 Direct"}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-8">
         
-        {/* Top Filter Bar & Controls */}
-        <div className="rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-4 sm:p-6 mb-6 shadow-sm space-y-4">
+        {/* Sleek Native-App Filter Bar */}
+        <div className="rounded-2xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-3 sm:p-4 mb-4 shadow-sm space-y-2.5">
           
-          {/* Header Row: Title & Action Selectors */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            
-            {/* Title & Live Counter */}
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  {isAr ? "كتالوج السيارات الكورية المعتمدة" : "Verified Encar Export Catalog"}
-                </h1>
-                <span className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 text-xs font-mono font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span>
-                    {filteredVehicles.length} {isAr ? "سيارة معروضة" : "Cars Live"}
-                  </span>
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                {isAr
-                  ? "تصفح مستمر لا نهائي لأكثر من 120,000 سيارة كورية معتمدة مع أسعار FOB كوريا وحاسبة التكلفة واصلة للميناء."
-                  : "Continuous endless scroll through 120,000+ certified South Korea vehicles with direct FOB pricing & landed cost."}
-              </p>
-            </div>
-
-            {/* Quick Port / Currency Switcher + Sort + View Mode */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              
-              {/* Destination Port Dropdown */}
-              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/80 px-3 py-1.5 rounded-2xl border border-slate-200 dark:border-white/5">
-                <Ship className="h-3.5 w-3.5 text-sky-500 shrink-0" />
-                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  {isAr ? "الميناء:" : "Port:"}
-                </span>
-                <select
-                  value={selectedCountry}
-                  onChange={(e) => handleCountryChange(e.target.value)}
-                  className="bg-transparent text-xs font-extrabold text-slate-800 dark:text-white focus:outline-none cursor-pointer"
-                >
-                  <option value="SA" className="dark:bg-slate-900">🇸🇦 SAR (جدة / الدمام)</option>
-                  <option value="AE" className="dark:bg-slate-900">🇦🇪 AED (جبل علي)</option>
-                  <option value="QA" className="dark:bg-slate-900">🇶🇦 QAR (ميناء حمد)</option>
-                  <option value="KW" className="dark:bg-slate-900">🇰🇼 KWD (الشويخ)</option>
-                  <option value="OM" className="dark:bg-slate-900">🇴🇲 OMR (صحار)</option>
-                  <option value="BH" className="dark:bg-slate-900">🇧🇭 BHD (خليفة)</option>
-                  <option value="US" className="dark:bg-slate-900">🇺🇸 USD (FOB Korea)</option>
-                  <option value="EU" className="dark:bg-slate-900">🇪🇺 EUR (أوروبا)</option>
-                </select>
-              </div>
-
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-slate-100 dark:bg-slate-900/80 text-xs font-bold text-slate-800 dark:text-white px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/5 focus:outline-none cursor-pointer"
-              >
-                <option value="year-desc" className="dark:bg-slate-900">{isAr ? "الأحدث موديل أولاً" : "Newest Year First"}</option>
-                <option value="price-asc" className="dark:bg-slate-900">{isAr ? "السعر: من الأقل للأعلى" : "Price: Low to High"}</option>
-                <option value="price-desc" className="dark:bg-slate-900">{isAr ? "السعر: من الأعلى للأقل" : "Price: High to Low"}</option>
-                <option value="mileage-asc" className="dark:bg-slate-900">{isAr ? "الممشى: الأقل ممشى" : "Lowest Mileage"}</option>
-              </select>
-
-              {/* View Toggle */}
-              <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-900/80 p-1 rounded-2xl border border-slate-200 dark:border-white/5">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded-xl transition cursor-pointer ${
-                    viewMode === "grid"
-                      ? "bg-white dark:bg-slate-800 text-sky-500 shadow-sm"
-                      : "text-slate-400 hover:text-slate-700 dark:hover:text-white"
-                  }`}
-                  title="Grid View"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-1.5 rounded-xl transition cursor-pointer ${
-                    viewMode === "list"
-                      ? "bg-white dark:bg-slate-800 text-sky-500 shadow-sm"
-                      : "text-slate-400 hover:text-slate-700 dark:hover:text-white"
-                  }`}
-                  title="List View"
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Mobile Filter Button */}
-              <button
-                onClick={() => setMobileFilterOpen(true)}
-                className="lg:hidden flex items-center gap-1.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-4 py-2 rounded-2xl text-xs font-bold cursor-pointer shadow-sm"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                <span>{isAr ? "الفلاتر" : "Filters"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Search Input & Quick Brand Chips */}
-          <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-3">
-            <div className="relative w-full md:max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          {/* Row 1: Search + Sort Dropdown + Filters Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder={isAr ? "ابحث بالماركة، الموديل، الشاسي أو رقم اللوحة..." : "Search make, model, trim, VIN, or Korean plate..."}
+                placeholder={isAr ? "ابحث بالماركة، الموديل، الشاسي أو رقم اللوحة..." : "Search make, model, trim, VIN..."}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl text-xs font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-sky-500 transition"
+                className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-xl sm:rounded-2xl text-xs font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-sky-500 transition"
               />
               {searchInput && (
                 <button
@@ -693,44 +563,90 @@ export default function CatalogClient() {
                     setSearchInput("");
                     setDebouncedSearch("");
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
 
-            {/* Brand Pills */}
-            <div className="w-full md:w-auto flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-              {availableBrands.map((brand) => (
-                <button
-                  key={brand}
-                  onClick={() => setSelectedBrand(brand)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                    selectedBrand === brand
-                      ? "bg-slate-950 dark:bg-sky-500 text-white dark:text-slate-950 shadow-md"
-                      : "bg-slate-100 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-white/5"
-                  }`}
-                >
-                  {brand === "All" ? (isAr ? "جميع الشركات" : "All Makes") : brand}
-                </button>
-              ))}
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-slate-100 dark:bg-slate-900/80 text-xs font-bold text-slate-800 dark:text-white px-3 py-2 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-white/5 focus:outline-none cursor-pointer shrink-0"
+            >
+              <option value="year-desc" className="dark:bg-slate-900">{isAr ? "الأحدث موديل أولاً" : "Newest Year First"}</option>
+              <option value="price-asc" className="dark:bg-slate-900">{isAr ? "السعر: من الأقل للأعلى" : "Price: Low to High"}</option>
+              <option value="price-desc" className="dark:bg-slate-900">{isAr ? "السعر: من الأعلى للأقل" : "Price: High to Low"}</option>
+              <option value="mileage-asc" className="dark:bg-slate-900">{isAr ? "الممشى: الأقل ممشى" : "Lowest Mileage"}</option>
+            </select>
+
+            {/* View Toggle (Desktop) */}
+            <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200 dark:border-white/5 shrink-0">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-lg transition cursor-pointer ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-slate-800 text-sky-500 shadow-sm"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                }`}
+                title="Grid View"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-1.5 rounded-lg transition cursor-pointer ${
+                  viewMode === "list"
+                    ? "bg-white dark:bg-slate-800 text-sky-500 shadow-sm"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                }`}
+                title="List View"
+              >
+                <List className="h-3.5 w-3.5" />
+              </button>
             </div>
+
+            {/* Mobile Filter Button */}
+            <button
+              onClick={() => setMobileFilterOpen(true)}
+              className="lg:hidden flex items-center gap-1.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-3.5 py-2 rounded-xl sm:rounded-2xl text-xs font-bold cursor-pointer shadow-sm shrink-0"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>{isAr ? "الفلاتر" : "Filters"}</span>
+            </button>
           </div>
 
-          {/* Quick Year & Price Filter Pills (One-Tap Fast Filtering) */}
-          <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
-            
+          {/* Row 2: Brand Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+            {availableBrands.map((brand) => (
+              <button
+                key={brand}
+                onClick={() => setSelectedBrand(brand)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer shrink-0 ${
+                  selectedBrand === brand
+                    ? "bg-slate-950 dark:bg-sky-500 text-white dark:text-slate-950 shadow-md"
+                    : "bg-slate-100 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-white/5"
+                }`}
+              >
+                {brand === "All" ? (isAr ? "جميع الشركات" : "All Makes") : brand}
+              </button>
+            ))}
+          </div>
+
+          {/* Row 3: Quick Year & Budget Pills */}
+          <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
             {/* Quick Year Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 max-w-full">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-0.5">
                 {isAr ? "الموديل:" : "Year:"}
               </span>
               {quickYearPills.map((pill) => (
                 <button
                   key={pill.id}
                   onClick={() => setSelectedYearPill(pill.id)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition whitespace-nowrap cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition whitespace-nowrap cursor-pointer shrink-0 ${
                     selectedYearPill === pill.id
                       ? "bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-sm"
                       : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -741,16 +657,16 @@ export default function CatalogClient() {
               ))}
             </div>
 
-            {/* Quick Price Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+            {/* Quick Budget Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 max-w-full">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-0.5">
                 {isAr ? "الميزانية:" : "Budget:"}
               </span>
               {quickPricePills.map((pill) => (
                 <button
                   key={pill.id}
                   onClick={() => setSelectedPricePill(pill.id)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition whitespace-nowrap cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition whitespace-nowrap cursor-pointer shrink-0 ${
                     selectedPricePill === pill.id
                       ? "bg-emerald-600 text-white shadow-sm"
                       : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -771,7 +687,7 @@ export default function CatalogClient() {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
               <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                 <SlidersHorizontal className="h-4 w-4 text-sky-500" />
-                <span>{isAr ? "تصفية السيارات" : "Filter Encar Feed"}</span>
+                <span>{isAr ? "تصفية السيارات" : "Filter Vehicles"}</span>
               </span>
               <button
                 onClick={handleResetFilters}
@@ -958,10 +874,10 @@ export default function CatalogClient() {
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.2) }}
-                        className="rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch hover:border-sky-500/40 transition-all shadow-sm"
+                        className="rounded-2xl sm:rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch hover:border-sky-500/40 transition-all shadow-sm"
                       >
                         {/* Car Image Preview */}
-                        <div className="relative w-full md:w-64 h-48 md:h-auto rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 shrink-0">
+                        <div className="relative w-full md:w-64 h-48 md:h-auto rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 shrink-0">
                           <Image
                             src={car.image || "/logo.jpg"}
                             alt={car.title}
@@ -973,43 +889,17 @@ export default function CatalogClient() {
                             className="object-cover hover:scale-105 transition duration-500"
                             unoptimized
                           />
-                          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase text-white bg-slate-950/85 backdrop-blur px-2.5 py-0.5 rounded shadow-sm flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                              <span>Encar Diagnostic</span>
+                          <div className="absolute bottom-2.5 right-2.5">
+                            <span className="bg-emerald-950/90 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1 shadow-sm backdrop-blur">
+                              <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                              <span>{isCleanAccident ? (isAr ? "خالي حوادث" : "0 Accidents") : (isAr ? "فحص معتمد" : "Verified")}</span>
                             </span>
-                            <button
-                              onClick={() => setQuickInspectVehicle(car)}
-                              className="text-[10px] font-bold text-white bg-slate-950/85 backdrop-blur px-2 py-0.5 rounded flex items-center gap-1 hover:bg-sky-500 transition"
-                            >
-                              <Camera className="h-3 w-3 text-sky-400" />
-                              <span>{photosCount}</span>
-                            </button>
                           </div>
-
-                          {plate && (
-                            <div className="absolute bottom-2.5 left-2.5 bg-slate-950/90 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-white/10">
-                              {plate}
-                            </div>
-                          )}
                         </div>
 
                         {/* Middle: Details & Specs */}
                         <div className="flex-grow flex flex-col justify-between space-y-3">
                           <div>
-                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                🛡️ {isCleanAccident ? (isAr ? "خالي من الحوادث 100%" : "0 Accidents Verified") : (isAr ? "فحص شاسي معتمد" : "Structural Audit Passed")}
-                              </span>
-                              {displacementStr && (
-                                <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded">
-                                  {displacementStr}
-                                </span>
-                              )}
-                              <span className="text-[10px] font-mono text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded font-bold">
-                                100% LHD Compliant
-                              </span>
-                            </div>
                             <Link href={`/vehicle/${car.id}`} className="hover:text-sky-500 transition">
                               <h3 className="text-base font-extrabold text-slate-900 dark:text-white line-clamp-1">
                                 {isAr && car.titleAr ? car.titleAr : car.title}
@@ -1018,35 +908,33 @@ export default function CatalogClient() {
                           </div>
 
                           {/* Spec Pills */}
-                          <div className="grid grid-cols-4 gap-2 text-[11px] font-bold bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-white/5">
-                            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                          <div className="grid grid-cols-3 gap-2 text-[11px] font-bold bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-white/5">
+                            <div className="flex items-center justify-center gap-1 text-slate-600 dark:text-slate-300">
                               <Calendar className="h-3.5 w-3.5 text-sky-500" />
                               <span>{car.year}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                            <div className="flex items-center justify-center gap-1 text-slate-600 dark:text-slate-300">
                               <Gauge className="h-3.5 w-3.5 text-sky-500" />
                               <span>{car.mileage?.toLocaleString()} km</span>
                             </div>
-                            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                            <div className="flex items-center justify-center gap-1 text-slate-600 dark:text-slate-300">
                               <Fuel className="h-3.5 w-3.5 text-sky-500" />
                               <span className="capitalize truncate">{car.fuelType}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                              <MapPin className="h-3.5 w-3.5 text-sky-500" />
-                              <span className="truncate">{car.location || "Seoul"}</span>
-                            </div>
                           </div>
+
+                          {/* Displacement */}
+                          {displacementStr && (
+                            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                              <span>⚙️ {displacementStr}</span>
+                            </div>
+                          )}
 
                           {/* Price & Action Buttons */}
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-white/5">
-                            <div>
-                              <div className="text-[10px] font-bold uppercase text-slate-400">FOB Korea</div>
-                              <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
-                                ${priceUsd.toLocaleString()} <span className="text-xs font-normal text-slate-400">USD</span>
-                              </div>
-                              <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                                ~{priceLocal.toLocaleString()} {activeCurrency.symbol}
-                              </div>
+                            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white tracking-tight">
+                              ${priceUsd.toLocaleString()}{" "}
+                              <span className="text-xs font-bold text-slate-400 font-sans">USD</span>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -1055,19 +943,15 @@ export default function CatalogClient() {
                                 href={whatsappUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-5 py-3 rounded-xl text-xs font-extrabold uppercase tracking-wide transition-all shadow-md shadow-emerald-500/20 hover:scale-[1.02]"
+                                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all shadow-md shadow-emerald-500/20 active:scale-[0.99]"
                               >
-                                <span className="relative flex h-2 w-2 shrink-0">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                                </span>
                                 <PhoneCall className="h-3.5 w-3.5 shrink-0" />
-                                <span>{isAr ? "استشارة وشراء" : "WhatsApp Buy"}</span>
+                                <span>{isAr ? "استشارة عبر واتساب" : "WhatsApp Inquiry"}</span>
                               </a>
 
                               <Link
                                 href={`/vehicle/${car.id}`}
-                                className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white px-4 py-3 rounded-xl text-xs font-bold transition"
+                                className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-3 py-2 text-xs font-bold transition"
                               >
                                 <span>{isAr ? "التفاصيل" : "Details"}</span>
                                 <ArrowRight className="h-3.5 w-3.5" />
@@ -1085,8 +969,8 @@ export default function CatalogClient() {
                       key={car.id || idx}
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.2) }}
-                      className="rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col justify-between hover:border-sky-500/40 hover:shadow-xl transition-all duration-300"
+                      transition={{ duration: 0.25, delay: idx < 8 ? Math.min(idx * 0.02, 0.2) : 0 }}
+                      className="rounded-2xl sm:rounded-3xl bg-white dark:bg-[#070e1b] border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col justify-between hover:border-sky-500/40 hover:shadow-lg transition-all duration-300"
                     >
                       <div>
                         {/* Image Link */}
@@ -1102,51 +986,27 @@ export default function CatalogClient() {
                             className="object-cover transition duration-500 group-hover:scale-105"
                             unoptimized
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-80" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-80" />
 
-                          {/* Top Badges */}
-                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-                            <span className="flex items-center gap-1 text-[10px] font-black uppercase text-white bg-slate-950/85 backdrop-blur px-2.5 py-1 rounded-md shadow-sm border border-white/10">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                              <span>Encar Diagnostic</span>
-                            </span>
-
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setQuickInspectVehicle(car);
-                              }}
-                              className="text-[10px] font-bold text-white bg-slate-950/80 backdrop-blur px-2.5 py-1 rounded-md border border-white/10 flex items-center gap-1 hover:bg-sky-500 transition"
-                            >
-                              <Camera className="h-3 w-3 text-sky-400" />
-                              <span>{photosCount} Photos</span>
-                            </button>
-                          </div>
-
-                          {/* Bottom Image Info */}
-                          <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[10px] font-mono font-bold text-white">
-                            <span className="bg-slate-950/85 px-2 py-0.5 rounded border border-white/10">
-                              {plate || `#${car.id.slice(0, 8)}`}
-                            </span>
-                            <span className="bg-emerald-950/85 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
-                              <ShieldCheck className="h-3 w-3" />
-                              <span>{isCleanAccident ? (isAr ? "خالي حوادث" : "0 Accidents") : (isAr ? "فحص معتمد" : "Inspected")}</span>
+                          {/* Clean Bottom Right Badge: 0 Accidents / Certified */}
+                          <div className="absolute bottom-2.5 right-3">
+                            <span className="bg-emerald-950/90 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 text-[10px] font-bold flex items-center gap-1 shadow-sm backdrop-blur">
+                              <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                              <span>{isCleanAccident ? (isAr ? "خالي حوادث" : "0 Accidents") : (isAr ? "فحص معتمد" : "Verified")}</span>
                             </span>
                           </div>
                         </Link>
 
                         {/* Title & Specs */}
-                        <div className="p-5 space-y-3.5">
+                        <div className="p-4 sm:p-5 space-y-3">
                           <Link href={`/vehicle/${car.id}`} className="block hover:text-sky-500 transition">
-                            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white line-clamp-1">
+                            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white line-clamp-1">
                               {isAr && car.titleAr ? car.titleAr : car.title}
                             </h3>
                           </Link>
 
                           {/* Key Specs Pill */}
-                          <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100/70 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-200/60 dark:border-white/5">
+                          <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100/70 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-white/5">
                             <div className="flex flex-col items-center justify-center text-center">
                               <Calendar className="h-3 w-3 text-sky-500 mb-0.5" />
                               <span>{car.year}</span>
@@ -1161,84 +1021,42 @@ export default function CatalogClient() {
                             </div>
                           </div>
 
-                          {/* Displacement & LHD Badges */}
-                          <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
-                            {displacementStr && (
-                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
-                                ⚙️ {displacementStr}
-                              </span>
-                            )}
-                            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
-                              ✓ 100% LHD
-                            </span>
-                            {car.location && (
-                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded truncate max-w-[120px]">
-                                📍 {car.location}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Pricing Display */}
-                          <div className="flex items-baseline justify-between border-t border-slate-200 dark:border-white/10 pt-3">
-                            <div>
-                              <div className="text-[10px] font-bold text-slate-400 uppercase">FOB Korea</div>
-                              <div className="text-xl font-black text-slate-900 dark:text-white font-mono">
-                                ${priceUsd.toLocaleString()}{" "}
-                                <span className="text-xs font-normal text-slate-400">USD</span>
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-mono">
-                                ₩{(priceKrw / 1000000).toFixed(1)}M KRW
-                              </div>
+                          {/* Displacement (only if available) */}
+                          {displacementStr && (
+                            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                              <span>⚙️ {displacementStr}</span>
                             </div>
+                          )}
 
-                            <div className="text-right">
-                              <div className="text-[10px] font-bold text-slate-400 uppercase">
-                                Est. {activeCurrency.symbol}
-                              </div>
-                              <div className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                                ~{priceLocal.toLocaleString()} {activeCurrency.symbol}
-                              </div>
-                              <div className="text-[10px] text-sky-500 dark:text-sky-400 font-bold">
-                                +${activeCurrency.freightUsd} Ro-Ro Port
-                              </div>
+                          {/* Pricing Display: Clean USD Price */}
+                          <div className="pt-2 border-t border-slate-100 dark:border-white/10">
+                            <div className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                              ${priceUsd.toLocaleString()}{" "}
+                              <span className="text-xs font-bold text-slate-400 font-sans">USD</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="p-5 pt-0 space-y-2">
+                      <div className="p-4 sm:p-5 pt-0 space-y-2">
                         <a
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white py-3 text-xs font-extrabold uppercase tracking-wide transition-all shadow-md shadow-emerald-500/20 hover:scale-[1.01]"
+                          className="w-full flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white py-3 sm:py-3.5 text-xs font-black uppercase tracking-wide transition-all shadow-md shadow-emerald-500/20 active:scale-[0.99]"
                         >
-                          <span className="relative flex h-2 w-2 shrink-0">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                          </span>
                           <PhoneCall className="h-4 w-4 shrink-0" />
-                          <span>{isAr ? "استشارة وشراء" : "WhatsApp Sourcing"}</span>
+                          <span>{isAr ? "استشارة وشراء عبر واتساب" : "WhatsApp Inquiry"}</span>
                         </a>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            onClick={() => setQuickInspectVehicle(car)}
-                            className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 py-2.5 text-[11px] font-bold transition cursor-pointer"
-                          >
-                            <ShieldCheck className="h-3.5 w-3.5 text-sky-500" />
-                            <span>{isAr ? "فحص 150 نقطة" : "150-Pt Audit"}</span>
-                          </button>
-
-                          <Link
-                            href={`/vehicle/${car.id}`}
-                            className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white py-2.5 text-[11px] font-bold transition"
-                          >
-                            <span>{isAr ? "كامل المواصفات" : "Full Specs"}</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </Link>
-                        </div>
+                        <Link
+                          href={`/vehicle/${car.id}`}
+                          className="w-full flex items-center justify-center gap-1.5 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+                        >
+                          <span>{isAr ? "عرض المواصفات الكاملة" : "View Full Details"}</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
                       </div>
                     </motion.div>
                   );
@@ -1259,8 +1077,8 @@ export default function CatalogClient() {
                   </span>
                   <span>
                     {isAr
-                      ? `جاري تحميل الدفعة التالية من سيارات إنكار تلقائياً (${filteredVehicles.length} معروضة)...`
-                      : `Streaming next batch of Encar vehicles (${filteredVehicles.length} loaded)...`}
+                      ? `جاري تحميل المزيد من السيارات تلقائياً (${filteredVehicles.length} معروضة)...`
+                      : `Loading more vehicles (${filteredVehicles.length} loaded)...`}
                   </span>
                 </div>
 
@@ -1297,7 +1115,7 @@ export default function CatalogClient() {
                 <p className="text-xs font-bold text-slate-500">
                   {isAr
                     ? `تم عرض جميع نتائج البحث المتاحة (${filteredVehicles.length} سيارة مفحوصة ومطابقة)`
-                    : `You've viewed all ${filteredVehicles.length} verified Encar export vehicles for this category`}
+                    : `You've viewed all ${filteredVehicles.length} vehicles for this category`}
                 </p>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -1325,7 +1143,7 @@ export default function CatalogClient() {
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-emerald-500" />
                   <span className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                    {isAr ? "فحص إنكار الرسمي (150 نقطة)" : "Official Encar Diagnostic Audit"}
+                    {isAr ? "تقرير الفحص الفني المعتمد" : "Vehicle Diagnostic Inspection Audit"}
                   </span>
                 </div>
                 <button
@@ -1483,7 +1301,7 @@ export default function CatalogClient() {
             >
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
                 <span className="text-sm font-black uppercase text-slate-900 dark:text-white">
-                  {isAr ? "تصفية السيارات" : "Filter Encar Feed"}
+                  {isAr ? "تصفية السيارات" : "Filter Vehicles"}
                 </span>
                 <button
                   onClick={() => setMobileFilterOpen(false)}

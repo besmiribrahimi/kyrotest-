@@ -24,7 +24,7 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: "/", label: language === "ar" ? "كتالوج السيارات" : "Encar Catalog", isHot: true },
+    { href: "/", label: language === "ar" ? "كتالوج السيارات" : "Vehicles Catalog", isHot: true },
     { href: "/shipping-calculator", label: t.nav.shippingCalculator },
     { href: "/about", label: language === "ar" ? "خدمات التصدير" : "Export & Logistics" },
     { href: "/contact", label: t.nav.contact },
@@ -53,9 +53,6 @@ export default function Header() {
           <div className="flex flex-col">
             <span className="text-xl font-black tracking-[0.2em] text-slate-900 dark:text-white uppercase font-sans">
               ADVANCED KORYO
-            </span>
-            <span className="text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-              {language === "ar" ? "تصدير السيارات الكورية" : "Automotive Export"}
             </span>
           </div>
         </Link>

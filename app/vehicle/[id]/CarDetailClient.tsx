@@ -142,7 +142,7 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
           {/* Top Breadcrumb & Actions */}
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
             <Link
-              href="/catalog"
+              href="/"
               className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white hover:text-[#0066ff] dark:hover:text-sky-400 transition"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -174,8 +174,8 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-red-600 px-3 py-0.5 text-[11px] font-extrabold text-white uppercase tracking-wider shadow-sm">
-                  🇰🇷 Encar Verified
+                <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider shadow-sm">
+                  {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
                 </span>
                 <span className="rounded-full bg-emerald-600 px-3 py-0.5 text-[11px] font-extrabold text-white shadow-sm flex items-center gap-1">
                   <Check className="h-3 w-3" />
