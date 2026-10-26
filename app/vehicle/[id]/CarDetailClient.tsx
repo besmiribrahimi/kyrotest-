@@ -174,14 +174,14 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
             {/* Left Column (7 Cols): Gallery, Header Info & Inspection Dashboard */}
             <div className="lg:col-span-7 space-y-6">
               
-              {/* Photo Showcase (Directly at top on Mobile) */}
+              {/* Photo Showcase (Directly at top on Mobile with explicit responsive height) */}
               <div className="space-y-3">
-                <div className="relative aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-white/10 shadow-md">
+                <div className="w-full h-64 sm:h-80 md:h-[400px] relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-white/10 shadow-md">
                   <Image
                     src={imagesList[selectedImageIndex] || sampleImages[0]}
                     alt={cleanTitle}
                     fill
-                    className="object-cover cursor-pointer"
+                    className="object-cover object-center cursor-pointer"
                     priority
                     unoptimized
                     onClick={() => setIsLightboxOpen(true)}
@@ -241,8 +241,8 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                 </div>
               </div>
 
-              {/* Vehicle Title, Badges & Clean Pricing Card */}
-              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+              {/* Vehicle Title, Badges, Specs & Clean Pricing Card */}
+              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
                     {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
@@ -261,6 +261,26 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                   {cleanTitle}
                 </h1>
+
+                {/* Key Specs Row */}
+                <div className="grid grid-cols-4 gap-2 text-center text-xs font-bold bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200/60 dark:border-white/5">
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الموديل" : "Year"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold">{carData?.year || 2023}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الممشى" : "Mileage"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold truncate">{(carData?.mileage || 24000).toLocaleString()} km</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الوقود" : "Fuel"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold capitalize truncate">{carData?.fuelType || "Gasoline"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-normal uppercase">{language === "ar" ? "الجير" : "Gear"}</div>
+                    <div className="text-slate-800 dark:text-white font-extrabold capitalize truncate">{carData?.transmission || "Automatic"}</div>
+                  </div>
+                </div>
 
                 {/* Clean Price & Direct WhatsApp CTA */}
                 <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
