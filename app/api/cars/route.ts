@@ -1,6 +1,49 @@
 import { NextResponse } from "next/server";
 import { CATALOG_CARS } from "@/lib/catalog-data";
 
+
+function getPhotoPriority(url: string): number {
+  if (!url) return 9999;
+  const lower = url.toLowerCase();
+  if (lower.includes('noimage') || lower.includes('placeholder') || lower.includes('empty')) return 9999;
+
+  if (/(wheel|tire|rim|tyre|alloy|caliper|brake|odometer|pedal|engine|underbody|exhaust|scratch|trunk_inside|tag)/i.test(lower)) {
+    return 800;
+  }
+
+  const filename = lower.substring(lower.lastIndexOf('/') + 1);
+  const match = filename.match(/[_-](\d+)\./);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    if (num === 1) return 1;    // Front-left 3/4 primary exterior showcase shot
+    if (num === 11) return 2;   // Front-right 3/4 opposite exterior
+    if (num === 2) return 3;    // Front full
+    if (num === 12) return 4;   // Rear-right 3/4 opposite exterior
+    if (num === 3) return 5;    // Rear full
+    if (num === 4) return 6;    // Left side profile
+    if (num === 14) return 7;   // Right side profile
+    if (num >= 5 && num <= 10) return 10 + num;
+    if (num >= 15 && num <= 19) return 30 + num;
+    if (num >= 20 && num <= 25) return 60 + num;
+    if (num >= 26 && num <= 35) return 500 + num;
+    if (num >= 36) return 600 + num;
+    return 100 + num;
+  }
+
+  if (lower.includes('front') || lower.includes('cover') || lower.includes('main') || lower.includes('hero')) return 2;
+  if (lower.includes('rear') || lower.includes('back')) return 5;
+  if (lower.includes('side')) return 6;
+  if (lower.includes('interior') || lower.includes('cockpit')) return 40;
+
+  return 200;
+}
+
+function sortCarImages(images: string[]): string[] {
+  if (!images || !Array.isArray(images) || images.length === 0) return [];
+  const unique = Array.from(new Set(images.filter((img): img is string => typeof img === 'string' && img.trim().length > 0)));
+  return unique.sort((a, b) => getPhotoPriority(a) - getPhotoPriority(b));
+}
+
 function normalizeImageUrl(url: string): string {
   if (!url) return url;
   if (url.includes("/image-proxy")) {
@@ -114,17 +157,18 @@ function normalizeEncarCar(c: any, isDetail: boolean = false) {
   const priceUsd = c.pricing?.usd || c.priceUsd || Math.round(priceKrw / 1350);
   const priceEur = c.pricing?.eur || Math.round(priceUsd * 0.92);
 
-  const rawCover = c.coverPhoto || c.image || c.images?.[0] || c.photos?.[0] || "";
-  const mainImage = normalizeImageUrl(rawCover);
-
   let allImages: string[] = [];
   if (Array.isArray(c.images) && c.images.length > 0) {
     allImages = c.images.map((img: any) => normalizeImageUrl(typeof img === "string" ? img : img?.url || ""));
   } else if (Array.isArray(c.photos) && c.photos.length > 0) {
     allImages = c.photos.map((img: any) => normalizeImageUrl(typeof img === "string" ? img : img?.url || ""));
-  } else if (mainImage) {
-    allImages = [mainImage];
+  } else if (c.image) {
+    allImages = [normalizeImageUrl(c.image)];
   }
+
+  // Sort photos so exterior front showcase shot is ALWAYS at index 0 and wheels are at the end
+  allImages = sortCarImages(allImages);
+  const mainImage = allImages[0] || normalizeImageUrl(c.coverPhoto || c.image || "");
 
   return {
     id: String(c.id || c.encarId),
