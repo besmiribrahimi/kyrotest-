@@ -127,10 +127,13 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   const vin = carData?.vin || accHistory?.vin || `KPBA${carId}KR`;
   const inspectionNo = carData?.inspectionNumber || accHistory?.inspectionNumber || `${carId.slice(-6)}/26`;
 
+  const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
+  const carUrl = `${origin}/vehicle/${carId}`;
+
   const whatsappMessage = encodeURIComponent(
     language === "ar"
-      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة:\n\n🚗 السيارة: ${carData?.title || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر FOB: $${priceUsd.toLocaleString()} USD (~${totalLandedLocal.toLocaleString()} ${activePort.currency})\n🔢 كود الفحص Encar: #${carId}\n🔖 الشاصي (VIN): ${vin}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 الرابط: https://mykoryo.com/vehicle/${carId}\n\nيرجى تزويدي بفيديو المعاينة، تقرير الفحص المعتمد، وحجز شحن Ro-Ro المباشر.`
-      : `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle:\n\n🚗 Vehicle: ${carData?.title || "Korean Car"} (ID #${carId})\n📅 Year: ${carData?.year || 2023}\n🛣️ Mileage: ${(carData?.mileage || 24000).toLocaleString()} km\n💰 FOB Price: $${priceUsd.toLocaleString()} USD (~${totalLandedLocal.toLocaleString()} ${activePort.currency})\n🔖 VIN / Chassis: ${vin}\n📍 Destination Port: ${activePort.nameEn}\n🔗 Link: https://mykoryo.com/vehicle/${carId}\n\nPlease share the official Encar inspection report, walkaround video, and Ro-Ro shipping booking steps.`
+      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار وشراء هذه السيارة:\n\n🚗 السيارة: ${carData?.title || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر: $${priceUsd.toLocaleString()} USD\n🔢 كود السيارة: #${carId}\n🔖 الشاصي (VIN): ${vin}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتفاصيل الشراء والشحن.`
+      : `Hello Advanced Koryo 🇰🇷\nI would like to inquire about this vehicle:\n\n🚗 Vehicle: ${carData?.title || "Korean Vehicle"}\n📅 Year: ${carData?.year || 2023}\n🛣️ Mileage: ${(carData?.mileage || 24000).toLocaleString()} km\n💰 Price: $${priceUsd.toLocaleString()} USD\n🔢 Vehicle ID: #${carId}\n🔖 VIN / Chassis: ${vin}\n📍 Destination Port: ${activePort.nameEn}\n🔗 Vehicle Link: ${carUrl}\n\nPlease provide the walkaround video and purchase/shipping details.`
   );
 
   return (

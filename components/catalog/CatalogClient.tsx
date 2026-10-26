@@ -519,19 +519,17 @@ export default function CatalogClient() {
   // WhatsApp consultation generator
   const getConsultationWhatsAppUrl = (car: CatalogVehicle) => {
     const priceUsd = car.prices?.USD ? Math.round(car.prices.USD) : typeof car.price === "number" ? Math.round(car.price / 1350) : 25000;
-    const priceLocal = Math.round(priceUsd * activeCurrency.rate);
-    const carUrl = `https://catalog.hisdomain.com/vehicle/${car.id}`;
-    const countryText = isAr ? activeCurrency.nameAr : activeCurrency.nameEn;
-    const portText = isAr ? activeCurrency.portAr : activeCurrency.portEn;
+    const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
+    const carUrl = `${origin}/vehicle/${car.id}`;
     const plateText = car.licensePlate || car.accidentHistory?.licensePlate || "";
     const displacementText = car.displacement ? `${car.displacement.toLocaleString()} cc` : "";
-    const accidentSummary = car.accidentHistory?.hasAccident === false ? (isAr ? "خالية من الحوادث (فحص سليم)" : "Clean 0 Accidents") : (isAr ? "فحص هيكلي معتمد" : "Structural Audit Verified");
+    const accidentSummary = car.accidentHistory?.hasAccident === false ? (isAr ? "خالية من الحوادث (فحص سليم)" : "Clean 0 Accidents") : (isAr ? "فحص فني معتمد" : "Certified Inspection");
 
     let text = "";
     if (isAr) {
-      text = `مرحباً أدفانسد كوريو 🇰🇷\nأود استشارة وشراء هذه السيارة:\n\n🚗 السيارة: ${car.titleAr || car.title}\n📅 الموديل: ${car.year}\n🛣️ الممشى: ${car.mileage?.toLocaleString()} كم\n⚙️ سعة المحرك: ${displacementText || "مطابق للمواصفات"}\n💰 السعر: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 كود السيارة: #${car.id}${plateText ? ` (لوحة: ${plateText})` : ""}\n🛡️ الفحص: ${accidentSummary}\n📍 وجهة الشحن المطلوبة: ${countryText} - ${portText}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتقرير الفحص المعتمد وحجز الشحن البحري Ro-Ro.`;
+      text = `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار وشراء هذه السيارة:\n\n🚗 السيارة: ${car.titleAr || car.title}\n📅 الموديل: ${car.year}\n🛣️ الممشى: ${car.mileage?.toLocaleString()} كم\n⚙️ سعة المحرك: ${displacementText || "مطابق للمواصفات"}\n💰 السعر: $${priceUsd.toLocaleString()} USD\n🔢 كود السيارة: #${car.id}${plateText ? ` (لوحة: ${plateText})` : ""}\n🛡️ الفحص: ${accidentSummary}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة وتفاصيل الشراء والشحن.`;
     } else {
-      text = `Hello Advanced Koryo 🇰🇷\nI would like to consult & purchase this vehicle:\n\n🚗 Vehicle: ${car.title}\n📅 Year: ${car.year}\n🛣️ Mileage: ${car.mileage?.toLocaleString()} km\n⚙️ Engine: ${displacementText || "Factory OEM"}\n💰 Price: $${priceUsd.toLocaleString()} USD (~${priceLocal.toLocaleString()} ${activeCurrency.symbol})\n🔢 Vehicle ID: #${car.id}${plateText ? ` (Plate: ${plateText})` : ""}\n🛡️ Inspection: ${accidentSummary}\n📍 Destination Port: ${countryText} - ${portText}\n🔗 Link: ${carUrl}\n\nPlease provide the inspection audit, video walkaround, and Ro-Ro ocean shipping quote.`;
+      text = `Hello Advanced Koryo 🇰🇷\nI would like to inquire about this vehicle:\n\n🚗 Vehicle: ${car.title}\n📅 Year: ${car.year}\n🛣️ Mileage: ${car.mileage?.toLocaleString()} km\n⚙️ Engine: ${displacementText || "Factory OEM"}\n💰 Price: $${priceUsd.toLocaleString()} USD\n🔢 Vehicle ID: #${car.id}${plateText ? ` (Plate: ${plateText})` : ""}\n🛡️ Inspection: ${accidentSummary}\n🔗 Vehicle Link: ${carUrl}\n\nPlease provide the walkaround video and purchase/shipping details.`;
     }
 
     return `https://wa.me/821072290580?text=${encodeURIComponent(text)}`;
