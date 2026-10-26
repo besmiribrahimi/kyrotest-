@@ -127,40 +127,35 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   const vin = carData?.vin || accHistory?.vin || `KPBA${carId}KR`;
   const inspectionNo = carData?.inspectionNumber || accHistory?.inspectionNumber || `${carId.slice(-6)}/26`;
 
+  const rawTitle = carData?.title || `${carData?.brand || ""} ${carData?.model || ""} ${carData?.year || ""}`;
+  const cleanTitle = rawTitle.replace(/_/g, " ").replace(/\s+/g, " ").trim();
+
   const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
   const carUrl = `${origin}/vehicle/${carId}`;
 
   const whatsappMessage = encodeURIComponent(
     language === "ar"
-      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار وشراء هذه السيارة:\n\n🚗 السيارة: ${carData?.title || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر: $${priceUsd.toLocaleString()} USD\n🔢 كود السيارة: #${carId}\n🔖 الشاصي (VIN): ${vin}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتفاصيل الشراء والشحن.`
-      : `Hello Advanced Koryo 🇰🇷\nI would like to inquire about this vehicle:\n\n🚗 Vehicle: ${carData?.title || "Korean Vehicle"}\n📅 Year: ${carData?.year || 2023}\n🛣️ Mileage: ${(carData?.mileage || 24000).toLocaleString()} km\n💰 Price: $${priceUsd.toLocaleString()} USD\n🔢 Vehicle ID: #${carId}\n🔖 VIN / Chassis: ${vin}\n📍 Destination Port: ${activePort.nameEn}\n🔗 Vehicle Link: ${carUrl}\n\nPlease provide the walkaround video and purchase/shipping details.`
+      ? `مرحباً أدفانسد كوريو 🇰🇷\nأود الاستفسار وشراء هذه السيارة:\n\n🚗 السيارة: ${cleanTitle || "سيارة كورية"}\n📅 الموديل: ${carData?.year || 2023}\n🛣️ الممشى: ${(carData?.mileage || 24000).toLocaleString()} كم\n💰 السعر: $${priceUsd.toLocaleString()} USD\n🔢 كود السيارة: #${carId}\n🔖 الشاصي (VIN): ${vin}\n📍 وجهة الشحن: ${activePort.nameAr}\n🔗 رابط السيارة: ${carUrl}\n\nيرجى تزويدي بفيديو المعاينة المباشر وتفاصيل الشراء والشحن.`
+      : `Hello Advanced Koryo 🇰🇷\nI would like to inquire about this vehicle:\n\n🚗 Vehicle: ${cleanTitle || "Korean Vehicle"}\n📅 Year: ${carData?.year || 2023}\n🛣️ Mileage: ${(carData?.mileage || 24000).toLocaleString()} km\n💰 Price: $${priceUsd.toLocaleString()} USD\n🔢 Vehicle ID: #${carId}\n🔖 VIN / Chassis: ${vin}\n📍 Destination Port: ${activePort.nameEn}\n🔗 Vehicle Link: ${carUrl}\n\nPlease provide the walkaround video and purchase/shipping details.`
   );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#020a18] text-slate-900 dark:text-white transition-colors duration-300 flex flex-col justify-between pb-24 md:pb-12">
       
-      <main dir={dir} className="flex-grow py-6 sm:py-10">
-        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 space-y-8">
+      <main dir={dir} className="flex-grow py-4 sm:py-8">
+        <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-8 space-y-6">
           
-          {/* Top Breadcrumb & Actions */}
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
+          {/* Top Breadcrumb & Share */}
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white hover:text-[#0066ff] dark:hover:text-sky-400 transition"
+              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white hover:text-sky-500 transition"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>{language === "ar" ? "العودة إلى المعرض" : "Back to Catalog"}</span>
             </Link>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => window.print()}
-                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-sm"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                <span>{language === "ar" ? "طباعة" : "Print"}</span>
-              </button>
-
               <a
                 href={`https://wa.me/821072290580?text=${whatsappMessage}`}
                 target="_blank"
@@ -173,80 +168,31 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
             </div>
           </div>
 
-          {/* Title & FOB Pricing Banner */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-3 py-0.5 text-[11px] font-extrabold uppercase tracking-wider shadow-sm">
-                  {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
-                </span>
-                <span className="rounded-full bg-emerald-600 px-3 py-0.5 text-[11px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                  <Check className="h-3 w-3" />
-                  {hasAccident ? (language === "ar" ? "حادث مسجل" : "Accident Logged") : (language === "ar" ? "خالية من الحوادث" : "100% Accident Free")}
-                </span>
-                <span className="rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-extrabold text-white shadow-sm flex items-center gap-1">
-                  <Droplets className="h-3 w-3" />
-                  {language === "ar" ? "خالية من الغرق 100%" : "Zero Flood History"}
-                </span>
-                <span className="rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 px-3 py-0.5 text-[11px] font-bold font-mono">
-                  VIN: {vin}
-                </span>
-              </div>
-
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                {carData?.title || "Korean Vehicle Export"}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <span>📍 {carData?.location || "Seoul / Incheon Yard, South Korea"}</span>
-                <span>•</span>
-                <span>📋 {language === "ar" ? "شهادة الفحص:" : "Inspection Cert:"} #{inspectionNo}</span>
-                <span>•</span>
-                <span>🚘 {language === "ar" ? "لوحة كوريا:" : "Korea Plate:"} {licensePlate}</span>
-              </div>
-            </div>
-
-            {/* Currency Box */}
-            <div className="rounded-2xl bg-slate-50 dark:bg-slate-950 p-5 border border-slate-200/80 dark:border-white/10 shrink-0 lg:text-right space-y-1">
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {language === "ar" ? "سعر FOB كوريا المباشر" : "Direct FOB Korea Price"}
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono">
-                ${priceUsd.toLocaleString()} <span className="text-xs font-bold text-slate-400">USD</span>
-              </div>
-              <div className="text-xs font-bold text-slate-600 dark:text-slate-300 font-mono flex items-center lg:justify-end gap-2 pt-0.5">
-                <span>₩{priceKrw.toLocaleString()} KRW</span>
-                <span>•</span>
-                <span>€{priceEur.toLocaleString()} EUR</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Grid: Gallery + Calculator */}
-          <div className="grid lg:grid-cols-12 gap-8">
+          {/* Main Grid: Left (Gallery + Title/Price on Mobile + Inspection) & Right (Specs + Calculator) */}
+          <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             
-            {/* Left Column (7 Cols): Gallery & Official Encar 150-Pt Report */}
-            <div className="lg:col-span-7 space-y-8">
+            {/* Left Column (7 Cols): Gallery, Header Info & Inspection Dashboard */}
+            <div className="lg:col-span-7 space-y-6">
               
-              {/* Photo Showcase */}
+              {/* Photo Showcase (Directly at top on Mobile) */}
               <div className="space-y-3">
-                <div className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-white/10 shadow-md">
+                <div className="relative aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-white/10 shadow-md">
                   <Image
                     src={imagesList[selectedImageIndex] || sampleImages[0]}
-                    alt={carData?.title || "Car image"}
+                    alt={cleanTitle}
                     fill
                     className="object-cover cursor-pointer"
                     priority
                     unoptimized
                     onClick={() => setIsLightboxOpen(true)}
                   />
-                  <div className="absolute top-4 left-4 bg-black/75 backdrop-blur-md text-white text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow">
+                  <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md text-white text-[11px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow">
                     <span>📷 {selectedImageIndex + 1} / {imagesList.length}</span>
                   </div>
 
                   <button
                     onClick={() => setIsLightboxOpen(true)}
-                    className="absolute top-4 right-4 bg-black/75 hover:bg-black backdrop-blur-md text-white p-2 rounded-full shadow transition"
+                    className="absolute top-3 right-3 bg-black/75 hover:bg-black backdrop-blur-md text-white p-2 rounded-full shadow transition"
                     title="Fullscreen"
                   >
                     <Maximize2 className="h-4 w-4" />
@@ -257,29 +203,29 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                     <>
                       <button
                         onClick={() => setSelectedImageIndex((prev) => (prev > 0 ? prev - 1 : imagesList.length - 1))}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2.5 rounded-full transition"
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 sm:p-2.5 rounded-full transition"
                       >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                       </button>
                       <button
                         onClick={() => setSelectedImageIndex((prev) => (prev < imagesList.length - 1 ? prev + 1 : 0))}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2.5 rounded-full transition"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 sm:p-2.5 rounded-full transition"
                       >
-                        <ChevronRight className="h-5 w-5" />
+                        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                       </button>
                     </>
                   )}
                 </div>
 
                 {/* Horizontal Thumbnail Strip */}
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
                   {imagesList.map((imgUrl: string, idx: number) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-20 sm:w-24 aspect-[16/10] shrink-0 rounded-xl overflow-hidden border-2 transition ${
+                      className={`relative w-16 sm:w-20 aspect-[16/10] shrink-0 rounded-xl overflow-hidden border-2 transition ${
                         selectedImageIndex === idx
-                          ? "border-[#0066ff] ring-2 ring-[#0066ff]/40"
+                          ? "border-sky-500 ring-2 ring-sky-500/40"
                           : "border-slate-200 dark:border-white/10 opacity-70 hover:opacity-100"
                       }`}
                     >
@@ -295,19 +241,64 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
                 </div>
               </div>
 
-              {/* Official Encar Diagnostic Inspection Dashboard */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm space-y-6">
+              {/* Vehicle Title, Badges & Clean Pricing Card */}
+              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
+                    {language === "ar" ? "سيارة معتمدة" : "Certified Export"}
+                  </span>
+                  <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                    <Check className="h-3 w-3" />
+                    {hasAccident ? (language === "ar" ? "حادث مسجل" : "Accident Logged") : (language === "ar" ? "خالية من الحوادث" : "100% Accident Free")}
+                  </span>
+                  <span className="rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-extrabold text-white shadow-sm flex items-center gap-1">
+                    <Droplets className="h-3 w-3" />
+                    {language === "ar" ? "خالية من الغرق" : "Zero Flood"}
+                  </span>
+                </div>
+
+                {/* Sanitized Clean Title (No Underscores) */}
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                  {cleanTitle}
+                </h1>
+
+                {/* Clean Price & Direct WhatsApp CTA */}
+                <div className="pt-2 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {language === "ar" ? "السعر المباشر" : "Direct Price"}
+                    </div>
+                    <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                      ${priceUsd.toLocaleString()}{" "}
+                      <span className="text-xs font-bold text-slate-400 font-sans">USD</span>
+                    </div>
+                  </div>
+
+                  <a
+                    href={`https://wa.me/821072290580?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white px-6 py-3.5 text-xs font-black uppercase tracking-wider shadow-md shadow-emerald-500/20 active:scale-[0.99] transition"
+                  >
+                    <PhoneCall className="h-4 w-4" />
+                    <span>{language === "ar" ? "استشارة وشراء عبر واتساب" : "WhatsApp Inquiry"}</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Official Diagnostic Inspection Dashboard */}
+              <div className="bg-white dark:bg-[#070e1b] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-slate-200 dark:border-white/10 shadow-sm space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-red-600/10 text-red-600 dark:text-red-400 flex items-center justify-center font-black">
+                    <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black">
                       <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
-                      <h2 className="text-base font-black text-slate-900 dark:text-white">
-                        {language === "ar" ? "تقرير فحص Encar التشخيصي المعتمد (150 نقطة)" : "Official Encar Diagnostic Inspection (150-Point)"}
+                      <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                        {language === "ar" ? "تقرير الفحص الفني المعتمد (150 نقطة)" : "Official Diagnostic Inspection (150-Point)"}
                       </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        {language === "ar" ? "فحص الهيكل، المحرك، ناقل الحركة وسجل التأمين الكوري الرسمي" : "Chassis integrity, mechanical diagnostics & official Korean insurance registry"}
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                        {language === "ar" ? "فحص الهيكل، المحرك، ناقل الحركة وسجل التأمين الكوري" : "Chassis integrity, mechanical diagnostics & official Korean registry"}
                       </p>
                     </div>
                   </div>
@@ -721,9 +712,10 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
       {/* Mobile Sticky Quick Action Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#020a18]/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 p-3.5 flex items-center justify-between gap-3 shadow-2xl">
         <div>
-          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">FOB Korea</div>
-          <div className="text-lg font-black font-mono text-slate-900 dark:text-white">
-            ${priceUsd.toLocaleString()}
+          <div className="text-[10px] text-slate-400 font-bold uppercase">{language === "ar" ? "السعر" : "Price"}</div>
+          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+            ${priceUsd.toLocaleString()}{" "}
+            <span className="text-xs font-bold text-slate-400 font-sans">USD</span>
           </div>
         </div>
 
@@ -734,7 +726,7 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
           className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] py-3 text-xs font-black text-white shadow-md active:scale-95 transition"
         >
           <PhoneCall className="h-4 w-4" />
-          <span>{language === "ar" ? "شراء واستشارة عبر الواتساب" : "Inquire via WhatsApp"}</span>
+          <span>{language === "ar" ? "استشارة عبر واتساب" : "WhatsApp Inquiry"}</span>
         </a>
       </div>
     </div>

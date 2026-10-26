@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFloatingWidget from "@/components/layout/WhatsAppFloatingWidget";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import WelcomeSplash from "@/components/common/WelcomeSplash";
 import { LanguageProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
 import {
@@ -107,6 +108,7 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <ThemeProvider>
+            <WelcomeSplash />
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-grow pb-20 md:pb-0">{children}</main>

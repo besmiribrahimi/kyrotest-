@@ -24,10 +24,7 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: "/", label: language === "ar" ? "كتالوج السيارات" : "Vehicles Catalog", isHot: true },
-    { href: "/shipping-calculator", label: t.nav.shippingCalculator },
-    { href: "/about", label: language === "ar" ? "خدمات التصدير" : "Export & Logistics" },
-    { href: "/contact", label: t.nav.contact },
+    { href: "/", label: language === "ar" ? "كتالوج السيارات" : "Catalog", isHot: true },
   ];
 
   return (
@@ -109,10 +106,10 @@ export default function Header() {
             href="https://wa.me/821072290580"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full bg-[#000000] dark:bg-white text-white dark:text-[#020a18] px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition hover:bg-[#0066ff] dark:hover:bg-[#0066ff] dark:hover:text-white shadow-sm md:flex"
+            className="hidden items-center gap-2 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider transition shadow-sm md:flex"
           >
             <PhoneCall className="h-3.5 w-3.5" />
-            <span>{t.nav.getQuote}</span>
+            <span>WhatsApp</span>
           </a>
 
           {/* Mobile Menu Toggle Button */}
@@ -150,10 +147,10 @@ export default function Header() {
                 href="https://wa.me/821072290580"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl bg-slate-950 dark:bg-white text-white dark:text-[#020a18] py-3 text-xs font-bold uppercase tracking-wider transition hover:bg-[#0066ff] dark:hover:bg-[#0066ff] dark:hover:text-white"
+                className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white py-3 text-xs font-black uppercase tracking-wider transition shadow-sm"
               >
                 <PhoneCall className="h-4 w-4" />
-                <span>{t.nav.getQuote}</span>
+                <span>WhatsApp</span>
               </a>
             </div>
           </motion.div>

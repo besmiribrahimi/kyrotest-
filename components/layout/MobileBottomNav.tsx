@@ -13,30 +13,18 @@ export default function MobileBottomNav() {
   const navItems = [
     {
       href: "/",
-      label: isAr ? "الرئيسية" : "Home",
-      icon: Home,
-      isActive: pathname === "/",
-    },
-    {
-      href: "/catalog",
-      label: isAr ? "السيارات" : "Cars",
+      label: isAr ? "كتالوج السيارات" : "Catalog",
       icon: CarFront,
-      isActive: pathname === "/catalog" || pathname.startsWith("/vehicle"),
+      isActive: pathname === "/" || pathname === "/catalog" || pathname.startsWith("/vehicle"),
       badge: "LIVE",
-    },
-    {
-      href: "/shipping-calculator",
-      label: isAr ? "الحاسبة" : "Shipping",
-      icon: Calculator,
-      isActive: pathname === "/shipping-calculator",
     },
     {
       href: "https://wa.me/821072290580?text=" + encodeURIComponent(
         isAr
-          ? "مرحباً أدفانسد كوريو 🇰🇷 أود الاستفسار عن استيراد سيارة من كوريا الجنوبية."
-          : "Hello Advanced Koryo 🇰🇷 I would like to inquire about importing a vehicle from South Korea."
+          ? "مرحباً أدفانسد كوريو 🇰🇷 أود الاستفسار عن استيراد وشراء سيارة."
+          : "Hello Advanced Koryo 🇰🇷 I would like to inquire about purchasing an export vehicle."
       ),
-      label: isAr ? "واتساب" : "WhatsApp",
+      label: isAr ? "واتساب مباشر" : "WhatsApp",
       icon: MessageSquare,
       isExternal: true,
       isWhatsApp: true,
@@ -48,7 +36,7 @@ export default function MobileBottomNav() {
       aria-label="Mobile Navigation"
       className="fixed bottom-0 inset-x-0 z-[95] md:hidden bg-white/95 dark:bg-[#070e1b]/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)] pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="grid grid-cols-4 h-16 items-center px-2">
+      <div className="grid grid-cols-2 h-16 items-center px-6">
         {navItems.map((item) => {
           const Icon = item.icon;
 
