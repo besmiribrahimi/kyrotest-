@@ -556,7 +556,7 @@ export default function CatalogClient() {
   // WhatsApp consultation generator
   const getConsultationWhatsAppUrl = (car: CatalogVehicle) => {
     const priceUsd = car.prices?.USD ? Math.round(car.prices.USD) : typeof car.price === "number" ? Math.round(car.price / 1350) : 25000;
-    const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
+    const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || "https://mykoryo.com");
     const carUrl = `${origin}/vehicle/${car.id}`;
     const plateText = car.licensePlate || car.accidentHistory?.licensePlate || "";
     const displacementText = car.displacement ? `${car.displacement.toLocaleString()} cc` : "";

@@ -133,7 +133,7 @@ export default function CarDetailClient({ carId, initialCarData }: CarDetailClie
   const rawTitle = carData?.title || `${carData?.brand || ""} ${carData?.model || ""} ${carData?.year || ""}`;
   const cleanTitle = rawTitle.replace(/_/g, " ").replace(/\s+/g, " ").trim();
 
-  const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://kyrotest.vercel.app";
+  const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || "https://mykoryo.com");
   const carUrl = `${origin}/vehicle/${carId}`;
 
   const handleShare = async () => {

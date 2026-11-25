@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "api.rinevoapi.com",
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
       },
     ],

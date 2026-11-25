@@ -59,7 +59,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     images: [
       "/images/genesis_g80_export.png",
       "/images/mercInterior.png",
-      "/images/inspection/01.jpg",
+      "/images/step4Image.png",
       "/images/engineBlog.png",
     ],
     displacementCc: 2497,
@@ -100,7 +100,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     images: [
       "/images/step2Image.png",
       "/images/mercInterior.png",
-      "/images/inspection/02.jpg",
+      "/images/step3Image.png",
       "/images/engineBlog.png",
     ],
     displacementCc: 3470,
@@ -141,7 +141,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     images: [
       "/images/step3Image.png",
       "/images/mercInterior.png",
-      "/images/inspection/03.jpg",
+      "/images/engineBlog.png",
     ],
     displacementCc: 2497,
     badge: "Encar Certified Sport AWD",
@@ -262,7 +262,7 @@ export const CATALOG_CARS: CatalogCar[] = [
     images: [
       "/images/hyundai_palisade_export.png",
       "/images/step2Image.png",
-      "/images/inspection/01.jpg",
+      "/images/step4Image.png",
       "/images/engineBlog.png",
     ],
     displacementCc: 3778,
