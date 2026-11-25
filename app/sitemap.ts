@@ -77,36 +77,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let vehicleRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const primaryKey = process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
-    const backupKey = "RINSX9BFq53MC67FEXIJREa7Uq0UHfHTeP";
-    const scraperUrl = `https://api.rinevoapi.com/api/encar/cars?limit=50`;
+    const primaryKey = process.env.APICARS_API_KEY || "";
+    const apiBase = process.env.RINEVO_API_BASE_URL || "https://api.rinevoapi.com/api/encar";
+    const scraperUrl = `${apiBase}/cars?limit=50`;
 
-    let res = await fetch(scraperUrl, {
-      headers: {
-        "x-api-key": primaryKey,
-      },
-      cache: "no-store",
-    });
-
-    if (res.status === 401 && primaryKey !== backupKey) {
-      res = await fetch(scraperUrl, {
+    if (primaryKey) {
+      const res = await fetch(scraperUrl, {
         headers: {
-          "x-api-key": backupKey,
+          "x-api-key": primaryKey,
         },
         cache: "no-store",
       });
-    }
 
-    if (res.ok) {
-      const json = await res.json();
-      const cars = json.recentCars || json.data?.cars || json.cars || [];
-      if (Array.isArray(cars)) {
-        vehicleRoutes = cars.map((car: any) => ({
-          url: `${siteUrl}/vehicle/${car.id}`,
-          lastModified: new Date(),
-          changeFrequency: "weekly" as const,
-          priority: 0.65,
-        }));
+      if (res.ok) {
+        const json = await res.json();
+        const cars = json.recentCars || json.data?.cars || json.cars || [];
+        if (Array.isArray(cars)) {
+          vehicleRoutes = cars.map((car: any) => ({
+            url: `${siteUrl}/vehicle/${car.id}`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.65,
+          }));
+        }
       }
     }
   } catch (error) {

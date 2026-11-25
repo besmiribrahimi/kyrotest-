@@ -251,21 +251,16 @@ interface AccidentResponse {
 }
 
 function getApiCarsApiKey(): string {
-  return process.env.APICARS_API_KEY || "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo";
+  return process.env.APICARS_API_KEY || "";
 }
 
 async function fetchWithKeyFallback(url: string, init?: RequestInit): Promise<Response> {
   const primaryKey = getApiCarsApiKey();
-  const backupKey = "RINupcjSzwvpZNvNLfaMYcoiKHxQ1mk1AX";
-  
-  const headers = { ...init?.headers, "x-api-key": primaryKey } as Record<string, string>;
-  let res = await fetch(url, { ...init, headers });
-  
-  if (res.status === 401 && primaryKey !== backupKey) {
-    const fallbackHeaders = { ...init?.headers, "x-api-key": backupKey } as Record<string, string>;
-    res = await fetch(url, { ...init, headers: fallbackHeaders });
+  const headers = { ...init?.headers } as Record<string, string>;
+  if (primaryKey) {
+    headers["x-api-key"] = primaryKey;
   }
-  return res;
+  return fetch(url, { ...init, headers });
 }
 
 /**
