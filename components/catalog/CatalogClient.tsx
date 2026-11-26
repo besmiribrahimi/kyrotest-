@@ -209,8 +209,12 @@ export default function CatalogClient() {
   useEffect(() => {
     let isCancelled = false;
 
+    const queryKey = debouncedSearch.trim()
+      ? `${selectedBrand}:${debouncedSearch.trim().toLowerCase()}`
+      : selectedBrand;
+
     // Check memory cache first for instant 0ms brand toggling
-    const cached = clientBrandCache.get(selectedBrand);
+    const cached = clientBrandCache.get(queryKey);
     if (cached && cached.vehicles.length > 0) {
       setVehicles(cached.vehicles);
       setCurrentPage(cached.page);
@@ -229,6 +233,7 @@ export default function CatalogClient() {
         params.set("limit", "40");
         params.set("page", "1");
         if (selectedBrand !== "All") params.set("brand", selectedBrand);
+        if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
 
         const res = await fetch(`/api/cars?${params.toString()}`);
         if (res.ok) {
@@ -239,7 +244,7 @@ export default function CatalogClient() {
             if (json.data?.total) setTotalInDb(json.data.total);
             const canMore = items.length >= 10;
             setHasMore(canMore);
-            clientBrandCache.set(selectedBrand, {
+            clientBrandCache.set(queryKey, {
               vehicles: items,
               page: 1,
               hasMore: canMore,
@@ -260,7 +265,7 @@ export default function CatalogClient() {
     return () => {
       isCancelled = true;
     };
-  }, [selectedBrand]);
+  }, [selectedBrand, debouncedSearch]);
 
   // Load next batch of cars dynamically for endless scroll (up to 500+ vehicles)
   const loadMoreVehicles = useCallback(async () => {
@@ -268,11 +273,16 @@ export default function CatalogClient() {
     setIsLoadingMore(true);
 
     const nextPage = currentPage + 1;
+    const queryKey = debouncedSearch.trim()
+      ? `${selectedBrand}:${debouncedSearch.trim().toLowerCase()}`
+      : selectedBrand;
+
     try {
       const params = new URLSearchParams();
       params.set("limit", "40");
       params.set("page", String(nextPage));
       if (selectedBrand !== "All") params.set("brand", selectedBrand);
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
 
       const res = await fetch(`/api/cars?${params.toString()}`);
       if (res.ok) {
@@ -290,7 +300,7 @@ export default function CatalogClient() {
             }
             const combined = [...prev, ...unique];
             const stillHasMore = unique.length >= 10 && nextPage < 25; // allows up to 1,000 cars!
-            clientBrandCache.set(selectedBrand, {
+            clientBrandCache.set(queryKey, {
               vehicles: combined,
               page: nextPage,
               hasMore: stillHasMore,
@@ -310,7 +320,7 @@ export default function CatalogClient() {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [currentPage, hasMore, isLoading, isLoadingMore, selectedBrand]);
+  }, [currentPage, hasMore, isLoading, isLoadingMore, selectedBrand, debouncedSearch]);
 
   // Infinite Scroll IntersectionObserver with 800px pre-trigger for zero stutter on phones
   useEffect(() => {

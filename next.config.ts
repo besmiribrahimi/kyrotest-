@@ -36,6 +36,22 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "*.autoimg.cn",
+      },
+      {
+        protocol: "http",
+        hostname: "*.autoimg.cn",
+      },
+      {
+        protocol: "https",
+        hostname: "*.che168.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.kbchachacha.com",
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
       },
     ],

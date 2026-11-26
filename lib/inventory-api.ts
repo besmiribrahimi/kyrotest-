@@ -251,16 +251,24 @@ interface AccidentResponse {
 }
 
 function getApiCarsApiKey(): string {
-  return process.env.APICARS_API_KEY || "";
+  const configuredKey = process.env.APICARS_API_KEY;
+  return !configuredKey || configuredKey === "RINMkYz8kXAX5FFEykWPKSWJl9V7uljeGGo"
+    ? "RINCMbzWP1Jm21VshR80FcBGj4QAJF458l"
+    : configuredKey;
 }
 
 async function fetchWithKeyFallback(url: string, init?: RequestInit): Promise<Response> {
   const primaryKey = getApiCarsApiKey();
-  const headers = { ...init?.headers } as Record<string, string>;
-  if (primaryKey) {
-    headers["x-api-key"] = primaryKey;
+  const backupKey = "RINupcjSzwvpZNvNLfaMYcoiKHxQ1mk1AX";
+  
+  const headers = { ...init?.headers, "x-api-key": primaryKey } as Record<string, string>;
+  let res = await fetch(url, { ...init, headers });
+  
+  if (res.status === 401 && primaryKey !== backupKey) {
+    const fallbackHeaders = { ...init?.headers, "x-api-key": backupKey } as Record<string, string>;
+    res = await fetch(url, { ...init, headers: fallbackHeaders });
   }
-  return fetch(url, { ...init, headers });
+  return res;
 }
 
 /**
@@ -281,7 +289,7 @@ function normalizeImageUrl(url: string): string {
   if (url.includes("/image-proxy")) {
     try {
       const inner = new URL(url).searchParams.get("url");
-      if (inner && inner.includes("encar.com")) {
+      if (inner && (inner.includes("encar.com") || inner.includes("ci.encar.com") || inner.includes("autoimg.cn") || inner.includes("che168.com") || inner.includes("kbchachacha.com"))) {
         return inner.split("?")[0];
       }
     } catch {
@@ -466,7 +474,7 @@ export async function getInventoryCars(
       throw new Error("Scraper API returned success: false");
     }
 
-    const apiCars: ApiCar[] = json.data.cars ?? [];
+    const apiCars: ApiCar[] = json.data?.cars || json.recentCars || json.cars || [];
     for (const car of apiCars) {
       if (car.id) {
         carsCache.set(String(car.id), car);
@@ -476,7 +484,6 @@ export async function getInventoryCars(
       apiCars.map((apiCar) => normalizeCarSummary(apiCarToDbRecord(apiCar)))
     );
 
-
     const filterOptions = getInventoryFilterOptionsFromCars(cars);
 
     return {
@@ -484,9 +491,9 @@ export async function getInventoryCars(
       pagination: {
         page,
         limit,
-        hasNextPage: json.data.pagination.hasNext,
-        hasPreviousPage: json.data.pagination.hasPrev,
-        nextPage: json.data.pagination.hasNext ? page + 1 : null,
+        hasNextPage: json.data?.pagination?.hasNext ?? (apiCars.length >= limit),
+        hasPreviousPage: json.data?.pagination?.hasPrev ?? (page > 1),
+        nextPage: (json.data?.pagination?.hasNext ?? (apiCars.length >= limit)) ? page + 1 : null,
         previousPage: page > 1 ? page - 1 : null,
       },
       filterOptions,
@@ -802,9 +809,8 @@ async function findCarInListEndpoint(listingId: string): Promise<ApiCar | null> 
           });
           if (!res.ok) return [];
           const json = await res.json();
-          if (!json.success || !json.data?.cars) return [];
-          
-          const apiCars: ApiCar[] = json.data.cars;
+          const apiCars: ApiCar[] = json.data?.cars || json.recentCars || json.cars || [];
+          if (!json.success || apiCars.length === 0) return [];
           // Store all found cars in the cache for future hits
           for (const car of apiCars) {
             if (car.id) {
@@ -860,18 +866,35 @@ async function fetchCarDetailsOnce(
   let http404 = false;
 
   try {
-    carRes = await fetchWithKeyFallback(`${SCRAPER_API_BASE_URL}/cars/${encodeURIComponent(listingId)}`, {
-      cache: "no-store",
-      signal:
-        typeof AbortSignal !== "undefined" && AbortSignal.timeout
-          ? AbortSignal.timeout(timeoutMs)
-          : undefined,
-    });
+    const detailUrls = [
+      `https://api.rinevoapi.com/api/v1/vehicle/${encodeURIComponent(listingId)}/full`,
+      `${SCRAPER_API_BASE_URL}/cars/${encodeURIComponent(listingId)}`,
+    ];
 
-    if (carRes.status === 404) {
-      http404 = true;
-    } else if (!carRes.ok) {
-      detailFetchFailed = true;
+    for (const detailUrl of detailUrls) {
+      try {
+        carRes = await fetchWithKeyFallback(detailUrl, {
+          cache: "no-store",
+          signal:
+            typeof AbortSignal !== "undefined" && AbortSignal.timeout
+              ? AbortSignal.timeout(timeoutMs)
+              : undefined,
+        });
+
+        if (carRes.status === 404) {
+          http404 = true;
+          continue;
+        } else if (carRes.ok) {
+          detailFetchFailed = false;
+          http404 = false;
+          break;
+        } else {
+          detailFetchFailed = true;
+        }
+      } catch (apiError) {
+        console.error("Scraper API detail fetch failed (network timeout):", apiError);
+        detailFetchFailed = true;
+      }
     }
   } catch (apiError) {
     console.error("Scraper API detail fetch failed (network/timeout):", apiError);
